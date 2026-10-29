@@ -3,9 +3,13 @@ package com.itzvalen.cajakiosco;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.View;
+import android.view.Window;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -38,7 +42,7 @@ public class MainActivity extends Activity {
                 .build();
 
         web = new WebView(this);
-        web.setBackgroundColor(0xFF080C15);
+        web.setBackgroundColor(0xFF141518);
         setContentView(web);
 
         WebSettings s = web.getSettings();
@@ -119,6 +123,30 @@ public class MainActivity extends Activity {
 
     /** Lo que el navegador hace con navigator.share y las descargas, acá lo hace Android. */
     private class Bridge {
+        /** Pinta la barra de estado y la de navegación del color del tema elegido en la app. */
+        @JavascriptInterface
+        public void setBars(String color, boolean dark) {
+            final int c;
+            try {
+                c = Color.parseColor(color);
+            } catch (IllegalArgumentException e) {
+                return;
+            }
+            runOnUiThread(() -> {
+                Window w = getWindow();
+                w.setStatusBarColor(c);
+                w.setNavigationBarColor(c);
+                web.setBackgroundColor(c);
+                int flags = w.getDecorView().getSystemUiVisibility() & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                if (!dark) flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                if (Build.VERSION.SDK_INT >= 26) {
+                    flags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+                    if (!dark) flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+                }
+                w.getDecorView().setSystemUiVisibility(flags);
+            });
+        }
+
         @JavascriptInterface
         public void shareText(String text) {
             Intent i = new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text);
