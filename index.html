@@ -405,14 +405,15 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
 }
 @media (pointer: coarse) { .btn.icon { width: 46px; } .btn.sm.icon { width: 40px; } }
 /* Promos con varios productos */
-.combos-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
-.combo { flex: none; display: flex; align-items: center; gap: 8px; text-align: left; border: 1px solid var(--accent); background: var(--sunk); border-radius: 8px; padding: 8px 12px; max-width: 280px; }
+.combos-bar { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+.combo { display: flex; align-items: center; gap: 10px; text-align: left; border: 1px solid var(--accent); background: var(--sunk); border-radius: 8px; padding: 10px 12px; min-width: 0; }
 .combo:hover { background: var(--surface); }
 .combo:active { transform: scale(.98); }
 .combo > .ic { color: var(--accent-ink); background: var(--accent); border-radius: 50%; padding: 4px; width: 26px; height: 26px; }
-.combo .cn { display: flex; flex-direction: column; min-width: 0; }
-.combo .cn small { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.combo .num { font-weight: 600; }
+.combo .cn { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+/* lo que incluye la promo se ve entero: baja de renglón en vez de cortarse */
+.combo .cn small { color: var(--muted); overflow-wrap: anywhere; line-height: 1.3; }
+.combo .num { font-weight: 600; white-space: nowrap; }
 .panel-head h2 { display: flex; align-items: center; gap: 8px; }
 .cb-form { display: flex; flex-direction: column; gap: 10px; background: var(--sunk); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; }
 #cb-items { display: flex; flex-direction: column; gap: 8px; }
@@ -425,7 +426,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
 .cb-item .nm small { display: block; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
 .cb-item .num { font-weight: 600; text-align: right; }
 /* Promos */
-.chip.promo { background: var(--accent); color: var(--accent-ink); display: inline-flex; align-items: center; gap: 4px; }
+.chip.promo { background: var(--accent); color: var(--accent-ink); display: inline-flex; align-items: center; gap: 4px; white-space: normal; }
 .chip.promo .ic { width: 12px; height: 12px; }
 .prod .chip.promo { align-self: flex-start; }
 s { color: var(--muted); font-weight: 400; }
@@ -451,6 +452,43 @@ s { color: var(--muted); font-weight: 400; }
 .prow .ed { display: flex; justify-content: flex-end; }
 .prow { grid-template-columns: minmax(0, 2.2fr) 110px 120px 150px 96px; }
 @media (max-width: 860px) { .prow { grid-template-columns: minmax(0, 1fr) auto; } }
+/* Celular: tiene que entrar todo aunque la letra del teléfono esté agrandada (en Android suele estar al 115%) */
+@media (max-width: 560px) {
+  nav.tabs { gap: 0; }
+  nav.tabs button { position: relative; flex-direction: column; gap: 2px; padding: 6px 2px 8px; font-size: 13px; min-width: 0; }
+  nav.tabs button > span:not(.count) { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  nav.tabs .count { position: absolute; top: 2px; left: calc(50% + 6px); margin: 0; min-width: 18px; padding: 0 5px; font-size: 11px; line-height: 17px; }
+  .prod { padding: 10px; min-height: 76px; }
+  .prod .row { flex-wrap: wrap; gap: 0 6px; }
+  .prod .p { font-size: 15px; }
+  .tiles { gap: 10px; }
+  .tile { padding: 12px; }
+  .tile .num { font-size: 19px; white-space: nowrap; overflow-wrap: normal; }
+  .tile.big .num { font-size: 26px; }
+  .total .num { font-size: 26px; }
+  .sale { grid-template-columns: 44px minmax(0, 1fr) auto; row-gap: 4px; }
+  .sale .d { grid-column: 2 / -1; }
+  .sale .r { grid-column: 2; grid-row: 2; justify-content: flex-end; }
+  .sale .acts { grid-column: 3; grid-row: 2; }
+  .nota { grid-template-columns: 44px minmax(0, 1fr) auto; }
+  #p-nuevo .lbl { display: none; }
+  #p-nuevo { padding: 9px; width: 46px; }
+  .filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -4px; padding: 0 4px 2px; }
+  .filters::-webkit-scrollbar { display: none; }
+  .filters button { flex: none; }
+  .lote-row { grid-template-columns: 70px minmax(0, 1fr) auto; }
+  .cb-row { grid-template-columns: minmax(0, 1fr) 60px auto; }
+  .cb-item { grid-template-columns: minmax(0, 1fr) auto; }
+  .cb-item .num { grid-column: 1; grid-row: 2; text-align: left; }
+  .cb-item .btn { grid-column: 2; grid-row: 1 / span 2; }
+  .prow .nm .chip.ej { display: none; }
+  .vuelto { font-size: 16px; }
+  .panel { padding: 14px; }
+  .combos-bar { grid-template-columns: minmax(0, 1fr); }
+  /* ticket: el nombre (o lo que trae la promo) arriba a lo ancho; cantidad y total abajo */
+  .line { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; }
+  .line .n { grid-column: 1 / -1; }
+}
 </style>
 
 </head>
@@ -598,7 +636,7 @@ s { color: var(--muted); font-weight: 400; }
         <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input class="input" id="pbusq" type="search" placeholder="Buscar" aria-label="Buscar por nombre o categoría" autocomplete="off"></div>
         <button class="btn icon" id="p-compartir" type="button" aria-label="Compartir lista"><svg class="ic" aria-hidden="true"><use href="#i-share"/></svg></button>
         <button class="btn icon" id="p-ejemplos" type="button" aria-label="Regenerar productos de ejemplo" title="Regenerar ejemplos"><svg class="ic" aria-hidden="true"><use href="#i-flask"/></svg></button>
-        <button class="btn primary" id="p-nuevo" type="button"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Nuevo</button>
+        <button class="btn primary" id="p-nuevo" type="button" aria-label="Nuevo producto"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg><span class="lbl">Nuevo</span></button>
       </div>
       <div class="filters" id="filters">
         <button type="button" data-f="todos" aria-pressed="true"></button>
@@ -607,7 +645,7 @@ s { color: var(--muted); font-weight: 400; }
         <button type="button" data-f="promo" aria-pressed="false"></button>
       </div>
       <div class="banner" id="ejemplos" hidden>
-        <span>Hay productos de <span class="chip ej">ejemplo</span></span>
+        <span><span class="chip ej">ejemplo</span></span>
         <button class="btn sm danger" id="borrar-ej" type="button">Borrar</button>
       </div>
 
@@ -1102,7 +1140,7 @@ s { color: var(--muted); font-weight: 400; }
     if (!list.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1">' + ic('search') + 'Nada con “' + esc(q) + '”</div>'; return; }
     el.innerHTML = list.map(p => {
       const s = estadoStock(p), v = estadoVenc(p);
-      const sTxt = s.k === 'bad' ? 'Agotado' : num(p.stock) + ' u.';
+      const sTxt = num(p.stock) + ' u.';
       return '<button type="button" class="prod" data-add="' + esc(p.id) + '"' + (v.k === 'bad' ? ' title="' + esc(v.txt) + '"' : '') + '>' +
         '<span class="n">' + esc(p.nombre) + (v.k === 'bad' ? ic('warn') : '') + '</span>' +
         (promoActiva(p) ? '<span class="chip promo">' + ic('tag') + esc(etiquetaPromo(p)) + '</span>' : '') +
