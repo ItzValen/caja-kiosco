@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Caja del Kiosco</title>
 <meta name="description" content="Ventas, caja del día e inventario del kiosco. Funciona sin internet.">
-<meta name="theme-color" content="#15203a">
+<meta name="theme-color" content="#0f1729">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -19,22 +19,24 @@
 <style>
 /* Layout: mostrador de dos columnas (catálogo | ticket) que se apila en el teléfono; cartel amarillo de kiosco como acento */
 :root {
-  --bg: #eceff3;
+  --bg: #e6eaf0;
   --surface: #ffffff;
-  --sunk: #f5f7fa;
-  --ink: #15203a;
-  --muted: #5c667c;
-  --line: #d5dbe5;
+  --sunk: #f4f6f9;
+  --ink: #0f1729;
+  --muted: #475266;
+  --line: #cdd4df;
+  /* Borde de todo lo que se toca o se escribe: se tiene que ver de un vistazo. */
+  --line-strong: #8792a6;
   --accent: #ffc93c;
-  --accent-ink: #15203a;
-  --cash: #1d8657;
-  --cash-soft: #e2f4ea;
-  --transfer: #2d5cc9;
-  --transfer-soft: #e4ecfb;
-  --warn: #a8690f;
-  --warn-soft: #fbefd9;
-  --danger: #bf3a33;
-  --danger-soft: #f9e3e1;
+  --accent-ink: #0f1729;
+  --cash: #167a4c;
+  --cash-soft: #ddf2e6;
+  --transfer: #2552bd;
+  --transfer-soft: #e1eafb;
+  --warn: #94590a;
+  --warn-soft: #fbedd3;
+  --danger: #b42d26;
+  --danger-soft: #f9e0de;
   --f-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
   --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -42,18 +44,18 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0e1421; --surface: #161f31; --sunk: #111a2a; --ink: #e8ecf4; --muted: #9aa4b9; --line: #29344d;
-    --accent: #ffcf4d; --accent-ink: #15203a;
-    --cash: #52c690; --cash-soft: #173829; --transfer: #84a8ff; --transfer-soft: #1c2a4d;
-    --warn: #e8b05a; --warn-soft: #3a2c14; --danger: #f07168; --danger-soft: #42201e;
+    --bg: #080c15; --surface: #162033; --sunk: #0d1422; --ink: #f2f5fa; --muted: #b0bacc; --line: #2e3a54; --line-strong: #5d6b88;
+    --accent: #ffcf4d; --accent-ink: #0f1729;
+    --cash: #5fd49c; --cash-soft: #143a2a; --transfer: #8fb1ff; --transfer-soft: #1b2b52;
+    --warn: #f0bb63; --warn-soft: #3d2d12; --danger: #ff7d73; --danger-soft: #47201d;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0e1421; --surface: #161f31; --sunk: #111a2a; --ink: #e8ecf4; --muted: #9aa4b9; --line: #29344d;
-  --accent: #ffcf4d; --accent-ink: #15203a;
-  --cash: #52c690; --cash-soft: #173829; --transfer: #84a8ff; --transfer-soft: #1c2a4d;
-  --warn: #e8b05a; --warn-soft: #3a2c14; --danger: #f07168; --danger-soft: #42201e;
+  --bg: #080c15; --surface: #162033; --sunk: #0d1422; --ink: #f2f5fa; --muted: #b0bacc; --line: #2e3a54; --line-strong: #5d6b88;
+  --accent: #ffcf4d; --accent-ink: #0f1729;
+  --cash: #5fd49c; --cash-soft: #143a2a; --transfer: #8fb1ff; --transfer-soft: #1b2b52;
+  --warn: #f0bb63; --warn-soft: #3d2d12; --danger: #ff7d73; --danger-soft: #47201d;
   color-scheme: dark;
 }
 
@@ -95,8 +97,8 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 .label { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 
 /* Botones e inputs */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-align: center; text-decoration: none; color: var(--ink); border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 9px 14px; font-weight: 600; }
-.btn:hover { border-color: var(--muted); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-align: center; text-decoration: none; color: var(--ink); border: 1px solid var(--line-strong); background: var(--surface); border-radius: 8px; padding: 9px 14px; font-weight: 600; }
+.btn:hover { border-color: var(--ink); }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .btn.primary:hover { filter: brightness(.96); }
 .btn.danger { color: var(--danger); }
@@ -105,7 +107,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .field label { font-size: 13px; font-weight: 600; color: var(--muted); }
-.input { width: 100%; font-size: 16px; /* 16px evita el zoom automático de iOS al tocar un campo */ border: 1px solid var(--line); background: var(--sunk); border-radius: 8px; padding: 9px 11px; min-width: 0; }
+.input { width: 100%; font-size: 16px; /* 16px evita el zoom automático de iOS al tocar un campo */ border: 1px solid var(--line-strong); background: var(--sunk); border-radius: 8px; padding: 9px 11px; min-width: 0; }
 .input:focus { background: var(--surface); }
 
 /* Vender */
@@ -113,7 +115,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
-.prod { text-align: left; border: 1px solid var(--line); background: var(--sunk); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; min-height: 84px; }
+.prod { text-align: left; border: 1px solid var(--line-strong); background: var(--sunk); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; min-height: 84px; }
 .prod:hover { border-color: var(--ink); background: var(--surface); }
 .prod:active { transform: scale(.98); }
 .prod .n { font-weight: 600; line-height: 1.25; }
@@ -131,13 +133,13 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 .line .n { min-width: 0; overflow-wrap: anywhere; font-weight: 500; }
 .line .n small { display: block; color: var(--muted); font-family: var(--f-num); font-size: 12px; }
 .qty { display: flex; align-items: center; gap: 2px; }
-.qty button { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--line); background: var(--sunk); font-weight: 700; line-height: 1; }
+.qty button { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--line-strong); background: var(--sunk); font-weight: 700; line-height: 1; }
 .qty span { min-width: 26px; text-align: center; font-family: var(--f-num); }
 .line .t { font-family: var(--f-num); font-weight: 600; min-width: 76px; text-align: right; }
 .total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 4px; }
 .total .num { font-size: 30px; font-weight: 600; letter-spacing: -.02em; }
 .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.seg button { border: 2px solid var(--line); background: var(--sunk); border-radius: 8px; padding: 10px; font-weight: 700; }
+.seg button { border: 2px solid var(--line-strong); background: var(--sunk); border-radius: 8px; padding: 10px; font-weight: 700; }
 .seg button[data-medio="efectivo"][aria-pressed="true"] { border-color: var(--cash); background: var(--cash-soft); color: var(--cash); }
 .seg button[data-medio="transferencia"][aria-pressed="true"] { border-color: var(--transfer); background: var(--transfer-soft); color: var(--transfer); }
 .seg button[data-medio="mixto"] { grid-column: 1 / -1; }
@@ -146,7 +148,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 .mix-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .mix-hint { font-size: 13px; color: var(--muted); }
 .bills { display: flex; flex-wrap: wrap; gap: 6px; }
-.bills button { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 4px 8px; font-family: var(--f-num); font-size: 13px; }
+.bills button { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 6px; padding: 4px 8px; font-family: var(--f-num); font-size: 13px; }
 .vuelto { display: flex; justify-content: space-between; font-weight: 600; }
 .vuelto.neg { color: var(--danger); }
 .cobrar { width: 100%; font-size: 17px; padding: 14px; }
@@ -173,7 +175,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .toolbar .input { flex: 1 1 220px; width: auto; }
 .filters { display: flex; gap: 6px; flex-wrap: wrap; }
-.filters button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-weight: 600; font-size: 13px; }
+.filters button { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-weight: 600; font-size: 13px; }
 .filters button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .pform { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
 .pform .w2 { grid-column: span 2; }
@@ -228,6 +230,10 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 .lb { position: fixed; inset: 0; z-index: 30; background: rgba(8, 12, 20, .9); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .lb img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; }
 .lb .lb-x { position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: calc(12px + env(safe-area-inset-right, 0px)); width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .16); color: #fff; font-size: 22px; line-height: 1; }
+
+/* Guardado en la nube */
+.nube-form { display: flex; flex-direction: column; gap: 10px; }
+.nube-form .field { max-width: 420px; }
 
 /* Hoja de compartir */
 .sheet-bg { position: fixed; inset: 0; z-index: 25; background: rgba(8, 12, 20, .55); display: flex; align-items: flex-end; justify-content: center; }
@@ -321,6 +327,10 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     <span>No se pudo guardar en este equipo. Revisá que el navegador no esté en modo privado y que haya espacio libre.</span>
   </div>
 
+  <div class="banner" id="nube-aviso" hidden>
+    <span>Tus datos están solo en este teléfono. Activá el guardado en la nube para no perderlos.</span>
+    <button class="btn sm primary" id="nube-ir" type="button">Activar</button>
+  </div>
   <div class="banner" id="ios-tip" hidden>
     <span>Para instalarla en el iPhone: en Safari tocá <b>Compartir</b> y después <b>Agregar a inicio</b>.</span>
     <button class="btn sm" id="ios-tip-x" type="button">Entendido</button>
@@ -452,9 +462,29 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
         </form>
         <div id="notas-list"></div>
       </div>
+      <div class="panel" id="nube">
+        <div class="panel-head"><h2>Guardado en la nube</h2><span class="label" id="nube-estado"></span></div>
+        <div id="nube-fuera">
+          <form class="nube-form" id="nube-form">
+            <p class="sheet-note" style="margin:0">Entrá con tu correo y una contraseña para que todo se guarde también en la nube. Si cambiás de teléfono, entrás con la misma cuenta y aparece todo. Sin internet la app sigue funcionando y sube los cambios cuando vuelve la señal.</p>
+            <div class="field"><label for="nube-email">Correo</label><input class="input" id="nube-email" type="email" inputmode="email" autocomplete="email" required></div>
+            <div class="field"><label for="nube-pass">Contraseña</label><input class="input" id="nube-pass" type="password" autocomplete="current-password" minlength="6" required></div>
+            <div class="sheet-acts">
+              <button class="btn primary" type="submit">Entrar</button>
+              <button class="btn" type="button" id="nube-crear">Crear cuenta</button>
+              <button class="btn" type="button" id="nube-olvide">Olvidé la contraseña</button>
+            </div>
+            <div class="sheet-msg" id="nube-msg" role="status" aria-live="polite"></div>
+          </form>
+        </div>
+        <div id="nube-dentro" hidden>
+          <p style="margin:0">Conectado como <b id="nube-cuenta"></b>. Lo que cargues se guarda en este teléfono y en la nube.</p>
+          <div class="sheet-acts" style="margin-top:12px"><button class="btn" type="button" id="nube-salir">Cerrar sesión</button></div>
+        </div>
+      </div>
       <div class="panel" id="backup">
         <div class="panel-head"><h2>Copia de seguridad</h2></div>
-        <p class="sheet-note" style="margin:0">Todo se guarda solo en este equipo. Guardá una copia cada tanto (en Drive, o mandándotela por WhatsApp) por si cambiás o perdés el teléfono.</p>
+        <p class="sheet-note" style="margin:0">Además de la nube, podés guardar una copia en un archivo cuando quieras, por ejemplo en Drive o por WhatsApp.</p>
         <div class="sheet-acts">
           <button class="btn" id="bk-save" type="button">Guardar copia</button>
           <button class="btn" id="bk-load" type="button">Restaurar una copia</button>
@@ -590,6 +620,11 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
   S.downloads = {
     save: async ({ filename, data }) => {
       const file = new File([data], filename, { type: TIPOS[filename.split('.').pop()] || 'application/octet-stream' });
+      if (window.KioscoNative) {
+        const b64 = (await aDataURL(file)).split(',')[1] || '';
+        if (!KioscoNative.shareFile(filename, file.type, b64)) throw new Error('No se pudo compartir el archivo');
+        return;
+      }
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try { await navigator.share({ files: [file], title: filename }); return; }
         catch (e) { if (e.name !== 'NotAllowedError') throw e; }
@@ -611,6 +646,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     // pide al navegador que no borre los datos para liberar espacio
     try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
     render();
+    iniciarNube();
   }
 
   // Cambio de día con la página abierta
@@ -662,6 +698,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     render();
     toast('Venta registrada · ' + money(total) + (medioVenta === 'mixto' ? ' (efectivo ' + money(pg.ef) + ' + transferencia ' + money(pg.tr) + ')' : ' en ' + medioVenta));
     guardar();
+    nubeCobrar(fecha, venta);
   }
   function ajustarStock(items, signo) {
     const cambios = [];
@@ -685,11 +722,12 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     render();
     toast('Venta anulada. El stock volvió a su lugar.');
     guardar();
+    nubeAnular(fecha, v);
   }
 
   // ---------- Render ----------
   function render() {
-    renderHeader(); renderCatalog(); renderTicket(); renderVentasHoy(); renderProductos(); renderCaja(); pintarRestaurar();
+    renderHeader(); renderCatalog(); renderTicket(); renderVentasHoy(); renderProductos(); renderCaja(); pintarRestaurar(); renderNube();
   }
 
   function renderHeader() {
@@ -698,8 +736,11 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     $('#hoy-total').textContent = money(v.reduce((a, x) => a + num(x.total), 0));
     $('#hoy-n').textContent = plural(v.length, 'venta', 'ventas');
     const st = $('#status');
-    st.className = 'status ' + (S.modo === 'listo' ? 'ok' : S.modo === 'error' ? 'local' : '');
-    st.lastElementChild.textContent = S.modo === 'listo' ? (navigator.onLine ? 'Guardado en este equipo' : 'Sin internet · se guarda igual') : S.modo === 'error' ? 'No se pudo guardar' : 'Abriendo…';
+    const enLaNube = nube.estado === 'dentro';
+    st.className = 'status ' + (S.modo === 'error' ? 'local' : S.modo !== 'listo' ? '' : (enLaNube || !navigator.onLine) ? 'ok' : 'local');
+    st.lastElementChild.textContent = S.modo === 'error' ? 'No se pudo guardar' : S.modo !== 'listo' ? 'Abriendo…'
+      : !enLaNube ? (navigator.onLine ? 'Solo en este equipo' : 'Sin internet · se guarda igual')
+      : !navigator.onLine ? 'Sin internet · se sube al volver' : nubePendiente() ? 'Subiendo a la nube…' : 'Guardado en la nube';
     $('#local-banner').hidden = S.modo !== 'error';
     const alertas = S.productos.filter(p => estadoVenc(p).k === 'bad' || estadoVenc(p).k === 'warn' || estadoStock(p).k !== 'ok').length;
     const ac = $('#alert-count');
@@ -868,7 +909,13 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
   function fotoSrc(id) {
     if (fotoURL[id] === undefined) {
       fotoURL[id] = '';
-      kv.get('fotos', id).then(b => { if (b) { fotoURL[id] = URL.createObjectURL(b); renderNotas(); } }).catch(() => {});
+      kv.get('fotos', id).then(async b => {
+        if (!b && nube.uid) {
+          const d = await nube.F.getDoc(ref('fotos', id));
+          if (d.exists()) { b = await (await fetch(d.data().data)).blob(); await kv.set('fotos', id, b); }
+        }
+        if (b) { fotoURL[id] = URL.createObjectURL(b); renderNotas(); }
+      }).catch(() => {});
     }
     return fotoURL[id];
   }
@@ -917,6 +964,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     render();
     toast('Anotación borrada');
     guardar();
+    nubeBorrarNota(fecha, n);
     for (const fid of (n.fotos || [])) S.assets.delete(fid).catch(() => {});
   }
 
@@ -999,7 +1047,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     $('#sheet-t').textContent = S.share.titulo;
     $('#sheet-txt').value = S.share.texto;
     $('#sheet-dl').hidden = !S.downloads;
-    $('#sheet-native').hidden = !navigator.share;
+    $('#sheet-native').hidden = !navigator.share && !window.KioscoNative;
     msgSheet('');
     actualizarWA();
     $('#sheet').hidden = false;
@@ -1007,6 +1055,145 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     $('#sheet-copy').focus();
   }
   function cerrarCompartir() { $('#sheet').hidden = true; document.body.style.overflow = ''; }
+
+  // ---------- Nube: Firebase (cuenta con correo + Firestore) ----------
+  // Los datos de conexión de una app web de Firebase son públicos; lo que protege los datos son las reglas
+  // de Firestore (firestore.rules): cada cuenta solo lee y escribe users/<su uid>/...
+  const FIREBASE = {
+    apiKey: 'AIzaSyC6qsynk5V5N0HYo9bdVFhZEfx0t4cvkLg',
+    authDomain: 'caja-del-kiosco.firebaseapp.com',
+    projectId: 'caja-del-kiosco',
+    storageBucket: 'caja-del-kiosco.firebasestorage.app',
+    messagingSenderId: '556791310485',
+    appId: '1:556791310485:web:7b7ec364966f14be0fd39c',
+  };
+  const FB = 'https://www.gstatic.com/firebasejs/10.12.2/';
+  const nube = { estado: 'apagada', A: null, F: null, auth: null, db: null, uid: null, email: null, pend: {}, escuchas: [] };
+  const ref = (...p) => nube.F.doc(nube.db, 'users', nube.uid, ...p);
+  const nubePendiente = () => Object.values(nube.pend).some(Boolean);
+
+  async function iniciarNube() {
+    if (nube.auth) return;
+    nube.estado = 'cargando';
+    try {
+      const [{ initializeApp }, A, F] = await Promise.all([import(FB + 'firebase-app.js'), import(FB + 'firebase-auth.js'), import(FB + 'firebase-firestore.js')]);
+      const app = initializeApp(FIREBASE);
+      nube.A = A; nube.F = F;
+      nube.auth = A.initializeAuth(app, { persistence: [A.indexedDBLocalPersistence, A.browserLocalPersistence] });
+      // La base guarda una copia en el teléfono: funciona sin internet y sube los cambios al volver la señal.
+      try { nube.db = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); }
+      catch (e) { nube.db = F.getFirestore(app); }
+      A.onAuthStateChanged(nube.auth, u => { if (u) entrarNube(u); else salirNube(); });
+    } catch (e) {
+      nube.estado = 'error';
+      renderNube();
+    }
+  }
+
+  async function entrarNube(u) {
+    if (nube.uid === u.uid) return;
+    nube.uid = u.uid; nube.email = u.email; nube.estado = 'dentro';
+    for (const k in fotoURL) if (!fotoURL[k]) delete fotoURL[k];   // reintenta las fotos que faltaban
+    // La primera vez que esta cuenta entra en este equipo, sube lo que ya estaba cargado sin pisar lo de la nube.
+    let subido = false;
+    try { subido = await kv.get('estado', 'subido:' + u.uid); } catch (e) {}
+    if (!subido) { await subirTodo(); try { await kv.set('estado', 'subido:' + u.uid, true); } catch (e) {} }
+    const escucha = (nombre, aplicar) => nube.F.onSnapshot(
+      nube.F.collection(nube.db, 'users', nube.uid, nombre), { includeMetadataChanges: true },
+      s => { nube.pend[nombre] = s.metadata.hasPendingWrites; aplicar(s); S.cargado = true; guardar(); render(); },
+      errNube);
+    nube.escuchas = [
+      escucha('productos', s => { S.productos = s.docs.filter(d => d.data().nombre).map(d => ({ id: d.id, ...d.data() })); }),
+      escucha('dias', s => { S.dias = {}; s.docs.forEach(d => { S.dias[d.id] = d.data().items || []; }); }),
+      escucha('notas', s => { S.notas = {}; s.docs.forEach(d => { S.notas[d.id] = d.data().items || []; }); }),
+    ];
+    render();
+  }
+
+  function salirNube() {
+    nube.escuchas.forEach(fn => fn());
+    nube.escuchas = []; nube.pend = {};
+    nube.uid = null; nube.email = null; nube.estado = 'fuera';
+    render();
+  }
+
+  function errNube(e) {
+    console.warn('nube', e);
+    if (e && e.code === 'permission-denied') toast('La nube rechazó un cambio. Cerrá sesión y volvé a entrar.', true);
+  }
+  // Sin internet las escrituras quedan en fila en el teléfono; por eso no se esperan, solo se atrapan los errores.
+  function enNube(fn) {
+    if (!nube.uid) return;
+    try { fn(nube.F); } catch (e) { errNube(e); }
+  }
+  const sinId = ({ id, ...resto }) => resto;
+
+  // Sube todo lo del equipo uniéndolo con lo que ya haya en la nube (no borra nada de allá).
+  async function subirTodo() {
+    const F = nube.F, ops = [];
+    S.productos.forEach(p => ops.push(b => b.set(ref('productos', p.id), sinId(p), { merge: true })));
+    Object.entries(S.dias).forEach(([f, items]) => { if (items.length) ops.push(b => b.set(ref('dias', f), { fecha: f, items: F.arrayUnion(...items) }, { merge: true })); });
+    Object.entries(S.notas).forEach(([f, items]) => { if (items.length) ops.push(b => b.set(ref('notas', f), { fecha: f, items: F.arrayUnion(...items) }, { merge: true })); });
+    for (let i = 0; i < ops.length; i += 400) {
+      const b = F.writeBatch(nube.db);
+      ops.slice(i, i + 400).forEach(op => op(b));
+      b.commit().catch(errNube);
+    }
+    for (const lista of Object.values(S.notas)) for (const n of lista) for (const id of (n.fotos || [])) await subirFoto(id);
+  }
+  // Cada foto va en su propio documento (máximo 1 MB): si pesa mucho, se achica un poco más.
+  async function subirFoto(id) {
+    try {
+      let b = await kv.get('fotos', id);
+      if (!b) return;
+      let url = await aDataURL(b);
+      if (url.length > 900000) { b = await comprimir(b, 1024); url = await aDataURL(b); }
+      nube.F.setDoc(ref('fotos', id), { data: url }).catch(errNube);
+    } catch (e) { errNube(e); }
+  }
+
+  const nubeCobrar = (fecha, v) => enNube(F => {
+    F.setDoc(ref('dias', fecha), { fecha, items: F.arrayUnion(v) }, { merge: true }).catch(errNube);
+    v.items.forEach(i => { if (i.productoId && S.productos.some(p => p.id === i.productoId)) F.setDoc(ref('productos', i.productoId), { stock: F.increment(-i.cantidad) }, { merge: true }).catch(errNube); });
+  });
+  const nubeAnular = (fecha, v) => enNube(F => {
+    F.setDoc(ref('dias', fecha), { fecha, items: F.arrayRemove(v) }, { merge: true }).catch(errNube);
+    v.items.forEach(i => { if (i.productoId && S.productos.some(p => p.id === i.productoId)) F.setDoc(ref('productos', i.productoId), { stock: F.increment(i.cantidad) }, { merge: true }).catch(errNube); });
+  });
+  const nubeProducto = p => enNube(F => { F.setDoc(ref('productos', p.id), sinId(p)).catch(errNube); });
+  const nubeBorrarProducto = id => enNube(F => { F.deleteDoc(ref('productos', id)).catch(errNube); });
+  const nubeNota = (fecha, n) => enNube(F => {
+    F.setDoc(ref('notas', fecha), { fecha, items: F.arrayUnion(n) }, { merge: true }).catch(errNube);
+    (n.fotos || []).forEach(subirFoto);
+  });
+  const nubeBorrarNota = (fecha, n) => enNube(F => {
+    F.setDoc(ref('notas', fecha), { fecha, items: F.arrayRemove(n) }, { merge: true }).catch(errNube);
+    (n.fotos || []).forEach(id => F.deleteDoc(ref('fotos', id)).catch(errNube));
+  });
+
+  function renderNube() {
+    const dentro = nube.estado === 'dentro';
+    $('#nube-fuera').hidden = dentro;
+    $('#nube-dentro').hidden = !dentro;
+    $('#nube-cuenta').textContent = nube.email || '';
+    $('#nube-estado').textContent = dentro ? (nubePendiente() ? 'Subiendo…' : 'Activo') : nube.estado === 'error' ? 'Sin conexión' : '';
+    $('#nube-aviso').hidden = dentro || nube.estado !== 'fuera';
+    renderHeader();
+  }
+
+  const ERRORES_CUENTA = {
+    'auth/invalid-credential': 'Correo o contraseña incorrectos.',
+    'auth/wrong-password': 'Correo o contraseña incorrectos.',
+    'auth/user-not-found': 'No hay una cuenta con ese correo. Tocá Crear cuenta.',
+    'auth/email-already-in-use': 'Ya hay una cuenta con ese correo. Tocá Entrar.',
+    'auth/weak-password': 'La contraseña tiene que tener al menos 6 caracteres.',
+    'auth/invalid-email': 'Ese correo no es válido.',
+    'auth/missing-email': 'Escribí tu correo.',
+    'auth/network-request-failed': 'Sin internet. Para entrar hace falta conexión; después funciona sin señal.',
+    'auth/too-many-requests': 'Demasiados intentos. Esperá unos minutos y probá de nuevo.',
+  };
+  const textoErrorCuenta = e => ERRORES_CUENTA[e && e.code] || 'No se pudo completar. Probá de nuevo.';
+  function msgNube(t, err) { const m = $('#nube-msg'); m.textContent = t; m.className = 'sheet-msg' + (err ? ' err' : ''); }
 
   // ---------- Formulario de producto ----------
   function abrirForm(p) {
@@ -1051,6 +1238,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     cerrarForm(); render();
     toast(prev ? 'Producto actualizado' : 'Producto agregado');
     guardar();
+    nubeProducto(prev || p);
   });
   $('#p-cancelar').addEventListener('click', cerrarForm);
   $('#p-borrar').addEventListener('click', () => {
@@ -1060,14 +1248,17 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     S.armed = null; cerrarForm(); render();
     toast('Producto eliminado');
     guardar();
+    nubeBorrarProducto(id);
   });
   $('#p-nuevo').addEventListener('click', () => abrirForm(null));
   $('#borrar-ej').addEventListener('click', () => {
     if (S.armed !== 'ejemplos') { S.armed = 'ejemplos'; renderProductos(); return; }
+    const ids = S.productos.filter(p => p.ejemplo).map(p => p.id);
     S.productos = S.productos.filter(p => !p.ejemplo);
     S.armed = null; render();
     toast('Ejemplos borrados');
     guardar();
+    ids.forEach(nubeBorrarProducto);
   });
 
   // ---------- Eventos ----------
@@ -1163,7 +1354,34 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     }
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#sheet').hidden) cerrarCompartir(); });
+  // Cuenta de la nube
+  async function conCuenta(crear) {
+    if (!nube.auth) { msgNube('La nube todavía no cargó. Revisá que haya internet.', true); iniciarNube(); return; }
+    const email = $('#nube-email').value.trim(), pass = $('#nube-pass').value;
+    if (!email || pass.length < 6) { msgNube('Escribí tu correo y una contraseña de al menos 6 caracteres.', true); return; }
+    msgNube(crear ? 'Creando la cuenta…' : 'Entrando…');
+    try {
+      if (crear) await nube.A.createUserWithEmailAndPassword(nube.auth, email, pass);
+      else await nube.A.signInWithEmailAndPassword(nube.auth, email, pass);
+      $('#nube-pass').value = '';
+      msgNube('');
+      toast(crear ? 'Cuenta creada. Tus datos se están subiendo.' : 'Listo, conectado a la nube');
+    } catch (e) { msgNube(textoErrorCuenta(e), true); }
+  }
+  $('#nube-form').addEventListener('submit', e => { e.preventDefault(); conCuenta(false); });
+  $('#nube-crear').addEventListener('click', () => conCuenta(true));
+  $('#nube-olvide').addEventListener('click', async () => {
+    const email = $('#nube-email').value.trim();
+    if (!email) { msgNube('Escribí tu correo y tocá de nuevo.', true); $('#nube-email').focus(); return; }
+    if (!nube.auth) { msgNube('La nube todavía no cargó. Revisá que haya internet.', true); return; }
+    try { await nube.A.sendPasswordResetEmail(nube.auth, email); msgNube('Te mandamos un correo para cambiar la contraseña.'); }
+    catch (e) { msgNube(textoErrorCuenta(e), true); }
+  });
+  $('#nube-salir').addEventListener('click', () => { if (nube.auth) nube.A.signOut(nube.auth); toast('Sesión cerrada. Los datos siguen en este teléfono.'); });
+  $('#nube-ir').addEventListener('click', () => { mostrar('caja'); $('#nube').scrollIntoView({ block: 'start' }); $('#nube-email').focus(); });
+
   $('#sheet-native').addEventListener('click', async () => {
+    if (window.KioscoNative) { KioscoNative.shareText($('#sheet-txt').value); return; }
     try { await navigator.share({ text: $('#sheet-txt').value }); msgSheet(''); }
     catch (e) { if (e.name !== 'AbortError') msgSheet('No se pudo abrir el menú de compartir. Probá con Copiar texto.', true); }
   });
@@ -1207,6 +1425,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
       for (const [id, url] of Object.entries(d.fotos || {})) await kv.set('fotos', id, await (await fetch(url)).blob());
       S.productos = d.productos || []; S.dias = d.dias || {}; S.notas = d.notas || {};
       guardar(); render();
+      if (nube.uid) subirTodo();
       toast('Copia restaurada: ' + plural(S.productos.length, 'producto', 'productos'));
     } catch (err) {
       toast('Ese archivo no es una copia de Caja del Kiosco', true);
@@ -1230,9 +1449,9 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
   $('#ios-tip').hidden = !(esIOS && !instalada() && !tipVisto);
   $('#ios-tip-x').addEventListener('click', () => { $('#ios-tip').hidden = true; try { localStorage.setItem('kiosco-tip-ios', '1'); } catch (e) {} });
 
-  addEventListener('online', renderHeader);
+  addEventListener('online', () => { if (nube.estado === 'error') iniciarNube(); renderHeader(); });
   addEventListener('offline', renderHeader);
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator && !window.KioscoNative) navigator.serviceWorker.register('sw.js').catch(() => {});
 
   // Anotaciones y fotos
   $('#nota-foto').addEventListener('click', () => $('#nota-file').click());
@@ -1273,6 +1492,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     renderNotas();
     toast('Anotación guardada');
     guardar();
+    nubeNota(fecha, nota);
   });
   const cerrarLb = () => { $('#lb').hidden = true; $('#lb-img').removeAttribute('src'); };
   $('#lb').addEventListener('click', cerrarLb);
