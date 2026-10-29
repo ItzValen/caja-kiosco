@@ -12,7 +12,11 @@ App para anotar las ventas del kiosco (efectivo, transferencia o pago dividido),
 
 ## Dónde quedan los datos
 
-Todo se guarda solo en el equipo donde se usa, dentro del navegador (IndexedDB). No se manda a ningún servidor. Por eso conviene guardar una copia de seguridad cada tanto.
+Todo se guarda en el equipo donde se usa, dentro del navegador (IndexedDB), así funciona sin internet.
+
+Si se entra con una cuenta (correo y contraseña) en **Caja del día → Guardado en la nube**, además se sincroniza con Firebase (proyecto `caja-del-kiosco`, Firestore en São Paulo). Sin señal, los cambios quedan en fila en el teléfono y se suben solos cuando vuelve internet. Con la misma cuenta se ven los mismos datos en varios teléfonos. Las reglas de [`firestore.rules`](firestore.rules) hacen que cada cuenta solo pueda leer y escribir sus propios datos.
+
+La copia de seguridad en archivo `.json` sigue disponible como respaldo extra.
 
 ## Instalar en el celular
 
