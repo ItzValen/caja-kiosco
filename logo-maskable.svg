@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#15203a"/>
+  <g transform="translate(51.2 51.2) scale(0.8)">
+  <!-- frente del kiosco -->
+  <rect x="120" y="196" width="272" height="200" rx="10" fill="#2a3a63"/>
+  <rect x="156" y="244" width="200" height="112" rx="8" fill="#0e1421"/>
+  <!-- ticket en la ventanita -->
+  <path d="M220 262h72v84l-12-8-12 8-12-8-12 8-12-8-12 8z" fill="#ffffff"/>
+  <rect x="234" y="280" width="44" height="8" rx="4" fill="#15203a"/>
+  <rect x="234" y="298" width="30" height="8" rx="4" fill="#15203a"/>
+  <rect x="234" y="316" width="38" height="8" rx="4" fill="#15203a"/>
+  <!-- mostrador -->
+  <rect x="104" y="384" width="304" height="28" rx="8" fill="#ffc93c"/>
+  <!-- toldo a rayas -->
+  <rect x="96" y="120" width="64" height="80" fill="#ffc93c"/>
+  <rect x="160" y="120" width="64" height="80" fill="#fff4d6"/>
+  <rect x="224" y="120" width="64" height="80" fill="#ffc93c"/>
+  <rect x="288" y="120" width="64" height="80" fill="#fff4d6"/>
+  <rect x="352" y="120" width="64" height="80" fill="#ffc93c"/>
+  <circle cx="128" cy="200" r="32" fill="#ffc93c"/>
+  <circle cx="192" cy="200" r="32" fill="#fff4d6"/>
+  <circle cx="256" cy="200" r="32" fill="#ffc93c"/>
+  <circle cx="320" cy="200" r="32" fill="#fff4d6"/>
+  <circle cx="384" cy="200" r="32" fill="#ffc93c"/>
+  <rect x="84" y="104" width="344" height="24" rx="12" fill="#ffc93c"/>
+  </g>
+</svg>
