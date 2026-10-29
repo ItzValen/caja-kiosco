@@ -20,7 +20,7 @@ android {
 // La app es el mismo index.html de la raíz del repo: se copia al APK al compilar.
 tasks.register('copyWeb', Copy) {
     from(rootProject.projectDir.parentFile) {
-        include 'index.html', 'manifest.webmanifest', 'logo.svg', 'icon-*.png', 'apple-touch-icon.png'
+        include 'index.html', 'manifest.webmanifest', 'logo.svg', 'icon-*.png', 'apple-touch-icon.png', 'fonts/*.woff2'
     }
     into layout.buildDirectory.dir('web')
 }
