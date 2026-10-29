@@ -426,6 +426,8 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
 .cb-item .nm small { display: block; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
 .cb-item .num { font-weight: 600; text-align: right; }
 /* Promos */
+.sinfin { flex: none; }
+.sinfin[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .chip.promo { background: var(--accent); color: var(--accent-ink); display: inline-flex; align-items: center; gap: 4px; white-space: normal; }
 .chip.promo .ic { width: 12px; height: 12px; }
 .prod .chip.promo { align-self: flex-start; }
@@ -521,6 +523,7 @@ s { color: var(--muted); font-weight: 400; }
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9.5 3.5h5M10.5 3.5v6L5 19a1.5 1.5 0 0 0 1.3 2.2h11.4A1.5 1.5 0 0 0 19 19l-5.5-9.5v-6"/><path d="M7.5 15h9"/></symbol>
   <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3.5 12.5V4.5a1 1 0 0 1 1-1h8l8 8-9 9z"/><circle cx="8.3" cy="8.3" r="1.3"/></symbol>
+  <symbol id="i-inf" viewBox="0 0 24 24"><path d="M7 8a4 4 0 1 0 0 8c4 0 6-8 10-8a4 4 0 1 1 0 8c-4 0-6-8-10-8z"/></symbol>
   <symbol id="i-note" viewBox="0 0 24 24"><path d="M5 4h14v11l-5 5H5z"/><path d="M14 20v-5h5"/></symbol>
 </svg>
 
@@ -620,7 +623,8 @@ s { color: var(--muted); font-weight: 400; }
         <button class="btn sm" type="button" id="cb-add"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Producto</button>
         <div class="promo-row">
           <input class="input num" id="cb-precio" type="number" inputmode="decimal" min="0" step="any" placeholder="$ precio de la promo" aria-label="Precio de la promo">
-          <input class="input" id="cb-hasta" type="date" aria-label="Vale hasta (vacío = sin fin)" title="Vale hasta">
+          <button type="button" class="btn sm sinfin" id="cb-sinfin" aria-pressed="true" title="Sin fecha de fin: queda hasta que la saques vos"><svg class="ic" aria-hidden="true"><use href="#i-inf"/></svg>Sin fin</button>
+            <input class="input" id="cb-hasta" type="date" aria-label="Vale hasta" title="Vale hasta" hidden>
         </div>
         <div class="mix-hint" id="cb-normal"></div>
         <div class="acts">
@@ -667,7 +671,8 @@ s { color: var(--muted); font-weight: 400; }
           <div class="promo-row" id="f-promo-campos" hidden>
             <input class="input num" id="f-promo-n" type="number" inputmode="numeric" min="2" step="1" placeholder="N" aria-label="Unidades del combo" hidden>
             <input class="input num" id="f-promo-valor" type="number" inputmode="decimal" min="0" step="any" aria-label="Valor de la promo">
-            <input class="input" id="f-promo-hasta" type="date" aria-label="Vale hasta (vacío = sin fin)" title="Vale hasta">
+            <button type="button" class="btn sm sinfin" id="f-promo-sinfin" aria-pressed="true" title="Sin fecha de fin: queda hasta que la saques vos"><svg class="ic" aria-hidden="true"><use href="#i-inf"/></svg>Sin fin</button>
+            <input class="input" id="f-promo-hasta" type="date" aria-label="Vale hasta" title="Vale hasta" hidden>
           </div>
         </div>
         <div class="lotes">
@@ -806,7 +811,7 @@ s { color: var(--muted); font-weight: 400; }
     hoy: ymd(new Date()),
     productos: [],
     combos: [],          // promos con varios productos: {id, nombre, items:[{productoId, cant}], precio, hasta?}
-    cbEdit: null, cbItems: [],
+    cbEdit: null, cbItems: [], cbSinFin: true,
     dias: {},            // fecha -> [ventas]
     ticket: [],
     medio: 'efectivo',
@@ -1611,7 +1616,7 @@ s { color: var(--muted); font-weight: 400; }
     $('#cb-list').innerHTML = [...S.combos].sort(porNombre).map(c => {
       const faltan = !c.items.every(i => S.productos.some(p => p.id === i.productoId)), vencida = c.hasta && c.hasta < S.hoy, base = comboBase(c);
       return '<div class="cb-item"><span class="nm"><b>' + esc(c.nombre) + '</b>' + (c.ejemplo ? ' <span class="chip ej">ejemplo</span>' : '') +
-        (faltan ? ' <span class="chip warn" title="Falta un producto">' + ic('warn') + '</span>' : vencida ? ' <span class="chip ok">Venció</span>' : '') +
+        (faltan ? ' <span class="chip warn" title="Falta un producto">' + ic('warn') + '</span>' : vencida ? ' <span class="chip ok">Venció</span>' : c.hasta ? ' <span class="chip ok">Hasta ' + fechaMini(c.hasta) + '</span>' : '') +
         '<small>' + esc(comboTxt(c)) + '</small></span><span class="num">' + (base > c.precio ? '<s>' + money(base) + '</s> ' : '') + money(c.precio) + '</span>' +
         '<button type="button" class="btn sm icon ghost" data-cb-edit="' + esc(c.id) + '" aria-label="Editar ' + esc(c.nombre) + '">' + ic('edit') + '</button></div>';
     }).join('');
@@ -1627,6 +1632,7 @@ s { color: var(--muted); font-weight: 400; }
     $('#cb-nombre').value = c ? c.nombre : nombreNuevoCombo();
     $('#cb-precio').value = c ? c.precio : '';
     $('#cb-hasta').value = c ? (c.hasta || '') : '';
+    S.cbSinFin = !(c && c.hasta); pintarCbFin();
     $('#cb-borrar').hidden = !c;
     S.armed = null; pintarBorrarCombo();
     pintarCbItems();
@@ -1634,6 +1640,11 @@ s { color: var(--muted); font-weight: 400; }
     $('#cb-form').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     $('#cb-nombre').focus();
   }
+  function pintarCbFin() {
+    $('#cb-sinfin').setAttribute('aria-pressed', String(S.cbSinFin));
+    $('#cb-hasta').hidden = S.cbSinFin;
+  }
+  $('#cb-sinfin').addEventListener('click', () => { S.cbSinFin = !S.cbSinFin; pintarCbFin(); if (!S.cbSinFin) $('#cb-hasta').focus(); });
   const cerrarComboForm = () => { $('#cb-form').hidden = true; S.cbEdit = null; };
   function pintarBorrarCombo() {
     const b = $('#cb-borrar'), armed = S.armed === 'borrar-combo';
@@ -1679,7 +1690,10 @@ s { color: var(--muted); font-weight: 400; }
     if (precio <= 0) { toast('Poné el precio', true); $('#cb-precio').focus(); return; }
     const nombre = $('#cb-nombre').value.trim() || nombreNuevoCombo();
     const c = { id: S.cbEdit || uid(), nombre, items: [...juntos].map(([productoId, cant]) => ({ productoId, cant })), precio, actualizado: Date.now() };
-    if ($('#cb-hasta').value) c.hasta = $('#cb-hasta').value;
+    if (!S.cbSinFin) {
+      if (!$('#cb-hasta').value) { toast('Poné hasta cuándo, o dejala sin fin', true); $('#cb-hasta').focus(); return; }
+      c.hasta = $('#cb-hasta').value;
+    }
     const k = S.combos.findIndex(x => x.id === c.id);
     if (k >= 0) { if (S.combos[k].ejemplo) c.ejemplo = true; S.combos[k] = c; } else S.combos.push(c);
     cerrarComboForm(); render();
@@ -1700,7 +1714,7 @@ s { color: var(--muted); font-weight: 400; }
   // ---------- Formulario de producto ----------
   function abrirForm(p, ingreso) {
     S.editId = p ? p.id : null;
-    S.formPromo = p && p.promo ? { tipo: p.promo.tipo, valor: p.promo.valor, n: p.promo.n || '', hasta: p.promo.hasta || '' } : { tipo: '', valor: '', n: '', hasta: '' };
+    S.formPromo = p && p.promo ? { tipo: p.promo.tipo, valor: p.promo.valor, n: p.promo.n || '', hasta: p.promo.hasta || '', sinFin: !p.promo.hasta } : { tipo: '', valor: '', n: '', hasta: '', sinFin: true };
     pintarPromo();
     $('#pform-title').textContent = p ? 'Editar producto' : 'Nuevo producto';
     $('#f-nombre').value = p ? p.nombre : '';
@@ -1723,7 +1737,10 @@ s { color: var(--muted); font-weight: 400; }
     $('#f-promo-n').hidden = t !== 'combo';
     $('#f-promo-valor').placeholder = { pct: '% de descuento', precio: '$ precio con promo', combo: '$ total del combo' }[t] || '';
     $('#f-promo-valor').value = f.valor; $('#f-promo-n').value = f.n; $('#f-promo-hasta').value = f.hasta;
+    $('#f-promo-sinfin').setAttribute('aria-pressed', String(f.sinFin));
+    $('#f-promo-hasta').hidden = f.sinFin;
   }
+  $('#f-promo-sinfin').addEventListener('click', () => { S.formPromo.sinFin = !S.formPromo.sinFin; pintarPromo(); if (!S.formPromo.sinFin) $('#f-promo-hasta').focus(); });
   $('#f-promo-valor').addEventListener('input', e => { S.formPromo.valor = e.target.value; });
   $('#f-promo-n').addEventListener('input', e => { S.formPromo.n = e.target.value; });
   $('#f-promo-hasta').addEventListener('input', e => { S.formPromo.hasta = e.target.value; });
@@ -1765,7 +1782,7 @@ s { color: var(--muted); font-weight: 400; }
     else if (pf.tipo === 'precio' && pv > 0) promo = { tipo: 'precio', valor: pv };
     else if (pf.tipo === 'combo' && pv > 0 && pn >= 2) promo = { tipo: 'combo', n: pn, valor: pv };
     if (pf.tipo && !promo) { toast('Revisá la promo', true); return; }
-    if (promo && pf.hasta) promo.hasta = pf.hasta;
+    if (promo && !pf.sinFin) { if (!pf.hasta) { toast('Poné hasta cuándo, o dejala sin fin', true); $('#f-promo-hasta').focus(); return; } promo.hasta = pf.hasta; }
     // lotes con la misma fecha se cuentan juntos; los que quedan en cero se descartan
     const porFecha = new Map();
     for (const l of S.formLotes) {
