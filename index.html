@@ -339,10 +339,104 @@ details.correo[open] summary { color: var(--ink); }
   .sheet-acts .btn { flex-basis: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } .prod:active { transform: none; } }
+/* Íconos y versión simple: símbolos en vez de texto, menos rótulos */
+.ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.btn.icon { padding: 9px; width: 42px; }
+.btn.sm.icon { padding: 6px; width: 36px; }
+.btn.ghost { border-color: transparent; background: none; color: var(--muted); }
+.btn.ghost:hover { color: var(--ink); border-color: var(--line); }
+.btn.armed.icon, .btn.armed.sm { width: auto; }
+nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
+.today .hoy { display: inline-flex; align-items: baseline; gap: 6px; }
+.banner > .ic { color: var(--warn); }
+.banner.err { background: var(--danger-soft); }
+.banner.err > .ic { color: var(--danger); }
+.search { position: relative; min-width: 0; }
+.toolbar .search { flex: 1 1 120px; }
+.search .input, .toolbar .search .input { width: 100%; }
+.search .ic { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.search .input { padding-left: 38px; }
+.libre { grid-template-columns: minmax(0, 1fr) 96px auto; align-items: center; }
+.prod .n .ic { width: 16px; height: 16px; color: var(--danger); vertical-align: -3px; margin-left: 4px; }
+.seg { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.seg button { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 14px; }
+.seg button .ic { width: 22px; height: 22px; }
+.seg button[data-medio="mixto"] { grid-column: auto; }
+.seg button[data-medio="mixto"][aria-pressed="true"] { background: var(--sunk); border-color: var(--ink); }
+.mix-f { display: flex; align-items: center; gap: 8px; color: var(--c); }
+.mix-hint:empty { display: none; }
+.vuelto { font-size: 17px; }
+.medio { display: inline-flex; width: 26px; height: 26px; border-radius: 50%; align-items: center; justify-content: center; }
+.medio .ic { width: 16px; height: 16px; }
+.medio.efectivo { background: var(--cash-soft); color: var(--cash); }
+.medio.transferencia { background: var(--transfer-soft); color: var(--transfer); }
+.medio.mixto { background: linear-gradient(90deg, var(--cash-soft) 50%, var(--transfer-soft) 50%); color: var(--ink); }
+.sale { grid-template-columns: 44px minmax(0, 1fr) auto auto; align-items: center; }
+.sale .r { flex-direction: row; align-items: center; gap: 8px; }
+.sale .acts { grid-column: auto; }
+.filters button { display: inline-flex; align-items: center; gap: 6px; }
+.filters button .ic { width: 16px; height: 16px; }
+.filters button b { font-family: var(--f-num); font-weight: 600; opacity: .7; }
+.tiles { grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(0, 1fr)); }
+.tile .label { display: inline-flex; align-items: center; gap: 6px; }
+.tile .label .ic { width: 16px; height: 16px; }
+.tile.big .split { margin-top: 4px; height: 8px; background: rgba(15, 23, 41, .12); }
+.tile.big { grid-row: span 1; }
+.cuenta-bloque h3 { display: flex; align-items: center; gap: 8px; }
+.cuenta-bloque h3 .ic { color: var(--muted); }
+.nota { grid-template-columns: 44px minmax(0, 1fr) auto; align-items: start; }
+.nota .acts { grid-column: auto; }
+.empty { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.empty .ic { width: 28px; height: 28px; opacity: .55; }
+@media (max-width: 860px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tile.big { grid-column: 1 / -1; } }
+@media (max-width: 480px) {
+  .libre { grid-template-columns: minmax(0, 1fr) 84px auto; }
+  .libre .btn { grid-column: auto; }
+  .line { grid-template-columns: minmax(0, 1fr) auto auto; }
+  .line .n { grid-column: auto; }
+}
+@media (max-width: 560px) {
+  .brand h1 { display: none; }
+  .top .wrap > .today { order: 1; margin-right: auto; }
+  .brand { margin-right: 0; }
+  .tema-btn, .cuenta-btn { order: 2; }
+  nav.tabs button { flex: 1 1 0; justify-content: center; padding-inline: 6px; }
+  .today .hoy strong { font-size: 17px; }
+}
+@media (pointer: coarse) { .btn.icon { width: 46px; } .btn.sm.icon { width: 40px; } }
 </style>
 
 </head>
 <body>
+<!-- Íconos: un solo trazo, se usan con <svg class="ic"><use href="#i-…"/></svg> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2l2.2 10.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1L21 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 7.5l-9-4.5-9 4.5 9 4.5 9-4.5z"/><path d="M3 7.5v9l9 4.5 9-4.5v-9"/><path d="M12 12v9"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 20.5h18"/><path d="M6.5 17v-5M12 17V6.5M17.5 17v-8"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3.5v11"/><path d="M7.5 8L12 3.5 16.5 8"/><path d="M5 12.5V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-4"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M3.5 8h3.5l2-3h6l2 3h3.5v11h-17z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-cash" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M11 18.5h2"/></symbol>
+  <symbol id="i-split" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.5L2.5 20h19L12 3.5z"/><path d="M12 10v4.5M12 17.4v.1"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v15M6 13l6 6 6-6"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 0 1-.6-9 6 6 0 0 1 11.5 1.6 3.8 3.8 0 0 1-.4 7.4z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></symbol>
+  <symbol id="i-sheet" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9.5h16M4 15h16M10 9.5V20"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5"/><path d="M5 20h14"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5M7 9.5l5-5 5 5"/><path d="M5 20h14"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4h5v16h-5"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path d="M5 4h14v11l-5 5H5z"/><path d="M14 20v-5h5"/></symbol>
+</svg>
+
 <header class="top">
   <div class="wrap">
     <div class="brand"><img class="logo" src="logo.svg" alt="" width="34" height="34"><h1>Caja del Kiosco</h1></div>
@@ -355,68 +449,63 @@ details.correo[open] summary { color: var(--ink); }
       <span id="cuenta-letra" hidden></span><i></i>
     </button>
     <div class="today">
-      <span id="fecha-larga"></span>
-      <span>Hoy <strong class="num" id="hoy-total">$ 0</strong> · <span id="hoy-n">0 ventas</span></span>
-      <span class="status" id="status"><i></i><span>Abriendo…</span></span>
+      <span class="hoy"><span class="label">Hoy</span> <strong class="num" id="hoy-total">$ 0</strong></span>
+      <span class="status" id="status" hidden><i></i><span></span></span>
     </div>
     <nav class="tabs" role="tablist">
-      <button role="tab" data-tab="vender" aria-selected="true">Vender</button>
-      <button role="tab" data-tab="productos" aria-selected="false">Productos<span class="count" id="alert-count" hidden></span></button>
-      <button role="tab" data-tab="caja" aria-selected="false">Caja del día</button>
+      <button role="tab" data-tab="vender" aria-selected="true"><svg class="ic" aria-hidden="true"><use href="#i-cart"/></svg><span>Vender</span></button>
+      <button role="tab" data-tab="productos" aria-selected="false"><svg class="ic" aria-hidden="true"><use href="#i-box"/></svg><span>Productos</span><span class="count" id="alert-count" hidden></span></button>
+      <button role="tab" data-tab="caja" aria-selected="false"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><span>Caja</span></button>
     </nav>
   </div>
 </header>
 
 <main class="wrap">
-  <div class="banner" id="local-banner" hidden>
-    <span>No se pudo guardar en este equipo. Revisá que el navegador no esté en modo privado y que haya espacio libre.</span>
+  <div class="banner err" id="local-banner" hidden>
+    <svg class="ic" aria-hidden="true"><use href="#i-warn"/></svg><span>No se puede guardar. ¿Modo privado o sin espacio?</span>
   </div>
 
   <div class="banner" id="nube-aviso" hidden>
-    <span>Tus datos están solo en este teléfono. Entrá con tu cuenta para guardarlos también en la nube.</span>
+    <svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg><span>Sin copia en la nube</span>
     <button class="btn sm primary" id="nube-ir" type="button">Entrar</button>
   </div>
   <div class="banner" id="ios-tip" hidden>
-    <span>Para instalarla en el iPhone: en Safari tocá <b>Compartir</b> y después <b>Agregar a inicio</b>.</span>
-    <button class="btn sm" id="ios-tip-x" type="button">Entendido</button>
+    <svg class="ic" aria-hidden="true"><use href="#i-share"/></svg><span>Instalar: <b>Compartir</b> → <b>Agregar a inicio</b></span>
+    <button class="btn sm icon" id="ios-tip-x" type="button" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
   </div>
 
   <!-- VENDER -->
   <section id="v-vender" data-view="vender">
     <div class="counter">
       <div class="panel">
-        <div class="panel-head">
-          <h2>Productos</h2>
-          <span class="label">Tocá para sumar al ticket</span>
-        </div>
-        <input class="input" id="busq" type="search" placeholder="Buscar producto…" autocomplete="off">
+        <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input class="input" id="busq" type="search" placeholder="Buscar" aria-label="Buscar producto" autocomplete="off"></div>
         <div class="catalog" id="catalog"></div>
         <form class="libre" id="libre">
-          <div class="field"><label for="vl-desc">Venta libre</label><input class="input" id="vl-desc" placeholder="Ej.: fotocopia, carga SUBE" autocomplete="off"></div>
-          <div class="field"><label for="vl-precio">Precio</label><input class="input num" id="vl-precio" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
-          <button class="btn" type="submit">Agregar</button>
+          <input class="input" id="vl-desc" placeholder="Otro…" aria-label="Venta libre: qué es" autocomplete="off">
+          <input class="input num" id="vl-precio" type="number" inputmode="decimal" min="0" step="any" placeholder="$" aria-label="Precio">
+          <button class="btn icon" type="submit" aria-label="Agregar al ticket"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button>
         </form>
       </div>
 
       <div class="ticket" id="ticket-col">
         <div class="panel" id="ticket">
-          <div class="panel-head"><h2>Ticket</h2><button class="btn sm" id="vaciar" type="button">Vaciar</button></div>
+          <div class="panel-head"><h2>Ticket</h2><button class="btn sm icon ghost" id="vaciar" type="button" aria-label="Vaciar ticket"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg></button></div>
           <div class="lines" id="lines"></div>
           <div class="total"><span class="label">Total</span><span class="num" id="t-total">$ 0</span></div>
           <div class="seg" role="group" aria-label="Medio de pago">
-            <button type="button" data-medio="efectivo" aria-pressed="true">Efectivo</button>
-            <button type="button" data-medio="transferencia" aria-pressed="false">Transferencia</button>
-            <button type="button" data-medio="mixto" aria-pressed="false">Dividir: efectivo + transferencia</button>
+            <button type="button" data-medio="efectivo" aria-pressed="true"><svg class="ic" aria-hidden="true"><use href="#i-cash"/></svg>Efectivo</button>
+            <button type="button" data-medio="transferencia" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Transf.</button>
+            <button type="button" data-medio="mixto" aria-pressed="false" aria-label="Dividir entre efectivo y transferencia"><svg class="ic" aria-hidden="true"><use href="#i-split"/></svg>Dividir</button>
           </div>
           <div class="cash-box" id="cash-box">
-            <div class="field"><label for="paga">Paga con</label><input class="input num" id="paga" type="number" inputmode="decimal" min="0" step="any" placeholder="Monto que entrega el cliente"></div>
+            <input class="input num" id="paga" type="number" inputmode="decimal" min="0" step="any" placeholder="Paga con $" aria-label="Paga con">
             <div class="bills" id="bills"></div>
             <div class="vuelto" id="vuelto"><span>Vuelto</span><span class="num">—</span></div>
           </div>
           <div class="mix-box" id="mix-box" hidden>
             <div class="mix-grid">
-              <div class="field"><label for="mix-ef">En efectivo</label><input class="input num" id="mix-ef" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
-              <div class="field"><label for="mix-tr">En transferencia</label><input class="input num" id="mix-tr" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
+              <label class="mix-f" style="--c:var(--cash)"><svg class="ic" aria-hidden="true"><use href="#i-cash"/></svg><input class="input num" id="mix-ef" type="number" inputmode="decimal" min="0" step="any" placeholder="$" aria-label="En efectivo"></label>
+              <label class="mix-f" style="--c:var(--transfer)"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><input class="input num" id="mix-tr" type="number" inputmode="decimal" min="0" step="any" placeholder="$" aria-label="En transferencia"></label>
             </div>
             <div class="mix-hint" id="mix-hint"></div>
           </div>
@@ -424,7 +513,7 @@ details.correo[open] summary { color: var(--ink); }
         </div>
 
         <div class="panel" style="margin-top:16px">
-          <div class="panel-head"><h2>Ventas de hoy</h2><span class="label" id="ventas-hoy-n"></span></div>
+          <div class="panel-head"><h2>Hoy</h2><span class="label" id="ventas-hoy-n"></span></div>
           <div class="sales" id="ventas-hoy"></div>
         </div>
       </div>
@@ -435,37 +524,37 @@ details.correo[open] summary { color: var(--ink); }
   <section id="v-productos" data-view="productos" hidden>
     <div class="panel">
       <div class="toolbar">
-        <input class="input" id="pbusq" type="search" placeholder="Buscar por nombre o categoría…" autocomplete="off">
-        <button class="btn" id="p-compartir" type="button">Compartir lista</button>
-        <button class="btn primary" id="p-nuevo" type="button">+ Nuevo producto</button>
+        <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input class="input" id="pbusq" type="search" placeholder="Buscar" aria-label="Buscar por nombre o categoría" autocomplete="off"></div>
+        <button class="btn icon" id="p-compartir" type="button" aria-label="Compartir lista"><svg class="ic" aria-hidden="true"><use href="#i-share"/></svg></button>
+        <button class="btn primary" id="p-nuevo" type="button"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Nuevo</button>
       </div>
       <div class="filters" id="filters">
-        <button type="button" data-f="todos" aria-pressed="true">Todos</button>
-        <button type="button" data-f="vencer" aria-pressed="false">Vencidos o por vencer</button>
-        <button type="button" data-f="stock" aria-pressed="false">Stock bajo</button>
+        <button type="button" data-f="todos" aria-pressed="true"></button>
+        <button type="button" data-f="vencer" aria-pressed="false"></button>
+        <button type="button" data-f="stock" aria-pressed="false"></button>
       </div>
       <div class="banner" id="ejemplos" hidden>
-        <span>Los productos marcados como <span class="chip ej">ejemplo</span> están para que veas cómo funciona.</span>
-        <button class="btn sm danger" id="borrar-ej" type="button">Borrar ejemplos</button>
+        <span>Hay productos de <span class="chip ej">ejemplo</span></span>
+        <button class="btn sm danger" id="borrar-ej" type="button">Borrar</button>
       </div>
 
       <form class="pform panel" id="pform" hidden style="background:var(--sunk)">
         <h2 class="w3" id="pform-title" style="grid-column:1/-1">Nuevo producto</h2>
         <div class="field w3"><label for="f-nombre">Nombre</label><input class="input" id="f-nombre" required autocomplete="off"></div>
-        <div class="field w3"><label for="f-cat">Categoría</label><input class="input" id="f-cat" list="cats" placeholder="Ej.: Golosinas, Bebidas" autocomplete="off"><datalist id="cats"></datalist></div>
-        <div class="field w2"><label for="f-precio">Precio de venta</label><input class="input num" id="f-precio" type="number" inputmode="decimal" min="0" step="any" required></div>
+        <div class="field w3"><label for="f-cat">Categoría</label><input class="input" id="f-cat" list="cats" autocomplete="off"><datalist id="cats"></datalist></div>
+        <div class="field w2"><label for="f-precio">Precio</label><input class="input num" id="f-precio" type="number" inputmode="decimal" min="0" step="any" required></div>
         <div class="field"><label for="f-stock">Stock</label><input class="input num" id="f-stock" type="number" inputmode="numeric" step="1" value="0"></div>
         <div class="field"><label for="f-min">Avisar con</label><input class="input num" id="f-min" type="number" inputmode="numeric" min="0" step="1" value="3"></div>
-        <div class="field w2"><label for="f-venc">Vencimiento</label><input class="input" id="f-venc" type="date"></div>
+        <div class="field w2"><label for="f-venc">Vence</label><input class="input" id="f-venc" type="date"></div>
         <div class="acts">
           <button class="btn primary" type="submit">Guardar</button>
           <button class="btn" type="button" id="p-cancelar">Cancelar</button>
-          <button class="btn danger sp" type="button" id="p-borrar" hidden>Eliminar producto</button>
+          <button class="btn danger sp" type="button" id="p-borrar" hidden></button>
         </div>
       </form>
 
       <div class="ptable">
-        <div class="prow head"><span>Producto</span><span style="text-align:right">Precio</span><span>Stock</span><span>Vencimiento</span><span></span></div>
+        <div class="prow head"><span>Producto</span><span style="text-align:right">Precio</span><span>Stock</span><span>Vence</span><span></span></div>
         <div id="plist"></div>
       </div>
     </div>
@@ -475,34 +564,30 @@ details.correo[open] summary { color: var(--ink); }
   <section id="v-caja" data-view="caja" hidden>
     <div style="display:flex;flex-direction:column;gap:16px">
       <div class="toolbar">
-        <div class="field" style="flex:0 0 auto"><label for="caja-fecha">Día</label><input class="input" id="caja-fecha" type="date"></div>
-        <button class="btn" id="caja-hoy" type="button" style="align-self:flex-end">Hoy</button>
-        <button class="btn primary" id="caja-compartir" type="button" style="align-self:flex-end;margin-left:auto">Compartir reporte</button>
+        <input class="input" id="caja-fecha" type="date" aria-label="Día" style="flex:0 1 auto;width:auto">
+        <button class="btn" id="caja-hoy" type="button">Hoy</button>
+        <button class="btn icon" id="caja-compartir" type="button" aria-label="Compartir reporte" style="margin-left:auto"><svg class="ic" aria-hidden="true"><use href="#i-share"/></svg></button>
       </div>
       <div class="tiles">
-        <div class="tile big"><span class="label">Total vendido</span><span class="num" id="c-total">$ 0</span><span class="sub" id="c-n" style="color:inherit;opacity:.75">0 ventas</span></div>
-        <div class="tile"><span class="label">Efectivo</span><span class="num" id="c-ef" style="color:var(--cash)">$ 0</span><span class="sub" id="c-ef-n"></span></div>
-        <div class="tile"><span class="label">Transferencia</span><span class="num" id="c-tr" style="color:var(--transfer)">$ 0</span><span class="sub" id="c-tr-n"></span></div>
-        <div class="tile"><span class="label">Ticket promedio</span><span class="num" id="c-prom">$ 0</span><span class="sub" id="c-items"></span></div>
-      </div>
-      <div class="panel">
-        <div class="split" id="c-split"><div class="c"></div><div class="t"></div></div>
-        <div class="legend"><span style="--c:var(--cash)" id="lg-ef">Efectivo</span><span style="--c:var(--transfer)" id="lg-tr">Transferencia</span></div>
+        <div class="tile big"><span class="label">Total</span><span class="num" id="c-total">$ 0</span><span class="sub" id="c-n" style="color:inherit;opacity:.75">0 ventas</span>
+          <div class="split" id="c-split"><div class="c"></div><div class="t"></div></div></div>
+        <div class="tile"><span class="label" style="color:var(--cash)"><svg class="ic" aria-hidden="true"><use href="#i-cash"/></svg>Efectivo</span><span class="num" id="c-ef">$ 0</span><span class="sub" id="c-ef-n"></span></div>
+        <div class="tile"><span class="label" style="color:var(--transfer)"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Transf.</span><span class="num" id="c-tr">$ 0</span><span class="sub" id="c-tr-n"></span></div>
       </div>
       <div class="cols">
-        <div class="panel"><h2>Lo más vendido</h2><div class="top5" id="c-top"></div></div>
-        <div class="panel"><div class="panel-head"><h2>Todas las ventas</h2></div><div class="sales" id="c-ventas"></div></div>
+        <div class="panel"><h2>Más vendido</h2><div class="top5" id="c-top"></div></div>
+        <div class="panel"><h2>Ventas</h2><div class="sales" id="c-ventas"></div></div>
       </div>
       <div class="panel" id="notas-panel">
-        <div class="panel-head"><h2>Anotaciones y fotos</h2><span class="label" id="notas-dia"></span></div>
+        <div class="panel-head"><h2>Notas</h2><span class="label" id="notas-dia"></span></div>
         <form class="nota-form" id="nota-form">
-          <div class="field"><label for="nota-texto">Nueva anotación</label><textarea class="input" id="nota-texto" rows="3" placeholder="Ej.: faltó cambio de $500, llegó el pedido de bebidas, retiré $5.000 para el proveedor"></textarea></div>
+          <textarea class="input" id="nota-texto" rows="2" placeholder="Escribí una nota…" aria-label="Nueva nota"></textarea>
           <div class="thumbs" id="nota-prev"></div>
-          <div class="nota-aviso" id="nota-aviso" hidden>Para adjuntar fotos hace falta la conexión con la base de datos y permiso de edición. Las anotaciones de texto sí se guardan.</div>
+          <div class="nota-aviso" id="nota-aviso" hidden>Las fotos no se pueden guardar acá.</div>
           <div class="acts">
-            <button class="btn" type="button" id="nota-foto">+ Foto</button>
+            <button class="btn" type="button" id="nota-foto" aria-label="Agregar foto"></button>
             <input type="file" id="nota-file" accept="image/*" multiple hidden>
-            <button class="btn primary" type="submit" id="nota-guardar">Guardar anotación</button>
+            <button class="btn primary" type="submit" id="nota-guardar">Guardar</button>
           </div>
         </form>
         <div id="notas-list"></div>
@@ -512,64 +597,61 @@ details.correo[open] summary { color: var(--ink); }
 </main>
 
 <div class="dock" id="dock" hidden>
-  <div class="info"><span id="dock-n">0 ítems</span><span class="num" id="dock-total">$ 0</span></div>
-  <button class="btn primary" id="dock-go" type="button">Ver ticket y cobrar</button>
+  <div class="info"><span id="dock-n">0</span><span class="num" id="dock-total">$ 0</span></div>
+  <button class="btn primary" id="dock-go" type="button">Cobrar<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
 </div>
 <div class="sheet-bg" id="cuenta-sheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="cuenta-t">
-    <div class="panel-head"><h2 id="cuenta-t">Cuenta y copias</h2><button class="btn sm" id="cuenta-x" type="button">Cerrar</button></div>
+    <div class="panel-head"><h2 id="cuenta-t">Cuenta</h2><button class="btn sm icon ghost" id="cuenta-x" type="button" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
 
     <div class="cuenta-bloque">
-      <div class="panel-head"><h3>Guardado en la nube</h3><span class="label" id="nube-estado"></span></div>
+      <div class="panel-head"><h3><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg>Nube</h3><span class="label" id="nube-estado"></span></div>
       <div id="nube-fuera" class="cuenta-bloque">
-        <p class="sheet-note" style="margin:0">Entrá con tu cuenta para guardar todo también en la nube. Si cambiás de teléfono, entrás igual y aparece todo. Sin internet la app sigue funcionando y sube los cambios cuando vuelve la señal.</p>
+        <p class="sheet-note" style="margin:0">Tus datos en cualquier teléfono, también sin internet.</p>
         <div class="sheet-acts"><button class="btn btn-google" type="button" id="nube-google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Continuar con Google</button></div>
         <details class="correo">
-          <summary>Entrar con correo y contraseña</summary>
+          <summary>Con correo</summary>
           <form class="nube-form" id="nube-form">
-            <div class="field"><label for="nube-email">Correo</label><input class="input" id="nube-email" type="email" inputmode="email" autocomplete="email" required></div>
-            <div class="field"><label for="nube-pass">Contraseña</label><input class="input" id="nube-pass" type="password" autocomplete="current-password" minlength="6" required></div>
+            <input class="input" id="nube-email" type="email" inputmode="email" autocomplete="email" placeholder="Correo" aria-label="Correo" required>
+            <input class="input" id="nube-pass" type="password" autocomplete="current-password" minlength="6" placeholder="Contraseña" aria-label="Contraseña" required>
             <div class="sheet-acts">
               <button class="btn primary" type="submit">Entrar</button>
               <button class="btn" type="button" id="nube-crear">Crear cuenta</button>
-              <button class="btn" type="button" id="nube-olvide">Olvidé la contraseña</button>
+              <button class="btn ghost" type="button" id="nube-olvide">Olvidé la contraseña</button>
             </div>
           </form>
         </details>
       </div>
       <div id="nube-dentro" class="cuenta-bloque" hidden>
-        <p style="margin:0">Conectado como <b id="nube-cuenta"></b>. Lo que cargues se guarda en este teléfono y en la nube.</p>
-        <div class="sheet-acts"><button class="btn" type="button" id="nube-salir">Cerrar sesión</button></div>
+        <p style="margin:0"><b id="nube-cuenta"></b></p>
+        <div class="sheet-acts"><button class="btn" type="button" id="nube-salir"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Salir</button></div>
       </div>
       <div class="sheet-msg" id="nube-msg" role="status" aria-live="polite"></div>
     </div>
 
     <div class="cuenta-bloque">
-      <h3>Copia de seguridad</h3>
-      <p class="sheet-note" style="margin:0">Además de la nube, podés guardar una copia en un archivo cuando quieras, por ejemplo en Drive o por WhatsApp.</p>
+      <h3><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Copia en archivo</h3>
       <div class="sheet-acts">
-        <button class="btn" id="bk-save" type="button">Guardar copia</button>
-        <button class="btn" id="bk-load" type="button">Restaurar una copia</button>
+        <button class="btn" id="bk-save" type="button"></button>
+        <button class="btn" id="bk-load" type="button"></button>
         <input type="file" id="bk-file" accept=".json,application/json" hidden>
       </div>
     </div>
 
     <div class="cuenta-bloque" id="instalar-bloque" hidden>
-      <h3>Instalar</h3>
-      <div class="sheet-acts"><button class="btn" id="instalar" type="button">Instalar app en este teléfono</button></div>
+      <div class="sheet-acts"><button class="btn" id="instalar" type="button"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Instalar app</button></div>
     </div>
   </div>
 </div>
 <div class="sheet-bg" id="sheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-t">
-    <div class="panel-head"><h2 id="sheet-t">Compartir</h2><button class="btn sm" id="sheet-x" type="button">Cerrar</button></div>
-    <div class="field"><label for="sheet-txt">Texto del reporte</label><textarea class="input" id="sheet-txt" rows="10"></textarea></div>
-    <div class="sheet-note">Podés editar el texto antes de enviarlo. Las fotos de las anotaciones quedan en la app.</div>
+    <div class="panel-head"><h2 id="sheet-t">Compartir</h2><button class="btn sm icon ghost" id="sheet-x" type="button" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+    <textarea class="input" id="sheet-txt" rows="10" aria-label="Texto del reporte"></textarea>
     <div class="sheet-acts">
-      <a class="btn primary" id="sheet-wa" target="_blank" rel="noopener">Enviar por WhatsApp</a>
-      <button class="btn" id="sheet-native" type="button" hidden>Compartir con…</button>
-      <button class="btn" id="sheet-copy" type="button">Copiar texto</button>
-      <button class="btn" id="sheet-dl" type="button">Guardar planilla (CSV)</button>
+      <a class="btn primary" id="sheet-wa" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>WhatsApp</a>
+      <button class="btn" id="sheet-native" type="button" hidden><svg class="ic" aria-hidden="true"><use href="#i-share"/></svg>Otra app</button>
+      <button class="btn" id="sheet-copy" type="button"><svg class="ic" aria-hidden="true"><use href="#i-copy"/></svg>Copiar</button>
+      <button class="btn" id="sheet-dl" type="button"><svg class="ic" aria-hidden="true"><use href="#i-sheet"/></svg>Planilla</button>
     </div>
     <div class="sheet-msg" id="sheet-msg" role="status" aria-live="polite"></div>
   </div>
@@ -589,6 +671,8 @@ details.correo[open] summary { color: var(--ink); }
   const num = v => { const n = parseFloat(v); return isFinite(n) ? n : 0; };
   const plural = (n, a, b) => n + ' ' + (n === 1 ? a : b);
   const BILLS = [1000, 2000, 5000, 10000, 20000];
+  const ic = n => '<svg class="ic" aria-hidden="true"><use href="#i-' + n + '"/></svg>';
+  const MEDIO_IC = { efectivo: 'cash', transferencia: 'phone', mixto: 'split' };
 
   const S = {
     hoy: ymd(new Date()),
@@ -622,15 +706,15 @@ details.correo[open] summary { color: var(--ink); }
   function estadoVenc(p) {
     const d = diasHasta(p.vencimiento);
     if (d === null) return { k: 'none', txt: 'Sin fecha' };
-    if (d < 0) return { k: 'bad', txt: d === -1 ? 'Venció ayer' : 'Vencido hace ' + -d + ' días' };
-    if (d === 0) return { k: 'bad', txt: 'Vence hoy' };
-    if (d <= 7) return { k: 'warn', txt: d === 1 ? 'Vence mañana' : 'Vence en ' + d + ' días' };
+    if (d < 0) return { k: 'bad', txt: d === -1 ? 'Venció ayer' : 'Vencido hace ' + -d + ' días', corto: 'Vencido' };
+    if (d === 0) return { k: 'bad', txt: 'Vence hoy', corto: 'Hoy' };
+    if (d <= 7) return { k: 'warn', txt: d === 1 ? 'Vence mañana' : 'Vence en ' + d + ' días', corto: d === 1 ? 'Mañana' : d + ' días' };
     return { k: 'ok', txt: '' };
   }
   function estadoStock(p) {
     const s = num(p.stock), min = num(p.stockMin ?? 3);
-    if (s <= 0) return { k: 'bad', txt: 'Sin stock' };
-    if (s <= min) return { k: 'warn', txt: 'Stock bajo' };
+    if (s <= 0) return { k: 'bad', txt: 'Sin stock', corto: 'Agotado' };
+    if (s <= min) return { k: 'warn', txt: 'Stock bajo', corto: 'Bajo' };
     return { k: 'ok', txt: '' };
   }
   const fechaCorta = f => { const [y, m, d] = f.split('-'); return d + '/' + m + '/' + y; };
@@ -757,7 +841,7 @@ details.correo[open] summary { color: var(--ink); }
     S.medio = 'efectivo';
     resetMix();
     render();
-    toast('Venta registrada · ' + money(total) + (medioVenta === 'mixto' ? ' (efectivo ' + money(pg.ef) + ' + transferencia ' + money(pg.tr) + ')' : ' en ' + medioVenta));
+    toast('✓ ' + money(total));
     guardar();
     nubeCobrar(fecha, venta);
   }
@@ -781,7 +865,7 @@ details.correo[open] summary { color: var(--ink); }
     S.dias[fecha] = items;
     ajustarStock(v.items, +1);
     render();
-    toast('Venta anulada. El stock volvió a su lugar.');
+    toast('Venta anulada');
     guardar();
     nubeAnular(fecha, v);
   }
@@ -792,16 +876,15 @@ details.correo[open] summary { color: var(--ink); }
   }
 
   function renderHeader() {
-    $('#fecha-larga').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
     const v = ventasDe(S.hoy);
     $('#hoy-total').textContent = money(v.reduce((a, x) => a + num(x.total), 0));
-    $('#hoy-n').textContent = plural(v.length, 'venta', 'ventas');
     const st = $('#status');
     const enLaNube = nube.estado === 'dentro';
-    st.className = 'status ' + (S.modo === 'error' ? 'local' : S.modo !== 'listo' ? '' : (enLaNube || !navigator.onLine) ? 'ok' : 'local');
-    st.lastElementChild.textContent = S.modo === 'error' ? 'No se pudo guardar' : S.modo !== 'listo' ? 'Abriendo…'
-      : !enLaNube ? (navigator.onLine ? 'Solo en este equipo' : 'Sin internet · se guarda igual')
-      : !navigator.onLine ? 'Sin internet · se sube al volver' : nubePendiente() ? 'Subiendo a la nube…' : 'Guardado en la nube';
+    // Solo se muestra cuando pasa algo; si está todo bien, el punto del botón de cuenta alcanza.
+    const aviso = S.modo === 'error' ? 'Sin guardar' : S.modo !== 'listo' ? '' : !navigator.onLine ? 'Sin internet' : enLaNube && nubePendiente() ? 'Subiendo…' : '';
+    st.hidden = !aviso;
+    st.className = 'status ' + (S.modo === 'error' ? 'local' : 'ok');
+    st.lastElementChild.textContent = aviso;
     $('#local-banner').hidden = S.modo !== 'error';
     const alertas = S.productos.filter(p => estadoVenc(p).k === 'bad' || estadoVenc(p).k === 'warn' || estadoStock(p).k !== 'ok').length;
     const ac = $('#alert-count');
@@ -814,15 +897,14 @@ details.correo[open] summary { color: var(--ink); }
       .filter(p => !q || (p.nombre + ' ' + (p.categoria || '')).toLowerCase().includes(q))
       .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
     const el = $('#catalog');
-    if (!S.cargado) { el.innerHTML = '<div class="empty" style="grid-column:1/-1">Cargando productos…</div>'; return; }
-    if (!S.productos.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1">Todavía no cargaste productos. Agregalos en la pestaña <b>Productos</b>, o usá <b>Venta libre</b> acá abajo.</div>'; return; }
-    if (!list.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1">Ningún producto coincide con “' + esc(q) + '”.</div>'; return; }
+    if (!S.cargado) { el.innerHTML = '<div class="empty" style="grid-column:1/-1">…</div>'; return; }
+    if (!S.productos.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1">' + ic('box') + 'Sin productos</div>'; return; }
+    if (!list.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1">' + ic('search') + 'Nada con “' + esc(q) + '”</div>'; return; }
     el.innerHTML = list.map(p => {
       const s = estadoStock(p), v = estadoVenc(p);
-      const sTxt = s.k === 'bad' ? 'Sin stock' : 'Stock ' + num(p.stock);
-      return '<button type="button" class="prod" data-add="' + esc(p.id) + '">' +
-        '<span class="n">' + esc(p.nombre) + '</span>' +
-        (v.k === 'bad' ? '<span class="chip bad">' + esc(v.txt) + '</span>' : '') +
+      const sTxt = s.k === 'bad' ? 'Agotado' : num(p.stock) + ' u.';
+      return '<button type="button" class="prod" data-add="' + esc(p.id) + '"' + (v.k === 'bad' ? ' title="' + esc(v.txt) + '"' : '') + '>' +
+        '<span class="n">' + esc(p.nombre) + (v.k === 'bad' ? ic('warn') : '') + '</span>' +
         '<span class="row"><span class="p">' + money(p.precio) + '</span><span class="s ' + (s.k === 'bad' ? 'bad' : s.k === 'warn' ? 'low' : '') + '">' + sTxt + '</span></span>' +
         '</button>';
     }).join('');
@@ -831,10 +913,10 @@ details.correo[open] summary { color: var(--ink); }
   function renderTicket() {
     const el = $('#lines');
     if (!S.ticket.length) {
-      el.innerHTML = '<div class="empty">El ticket está vacío. Tocá un producto para empezar.</div>';
+      el.innerHTML = '<div class="empty">' + ic('cart') + 'Tocá un producto</div>';
     } else {
       el.innerHTML = S.ticket.map((l, i) =>
-        '<div class="line"><span class="n">' + esc(l.nombre) + '<small>' + money(l.precio) + ' c/u</small></span>' +
+        '<div class="line"><span class="n">' + esc(l.nombre) + '<small>' + money(l.precio) + '</small></span>' +
         '<span class="qty"><button type="button" data-menos="' + i + '" aria-label="Restar uno">−</button><span>' + l.cantidad + '</span><button type="button" data-mas="' + i + '" aria-label="Sumar uno">+</button></span>' +
         '<span class="t">' + money(l.precio * l.cantidad) + '</span></div>'
       ).join('');
@@ -844,8 +926,7 @@ details.correo[open] summary { color: var(--ink); }
     const pg = pagosActuales();
     const incompleto = S.medio === 'mixto' && total > 0 && !(pg.ef > 0 && pg.tr > 0);
     $('#cobrar').disabled = !S.ticket.length || incompleto;
-    const lblMedio = { efectivo: 'Efectivo', transferencia: 'Transferencia', mixto: 'Dividido' }[S.medio];
-    $('#cobrar').textContent = S.ticket.length ? 'Cobrar ' + money(total) + ' · ' + lblMedio : 'Cobrar';
+    $('#cobrar').textContent = S.ticket.length ? 'Cobrar ' + money(total) : 'Cobrar';
     $('#vaciar').hidden = !S.ticket.length;
     document.querySelectorAll('[data-medio]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.medio === S.medio)));
     $('#cash-box').hidden = S.medio !== 'efectivo';
@@ -854,9 +935,7 @@ details.correo[open] summary { color: var(--ink); }
       // se completa solo el campo que la persona no escribió
       if (S.mix.last === 'ef') $('#mix-tr').value = total ? String(pg.tr) : '';
       else $('#mix-ef').value = total ? String(pg.ef) : '';
-      $('#mix-hint').textContent = !total ? 'Agregá productos al ticket para dividir el pago.'
-        : incompleto ? 'Escribí cuánto va en efectivo o en transferencia; la otra parte se completa sola.'
-        : 'Efectivo ' + money(pg.ef) + ' + transferencia ' + money(pg.tr) + ' = ' + money(total);
+      $('#mix-hint').textContent = total && incompleto ? 'Escribí una parte, la otra se completa' : '';
     }
     // Billetes sugeridos: los que alcanzan para pagar
     const sug = BILLS.filter(b => b >= total).slice(0, 4);
@@ -870,7 +949,7 @@ details.correo[open] summary { color: var(--ink); }
     // dock móvil
     const n = S.ticket.reduce((a, l) => a + l.cantidad, 0);
     $('#dock').hidden = !n || currentTab !== 'vender';
-    $('#dock-n').textContent = plural(n, 'ítem', 'ítems');
+    $('#dock-n').textContent = n + ' ×';
     $('#dock-total').textContent = money(total);
   }
 
@@ -878,19 +957,18 @@ details.correo[open] summary { color: var(--ink); }
     const desc = v.items.map(i => (i.cantidad > 1 ? i.cantidad + '× ' : '') + esc(i.nombre)).join(', ');
     const key = 'anular:' + fecha + ':' + v.id;
     const armed = S.armed === key;
-    const chip = v.medio === 'mixto' ? '<span class="chip mixto">Dividido</span>'
-      : '<span class="chip ' + v.medio + '">' + (v.medio === 'efectivo' ? 'Efectivo' : 'Transf.') + '</span>';
-    const det = v.medio === 'mixto' ? '<small>Efectivo ' + money(pagoEf(v)) + ' + Transf. ' + money(pagoTr(v)) + '</small>' : '';
+    const chip = '<span class="medio ' + v.medio + '" title="' + esc(medioTxt(v)) + '" role="img" aria-label="' + esc(medioTxt(v)) + '">' + ic(MEDIO_IC[v.medio] || 'cash') + '</span>';
+    const det = v.medio === 'mixto' ? '<small>' + money(pagoEf(v)) + ' + ' + money(pagoTr(v)) + '</small>' : '';
     return '<div class="sale"><span class="h">' + esc(v.hora) + '</span><span class="d">' + desc + det + '</span>' +
       '<span class="r"><span class="num">' + money(v.total) + '</span>' + chip + '</span>' +
-      '<span class="acts"><button type="button" class="btn sm ' + (armed ? 'armed' : 'danger') + '" data-anular="' + esc(fecha) + '|' + esc(v.id) + '">' + (armed ? 'Tocá de nuevo para anular' : 'Anular') + '</button></span></div>';
+      '<span class="acts"><button type="button" class="btn sm ' + (armed ? 'armed' : 'icon ghost') + '" data-anular="' + esc(fecha) + '|' + esc(v.id) + '" aria-label="Anular venta">' + (armed ? '¿Anular?' : ic('undo')) + '</button></span></div>';
   }
 
   function renderVentasHoy() {
     const v = [...ventasDe(S.hoy)].sort((a, b) => b.ts - a.ts);
-    $('#ventas-hoy-n').textContent = v.length ? plural(v.length, 'venta', 'ventas') : '';
+    $('#ventas-hoy-n').textContent = v.length ? String(v.length) : '';
     $('#ventas-hoy').innerHTML = v.length ? v.map(x => ventaHTML(x, S.hoy)).join('') :
-      '<div class="empty">Todavía no hay ventas hoy. Cuando cobres un ticket aparece acá, con la hora y el medio de pago.</div>';
+      '<div class="empty">Sin ventas</div>';
   }
 
   function renderProductos() {
@@ -901,14 +979,14 @@ details.correo[open] summary { color: var(--ink); }
     };
     document.querySelectorAll('[data-f]').forEach(b => {
       b.setAttribute('aria-pressed', String(b.dataset.f === S.filtro));
-      const base = { todos: 'Todos', vencer: 'Vencidos o por vencer', stock: 'Stock bajo' }[b.dataset.f];
-      b.textContent = base + (b.dataset.f === 'todos' ? ' (' + S.productos.length + ')' : ' (' + counts[b.dataset.f] + ')');
+      const base = { todos: 'Todos', vencer: ic('warn') + 'Vencen', stock: ic('down') + 'Poco stock' }[b.dataset.f];
+      b.innerHTML = base + ' <b>' + (b.dataset.f === 'todos' ? S.productos.length : counts[b.dataset.f]) + '</b>';
     });
     const ej = S.productos.filter(p => p.ejemplo).length;
     $('#ejemplos').hidden = !ej;
     const bej = $('#borrar-ej');
     bej.className = 'btn sm ' + (S.armed === 'ejemplos' ? 'armed' : 'danger');
-    bej.textContent = S.armed === 'ejemplos' ? 'Tocá de nuevo para borrar ' + plural(ej, 'producto', 'productos') : 'Borrar ejemplos';
+    bej.textContent = S.armed === 'ejemplos' ? '¿Borrar ' + ej + '?' : 'Borrar';
     $('#cats').innerHTML = [...new Set(S.productos.map(p => p.categoria).filter(Boolean))].map(c => '<option value="' + esc(c) + '">').join('');
 
     let list = S.productos.filter(p => !q || (p.nombre + ' ' + (p.categoria || '')).toLowerCase().includes(q));
@@ -917,18 +995,18 @@ details.correo[open] summary { color: var(--ink); }
     else list.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
 
     const el = $('#plist');
-    if (!S.cargado) { el.innerHTML = '<div class="empty">Cargando productos…</div>'; return; }
+    if (!S.cargado) { el.innerHTML = '<div class="empty">…</div>'; return; }
     if (!list.length) {
-      el.innerHTML = '<div class="empty">' + (S.productos.length ? 'No hay productos en esta lista.' : 'Todavía no hay productos. Tocá <b>+ Nuevo producto</b> para cargar el primero, con su precio, stock y vencimiento.') + '</div>';
+      el.innerHTML = '<div class="empty">' + ic('box') + (S.productos.length ? 'Ninguno' : 'Sin productos') + '</div>';
       return;
     }
     el.innerHTML = list.map(p => {
       const s = estadoStock(p), v = estadoVenc(p);
-      return '<div class="prow"><span class="nm">' + esc(p.nombre) + (p.ejemplo ? ' <span class="chip ej">ejemplo</span>' : '') + '<small>' + esc(p.categoria || 'Sin categoría') + '</small></span>' +
+      return '<div class="prow"><span class="nm">' + esc(p.nombre) + (p.ejemplo ? ' <span class="chip ej">ejemplo</span>' : '') + (p.categoria ? '<small>' + esc(p.categoria) + '</small>' : '') + '</span>' +
         '<span class="num">' + money(p.precio) + '</span>' +
-        '<span class="st"><span class="num" style="text-align:left">' + num(p.stock) + ' u.</span>' + (s.k !== 'ok' ? '<span class="chip ' + s.k + '">' + s.txt + '</span>' : '') + '</span>' +
-        '<span class="vc"><span>' + (p.vencimiento ? fechaCorta(p.vencimiento) : '<span style="color:var(--muted)">Sin fecha</span>') + '</span>' + (v.k === 'bad' || v.k === 'warn' ? '<span class="chip ' + v.k + '">' + v.txt + '</span>' : '') + '</span>' +
-        '<span class="ed"><button type="button" class="btn sm" data-edit="' + esc(p.id) + '">Editar</button></span></div>';
+        '<span class="st"><span class="num" style="text-align:left">' + num(p.stock) + ' u.</span>' + (s.k !== 'ok' ? '<span class="chip ' + s.k + '">' + s.corto + '</span>' : '') + '</span>' +
+        '<span class="vc"><span>' + (p.vencimiento ? fechaCorta(p.vencimiento).slice(0, 5) : '<span style="color:var(--muted)">—</span>') + '</span>' + (v.k === 'bad' || v.k === 'warn' ? '<span class="chip ' + v.k + '" title="' + esc(v.txt) + '">' + v.corto + '</span>' : '') + '</span>' +
+        '<span class="ed"><button type="button" class="btn sm icon ghost" data-edit="' + esc(p.id) + '" aria-label="Editar ' + esc(p.nombre) + '">' + ic('edit') + '</button></span></div>';
     }).join('');
   }
 
@@ -942,25 +1020,21 @@ details.correo[open] summary { color: var(--ink); }
     const tEf = r2(v.reduce((a, x) => a + pagoEf(x), 0)), tTr = r2(v.reduce((a, x) => a + pagoTr(x), 0));
     const nEf = v.filter(x => pagoEf(x) > 0).length, nTr = v.filter(x => pagoTr(x) > 0).length, nMix = v.filter(x => x.medio === 'mixto').length;
     $('#c-total').textContent = money(total);
-    $('#c-n').textContent = plural(v.length, 'venta', 'ventas') + (f === S.hoy ? ' hoy' : ' el ' + fechaCorta(f)) + (nMix ? ' · ' + plural(nMix, 'dividida', 'divididas') : '');
-    $('#c-ef').textContent = money(tEf); $('#c-ef-n').textContent = 'en ' + plural(nEf, 'venta', 'ventas');
-    $('#c-tr').textContent = money(tTr); $('#c-tr-n').textContent = 'en ' + plural(nTr, 'venta', 'ventas');
-    $('#c-prom').textContent = money(v.length ? total / v.length : 0);
-    const nItems = v.reduce((a, x) => a + x.items.reduce((b, i) => b + i.cantidad, 0), 0);
-    $('#c-items').textContent = plural(nItems, 'unidad vendida', 'unidades vendidas');
+    $('#c-n').textContent = plural(v.length, 'venta', 'ventas');
     const pEf = total ? tEf / total * 100 : 0, pTr = total ? tTr / total * 100 : 0;
+    $('#c-ef').textContent = money(tEf); $('#c-ef-n').textContent = total ? Math.round(pEf) + '%' : '';
+    $('#c-tr').textContent = money(tTr); $('#c-tr-n').textContent = total ? Math.round(pTr) + '%' : '';
     $('#c-split .c').style.width = pEf + '%'; $('#c-split .t').style.width = pTr + '%';
-    $('#lg-ef').textContent = 'Efectivo ' + Math.round(pEf) + '%';
-    $('#lg-tr').textContent = 'Transferencia ' + Math.round(pTr) + '%';
 
     const agg = {};
     v.forEach(x => x.items.forEach(i => { const k = i.productoId || 'libre:' + i.nombre; agg[k] = agg[k] || { nombre: i.nombre, u: 0, $: 0 }; agg[k].u += i.cantidad; agg[k].$ += i.cantidad * i.precio; }));
     const top = Object.values(agg).sort((a, b) => b.u - a.u || b.$ - a.$).slice(0, 5);
     const max = top.length ? top[0].u : 1;
-    $('#c-top').innerHTML = top.length ? top.map(t => '<div class="it"><span style="min-width:0;overflow-wrap:anywhere">' + esc(t.nombre) + '</span><span class="num">' + t.u + ' u. · ' + money(t.$) + '</span><span class="bar"><i style="width:' + (t.u / max * 100) + '%"></i></span></div>').join('') :
-      '<div class="empty">Sin ventas este día.</div>';
+    $('#c-top').innerHTML = top.length ? top.map(t => '<div class="it"><span style="min-width:0;overflow-wrap:anywhere">' + esc(t.nombre) + '</span><span class="num">' + t.u + ' u.</span><span class="bar"><i style="width:' + (t.u / max * 100) + '%"></i></span></div>').join('') :
+      '';
+    $('#c-top').parentElement.hidden = !top.length;
     const ord = [...v].sort((a, b) => b.ts - a.ts);
-    $('#c-ventas').innerHTML = ord.length ? ord.map(x => ventaHTML(x, f)).join('') : '<div class="empty">No se registraron ventas el ' + fechaCorta(f) + '.</div>';
+    $('#c-ventas').innerHTML = ord.length ? ord.map(x => ventaHTML(x, f)).join('') : '<div class="empty">Sin ventas</div>';
     renderNotas();
   }
 
@@ -987,10 +1061,10 @@ details.correo[open] summary { color: var(--ink); }
   function renderNotas() {
     const f = S.diaCaja;
     const lista = [...notasDe(f)].sort((a, b) => b.ts - a.ts);
-    $('#notas-dia').textContent = f === S.hoy ? 'Hoy' : fechaCorta(f);
+    $('#notas-dia').textContent = f === S.hoy ? '' : fechaCorta(f);
     $('#nota-prev').innerHTML = S.pend.map((p, i) => thumbHTML(p.url, '<button type="button" class="x" data-quitar-foto="' + i + '" aria-label="Quitar foto">×</button>')).join('');
     $('#nota-foto').disabled = !S.assets || S.pend.length >= MAX_FOTOS || S.guardandoNota;
-    $('#nota-foto').textContent = S.pend.length ? '+ Otra foto (' + S.pend.length + ')' : '+ Foto';
+    $('#nota-foto').innerHTML = ic('camera') + (S.pend.length ? S.pend.length : '');
     $('#nota-aviso').hidden = S.modo === 'cargando' || !!S.assets;
     $('#notas-list').innerHTML = lista.length ? lista.map(n => {
       const armed = S.armed === 'nota:' + f + ':' + n.id;
@@ -998,8 +1072,8 @@ details.correo[open] summary { color: var(--ink); }
       return '<div class="nota"><span class="h">' + esc(n.hora) + '</span><div class="tx">' +
         (n.texto ? '<p>' + esc(n.texto) + '</p>' : '') +
         (fotos.length ? '<div class="thumbs">' + fotos.map(id => thumbHTML(fotoSrc(id))).join('') + '</div>' : '') + '</div>' +
-        '<span class="acts"><button type="button" class="btn sm ' + (armed ? 'armed' : 'danger') + '" data-borrar-nota="' + esc(f) + '|' + esc(n.id) + '">' + (armed ? 'Tocá de nuevo para borrar' : 'Borrar') + '</button></span></div>';
-    }).join('') : '<div class="empty">Todavía no hay anotaciones este día. Podés dejar avisos como “faltó cambio” o subir la foto del conteo de caja.</div>';
+        '<span class="acts"><button type="button" class="btn sm ' + (armed ? 'armed' : 'icon ghost') + '" data-borrar-nota="' + esc(f) + '|' + esc(n.id) + '" aria-label="Borrar nota">' + (armed ? '¿Borrar?' : ic('trash')) + '</button></span></div>';
+    }).join('') : '';
   }
   // Achica la foto antes de subirla: las del celular pesan varios MB y no hace falta tanto.
   function comprimir(file, max = 1600) {
@@ -1023,7 +1097,7 @@ details.correo[open] summary { color: var(--ink); }
     const items = lista.filter(x => x.id !== id);
     S.notas[fecha] = items;
     render();
-    toast('Anotación borrada');
+    toast('Nota borrada');
     guardar();
     nubeBorrarNota(fecha, n);
     for (const fid of (n.fotos || [])) S.assets.delete(fid).catch(() => {});
@@ -1067,7 +1141,7 @@ details.correo[open] summary { color: var(--ink); }
     }
     const rows = [['Fecha', 'Hora', 'Productos', 'Unidades', 'Total', 'Efectivo', 'Transferencia', 'Medio']];
     v.forEach(x => rows.push([fechaCorta(f), x.hora, descVenta(x), unid(x), csvNum(x.total), csvNum(pagoEf(x)), csvNum(pagoTr(x)), x.medio === 'mixto' ? 'Dividido' : x.medio === 'efectivo' ? 'Efectivo' : 'Transferencia']));
-    return { titulo: 'Compartir reporte de caja', texto: L.join('\n'), csv: toCsv(rows), archivo: 'caja-' + f + '.csv' };
+    return { titulo: 'Reporte de caja', texto: L.join('\n'), csv: toCsv(rows), archivo: 'caja-' + f + '.csv' };
   }
 
   function reporteProductos() {
@@ -1091,7 +1165,7 @@ details.correo[open] summary { color: var(--ink); }
     }
     const rows = [['Producto', 'Categoría', 'Precio', 'Stock', 'Avisar con', 'Vencimiento', 'Estado vencimiento', 'Estado stock']];
     lista.forEach(p => rows.push([p.nombre, p.categoria || '', csvNum(p.precio), num(p.stock), num(p.stockMin ?? 3), p.vencimiento ? fechaCorta(p.vencimiento) : '', estadoVenc(p).txt, estadoStock(p).txt || 'Normal']));
-    return { titulo: 'Compartir lista de productos', texto: L.join('\n'), csv: toCsv(rows), archivo: 'productos-' + S.hoy + '.csv' };
+    return { titulo: 'Lista de productos', texto: L.join('\n'), csv: toCsv(rows), archivo: 'productos-' + S.hoy + '.csv' };
   }
 
   function msgSheet(t, err) { const m = $('#sheet-msg'); m.textContent = t; m.className = 'sheet-msg' + (err ? ' err' : ''); }
@@ -1238,7 +1312,7 @@ details.correo[open] summary { color: var(--ink); }
     $('#nube-fuera').hidden = dentro;
     $('#nube-dentro').hidden = !dentro;
     $('#nube-cuenta').textContent = nube.email || '';
-    $('#nube-estado').textContent = dentro ? (nubePendiente() ? 'Subiendo…' : 'Activo') : nube.estado === 'error' ? 'Sin conexión' : '';
+    $('#nube-estado').textContent = dentro ? (nubePendiente() ? 'Subiendo…' : '✓') : nube.estado === 'error' ? 'Sin conexión' : '';
     $('#nube-aviso').hidden = dentro || nube.estado !== 'fuera';
     const btn = $('#cuenta-btn');
     btn.classList.toggle('on', dentro);
@@ -1288,7 +1362,7 @@ details.correo[open] summary { color: var(--ink); }
     const b = $('#p-borrar');
     const armed = S.armed === 'borrar-prod';
     b.className = 'btn sp ' + (armed ? 'armed' : 'danger');
-    b.textContent = armed ? 'Tocá de nuevo para eliminar' : 'Eliminar producto';
+    b.innerHTML = armed ? '¿Eliminar?' : ic('trash') + 'Eliminar';
   }
 
   $('#pform').addEventListener('submit', e => {
@@ -1308,7 +1382,7 @@ details.correo[open] summary { color: var(--ink); }
     };
     if (prev) Object.assign(prev, p); else S.productos.push(p);
     cerrarForm(); render();
-    toast(prev ? 'Producto actualizado' : 'Producto agregado');
+    toast('✓ ' + nombre);
     guardar();
     nubeProducto(prev || p);
   });
@@ -1409,7 +1483,7 @@ details.correo[open] summary { color: var(--ink); }
     const ta = $('#sheet-txt');
     try {
       await navigator.clipboard.writeText(ta.value);
-      msgSheet('Texto copiado. Pegalo en WhatsApp, mail o donde quieras.');
+      msgSheet('✓ Copiado');
     } catch (e) {
       ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length);
       msgSheet('No se pudo copiar solo. El texto quedó seleccionado: copialo desde el menú del teléfono.', true);
@@ -1419,7 +1493,7 @@ details.correo[open] summary { color: var(--ink); }
     if (!S.downloads || !S.share) return;
     try {
       await S.downloads.save({ filename: S.share.archivo, data: S.share.csv });
-      msgSheet('Planilla lista. Se abre en Excel o Google Sheets.');
+      msgSheet('✓ Planilla lista');
     } catch (err) {
       if (err && (err.code === 'declined' || err.name === 'AbortError')) return;
       msgSheet('No se pudo guardar el archivo en esta pantalla. Probá con Copiar texto.', true);
@@ -1437,7 +1511,7 @@ details.correo[open] summary { color: var(--ink); }
       else await nube.A.signInWithEmailAndPassword(nube.auth, email, pass);
       $('#nube-pass').value = '';
       msgNube('');
-      toast(crear ? 'Cuenta creada. Tus datos se están subiendo.' : 'Listo, conectado a la nube');
+      toast('✓ Conectado');
     } catch (e) { msgNube(textoErrorCuenta(e), true); }
   }
   $('#nube-form').addEventListener('submit', e => { e.preventDefault(); conCuenta(false); });
@@ -1449,7 +1523,7 @@ details.correo[open] summary { color: var(--ink); }
     try { await nube.A.sendPasswordResetEmail(nube.auth, email); msgNube('Te mandamos un correo para cambiar la contraseña.'); }
     catch (e) { msgNube(textoErrorCuenta(e), true); }
   });
-  $('#nube-salir').addEventListener('click', () => { if (nube.auth) nube.A.signOut(nube.auth); toast('Sesión cerrada. Los datos siguen en este teléfono.'); });
+  $('#nube-salir').addEventListener('click', () => { if (nube.auth) nube.A.signOut(nube.auth); toast('Sesión cerrada'); });
   // En la app Android, Google no deja entrar desde una WebView: elige la cuenta Android y nos pasa el token.
   async function entrarGoogleNativo() {
     const token = await new Promise((ok, ko) => {
@@ -1472,7 +1546,7 @@ details.correo[open] summary { color: var(--ink); }
       if (window.KioscoNative && KioscoNative.googleSignIn) await entrarGoogleNativo();
       else await nube.A.signInWithPopup(nube.auth, proveedor);
       msgNube('');
-      toast('Listo, conectado a la nube');
+      toast('✓ Conectado');
     } catch (e) {
       const c = e && e.code;
       if (c === 'auth/popup-closed-by-user' || c === 'auth/cancelled-popup-request') { msgNube(''); return; }
@@ -1508,11 +1582,12 @@ details.correo[open] summary { color: var(--ink); }
   function pintarRestaurar() {
     const b = $('#bk-load'), armed = S.armed === 'restaurar';
     b.className = 'btn' + (armed ? ' armed' : '');
-    b.textContent = armed ? 'Tocá de nuevo: reemplaza los datos actuales' : 'Restaurar una copia';
+    b.innerHTML = armed ? '¿Reemplazar todo?' : ic('upload') + 'Restaurar';
   }
+  $('#bk-save').innerHTML = ic('download') + 'Guardar';
   $('#bk-save').addEventListener('click', async () => {
     const btn = $('#bk-save');
-    btn.disabled = true; btn.textContent = 'Preparando…';
+    btn.disabled = true; btn.textContent = '…';
     try {
       const fotos = {};
       for (const lista of Object.values(S.notas)) for (const n of lista) for (const id of (n.fotos || [])) {
@@ -1525,7 +1600,7 @@ details.correo[open] summary { color: var(--ink); }
     } catch (e) {
       if (!e || e.name !== 'AbortError') toast('No se pudo armar la copia', true);
     }
-    btn.disabled = false; btn.textContent = 'Guardar copia';
+    btn.disabled = false; btn.innerHTML = ic('download') + 'Guardar';
   });
   $('#bk-load').addEventListener('click', () => {
     if (S.armed !== 'restaurar') { S.armed = 'restaurar'; pintarRestaurar(); return; }
@@ -1543,7 +1618,7 @@ details.correo[open] summary { color: var(--ink); }
       S.productos = d.productos || []; S.dias = d.dias || {}; S.notas = d.notas || {};
       guardar(); render();
       if (nube.uid) subirTodo();
-      toast('Copia restaurada: ' + plural(S.productos.length, 'producto', 'productos'));
+      toast('✓ Copia restaurada');
     } catch (err) {
       toast('Ese archivo no es una copia de Caja del Kiosco', true);
     }
@@ -1609,12 +1684,12 @@ details.correo[open] summary { color: var(--ink); }
     if (!texto && !S.pend.length) { toast('Escribí algo o agregá una foto', true); $('#nota-texto').focus(); return; }
     const fecha = S.diaCaja, ids = [];
     S.guardandoNota = true;
-    const btn = $('#nota-guardar'); btn.disabled = true; btn.textContent = S.pend.length ? 'Subiendo fotos…' : 'Guardando…';
+    const btn = $('#nota-guardar'); btn.disabled = true; btn.textContent = '…';
     try {
       for (const p of S.pend) { const r = await S.assets.upload(p.blob); ids.push(r.id); }
     } catch (err) {
       for (const id of ids) { try { await S.assets.delete(id); } catch (e2) {} }
-      S.guardandoNota = false; btn.disabled = false; btn.textContent = 'Guardar anotación';
+      S.guardandoNota = false; btn.disabled = false; btn.textContent = 'Guardar';
       toast('No se pudo subir la foto' + (err && err.code === 'too_large' ? ': pesa demasiado' : ''), true);
       renderNotas();
       return;
@@ -1625,9 +1700,9 @@ details.correo[open] summary { color: var(--ink); }
     S.notas[fecha] = items;
     S.pend.forEach(p => URL.revokeObjectURL(p.url)); S.pend = [];
     $('#nota-texto').value = '';
-    S.guardandoNota = false; btn.disabled = false; btn.textContent = 'Guardar anotación';
+    S.guardandoNota = false; btn.disabled = false; btn.textContent = 'Guardar';
     renderNotas();
-    toast('Anotación guardada');
+    toast('✓ Nota guardada');
     guardar();
     nubeNota(fecha, nota);
   });
