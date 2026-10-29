@@ -404,6 +404,41 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
   .today .hoy strong { font-size: 17px; }
 }
 @media (pointer: coarse) { .btn.icon { width: 46px; } .btn.sm.icon { width: 40px; } }
+/* Promos con varios productos */
+.combos-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+.combo { flex: none; display: flex; align-items: center; gap: 8px; text-align: left; border: 1px solid var(--accent); background: var(--sunk); border-radius: 8px; padding: 8px 12px; max-width: 280px; }
+.combo:hover { background: var(--surface); }
+.combo:active { transform: scale(.98); }
+.combo > .ic { color: var(--accent-ink); background: var(--accent); border-radius: 50%; padding: 4px; width: 26px; height: 26px; }
+.combo .cn { display: flex; flex-direction: column; min-width: 0; }
+.combo .cn small { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.combo .num { font-weight: 600; }
+.panel-head h2 { display: flex; align-items: center; gap: 8px; }
+.cb-form { display: flex; flex-direction: column; gap: 10px; background: var(--sunk); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; }
+#cb-items { display: flex; flex-direction: column; gap: 8px; }
+.cb-row { display: grid; grid-template-columns: minmax(0, 1fr) 72px auto; gap: 8px; align-items: center; }
+.cb-form .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.cb-form .acts .sp { margin-left: auto; }
+#cb-add { align-self: flex-start; }
+.cb-item { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.cb-item:last-child { border-bottom: 0; }
+.cb-item .nm small { display: block; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.cb-item .num { font-weight: 600; text-align: right; }
+/* Promos */
+.chip.promo { background: var(--accent); color: var(--accent-ink); display: inline-flex; align-items: center; gap: 4px; }
+.chip.promo .ic { width: 12px; height: 12px; }
+.prod .chip.promo { align-self: flex-start; }
+s { color: var(--muted); font-weight: 400; }
+.line .t { display: flex; flex-direction: column; align-items: flex-end; }
+.line .t s { font-size: 12px; }
+.ahorro { display: flex; align-items: center; justify-content: flex-end; gap: 4px; color: var(--cash); font-weight: 600; margin-top: -8px; }
+.ahorro .ic { width: 16px; height: 16px; }
+.pt { display: flex; gap: 6px; }
+.pt button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.promo-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.promo-row .input { flex: 1 1 110px; width: auto; }
+.promo-row #f-promo-n { flex: 0 0 72px; }
+.promo-box .lotes-head .label { margin-right: auto; }
 /* Lotes */
 .lotes { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; }
 .lotes-head { display: flex; align-items: center; gap: 12px; }
@@ -447,6 +482,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
   <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4h5v16h-5"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol>
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9.5 3.5h5M10.5 3.5v6L5 19a1.5 1.5 0 0 0 1.3 2.2h11.4A1.5 1.5 0 0 0 19 19l-5.5-9.5v-6"/><path d="M7.5 15h9"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3.5 12.5V4.5a1 1 0 0 1 1-1h8l8 8-9 9z"/><circle cx="8.3" cy="8.3" r="1.3"/></symbol>
   <symbol id="i-note" viewBox="0 0 24 24"><path d="M5 4h14v11l-5 5H5z"/><path d="M14 20v-5h5"/></symbol>
 </svg>
 
@@ -492,6 +528,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     <div class="counter">
       <div class="panel">
         <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input class="input" id="busq" type="search" placeholder="Buscar" aria-label="Buscar producto" autocomplete="off"></div>
+        <div class="combos-bar" id="combos-bar" hidden></div>
         <div class="catalog" id="catalog"></div>
         <form class="libre" id="libre">
           <input class="input" id="vl-desc" placeholder="Otro…" aria-label="Venta libre: qué es" autocomplete="off">
@@ -505,6 +542,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
           <div class="panel-head"><h2>Ticket</h2><button class="btn sm icon ghost" id="vaciar" type="button" aria-label="Vaciar ticket"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg></button></div>
           <div class="lines" id="lines"></div>
           <div class="total"><span class="label">Total</span><span class="num" id="t-total">$ 0</span></div>
+          <div class="ahorro" id="t-ahorro" hidden></div>
           <div class="seg" role="group" aria-label="Medio de pago">
             <button type="button" data-medio="efectivo" aria-pressed="true"><svg class="ic" aria-hidden="true"><use href="#i-cash"/></svg>Efectivo</button>
             <button type="button" data-medio="transferencia" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Transf.</button>
@@ -535,6 +573,26 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
 
   <!-- PRODUCTOS -->
   <section id="v-productos" data-view="productos" hidden>
+    <div class="panel" id="combos-panel" style="margin-bottom:16px">
+      <div class="panel-head"><h2><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg>Promos</h2><button class="btn sm primary" id="cb-nuevo" type="button"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Promo</button></div>
+      <form class="cb-form" id="cb-form" hidden>
+        <div class="field"><label for="cb-nombre">Nombre</label><input class="input" id="cb-nombre" autocomplete="off"></div>
+        <div class="label">Incluye</div>
+        <div id="cb-items"></div>
+        <button class="btn sm" type="button" id="cb-add"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Producto</button>
+        <div class="promo-row">
+          <input class="input num" id="cb-precio" type="number" inputmode="decimal" min="0" step="any" placeholder="$ precio de la promo" aria-label="Precio de la promo">
+          <input class="input" id="cb-hasta" type="date" aria-label="Vale hasta (vacío = sin fin)" title="Vale hasta">
+        </div>
+        <div class="mix-hint" id="cb-normal"></div>
+        <div class="acts">
+          <button class="btn primary" type="submit">Guardar</button>
+          <button class="btn" type="button" id="cb-cancelar">Cancelar</button>
+          <button class="btn danger sp" type="button" id="cb-borrar" hidden></button>
+        </div>
+      </form>
+      <div id="cb-list"></div>
+    </div>
     <div class="panel">
       <div class="toolbar">
         <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input class="input" id="pbusq" type="search" placeholder="Buscar" aria-label="Buscar por nombre o categoría" autocomplete="off"></div>
@@ -546,6 +604,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
         <button type="button" data-f="todos" aria-pressed="true"></button>
         <button type="button" data-f="vencer" aria-pressed="false"></button>
         <button type="button" data-f="stock" aria-pressed="false"></button>
+        <button type="button" data-f="promo" aria-pressed="false"></button>
       </div>
       <div class="banner" id="ejemplos" hidden>
         <span>Hay productos de <span class="chip ej">ejemplo</span></span>
@@ -558,6 +617,21 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
         <div class="field w3"><label for="f-cat">Categoría</label><input class="input" id="f-cat" list="cats" autocomplete="off"><datalist id="cats"></datalist></div>
         <div class="field w3"><label for="f-precio">Precio</label><input class="input num" id="f-precio" type="number" inputmode="decimal" min="0" step="any" required></div>
         <div class="field w3"><label for="f-min">Avisar con</label><input class="input num" id="f-min" type="number" inputmode="numeric" min="0" step="1" value="3"></div>
+        <div class="lotes promo-box">
+          <div class="lotes-head"><span class="label">Promo</span>
+            <span class="pt" id="f-pt" role="group" aria-label="Tipo de promo">
+              <button type="button" class="btn sm icon" data-pt="" aria-label="Sin promo" aria-pressed="true"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+              <button type="button" class="btn sm" data-pt="pct" aria-pressed="false" title="Descuento en porcentaje">−%</button>
+              <button type="button" class="btn sm" data-pt="precio" aria-pressed="false" title="Precio rebajado">$</button>
+              <button type="button" class="btn sm" data-pt="combo" aria-pressed="false" title="Combo: N por un precio">N×</button>
+            </span>
+          </div>
+          <div class="promo-row" id="f-promo-campos" hidden>
+            <input class="input num" id="f-promo-n" type="number" inputmode="numeric" min="2" step="1" placeholder="N" aria-label="Unidades del combo" hidden>
+            <input class="input num" id="f-promo-valor" type="number" inputmode="decimal" min="0" step="any" aria-label="Valor de la promo">
+            <input class="input" id="f-promo-hasta" type="date" aria-label="Vale hasta (vacío = sin fin)" title="Vale hasta">
+          </div>
+        </div>
         <div class="lotes">
           <div class="lotes-head"><span class="label">Lotes</span><span class="num" id="f-total">0 u.</span><button class="btn sm" type="button" id="f-lote-add"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Lote</button></div>
           <div id="f-lotes"></div>
@@ -693,6 +767,8 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
   const S = {
     hoy: ymd(new Date()),
     productos: [],
+    combos: [],          // promos con varios productos: {id, nombre, items:[{productoId, cant}], precio, hasta?}
+    cbEdit: null, cbItems: [],
     dias: {},            // fecha -> [ventas]
     ticket: [],
     medio: 'efectivo',
@@ -783,7 +859,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
   // Cada cambio guarda el estado completo; los guardados van en fila para que no se pisen.
   let cola = Promise.resolve();
   function guardar() {
-    cola = cola.then(() => kv.set('estado', 'datos', { productos: S.productos, dias: S.dias, notas: S.notas }))
+    cola = cola.then(() => kv.set('estado', 'datos', { productos: S.productos, combos: S.combos, dias: S.dias, notas: S.notas }))
       .then(() => { if (S.modo !== 'listo') { S.modo = 'listo'; renderHeader(); } })
       .catch(() => { S.modo = 'error'; renderHeader(); toast('No se pudo guardar en este equipo', true); });
   }
@@ -817,7 +893,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
   async function cargar() {
     try {
       const d = await kv.get('estado', 'datos');
-      if (d) { S.productos = d.productos || []; S.dias = d.dias || {}; S.notas = d.notas || {}; normProductos(); }
+      if (d) { S.productos = d.productos || []; S.combos = d.combos || []; S.dias = d.dias || {}; S.notas = d.notas || {}; normProductos(); }
       S.modo = 'listo';
     } catch (e) { S.modo = 'error'; }
     S.cargado = true;
@@ -838,7 +914,69 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
   }, 60000);
 
   // ---------- Ticket ----------
-  const totalTicket = () => r2(S.ticket.reduce((a, l) => a + l.precio * l.cantidad, 0));
+  // Promos: viven en el producto ({tipo:'pct'|'precio'|'combo', valor, n?, hasta?}) y se aplican al armar el ticket.
+  const promoActiva = p => !!(p && p.promo && (!p.promo.hasta || p.promo.hasta >= S.hoy));
+  // Precio de una unidad con la promo (solo rebaja por unidad: % o precio fijo); null si no hay.
+  function precioUnidadPromo(p) {
+    if (!promoActiva(p)) return null;
+    const pr = p.promo, base = num(p.precio);
+    if (pr.tipo === 'pct') return Math.round(base * (1 - pr.valor / 100));
+    if (pr.tipo === 'precio') return num(pr.valor);
+    return null;
+  }
+  function etiquetaPromo(p) {
+    if (!promoActiva(p)) return '';
+    const pr = p.promo, base = num(p.precio);
+    if (pr.tipo === 'pct') return '−' + pr.valor + '%';
+    if (pr.tipo === 'precio') return base > pr.valor ? '−' + Math.round((1 - pr.valor / base) * 100) + '%' : 'Promo';
+    return pr.n + '× ' + money(pr.valor);
+  }
+  // Lo que cuesta una línea del ticket: { total, etq (etiqueta si la promo aplica), ahorro }
+  function calcLinea(l) {
+    if (l.comboId) {   // promo con varios productos: se cobra el precio de la promo, el ahorro es contra los precios sueltos
+      const c = S.combos.find(x => x.id === l.comboId);
+      const total = r2((c ? c.precio : l.precio) * l.cantidad), base = c ? r2(comboBase(c) * l.cantidad) : total;
+      return { base: Math.max(base, total), total, etq: '', ahorro: Math.max(0, r2(base - total)) };
+    }
+    const p = l.productoId ? S.productos.find(x => x.id === l.productoId) : null;
+    const base = r2(l.precio * l.cantidad);
+    let total = base, etq = '';
+    if (promoActiva(p)) {
+      const pr = p.promo, u = precioUnidadPromo(p);
+      if (u !== null) { total = r2(u * l.cantidad); etq = etiquetaPromo(p); }
+      else if (pr.tipo === 'combo' && l.cantidad >= pr.n) { const g = Math.floor(l.cantidad / pr.n); total = r2(g * pr.valor + (l.cantidad - g * pr.n) * l.precio); etq = etiquetaPromo(p); }
+    }
+    if (total >= base) return { base, total: base, etq: '', ahorro: 0 };   // la promo no conviene: precio normal
+    return { base, total, etq, ahorro: r2(base - total) };
+  }
+  // ---- Promos con varios productos ("Promo 1": una cerveza + un sándwich por $X)
+  const comboVigente = c => (!c.hasta || c.hasta >= S.hoy) && c.items.every(i => S.productos.some(p => p.id === i.productoId));
+  const comboBase = c => c.items.reduce((a, i) => { const p = S.productos.find(x => x.id === i.productoId); return a + (p ? num(p.precio) * i.cant : 0); }, 0);
+  const comboTxt = c => c.items.map(i => { const p = S.productos.find(x => x.id === i.productoId); return (i.cant > 1 ? i.cant + '× ' : '') + (p ? p.nombre : '?'); }).join(' + ');
+  const porNombre = (a, b) => a.nombre.localeCompare(b.nombre, 'es', { numeric: true });
+  function sumarCombo(c) {
+    const l = S.ticket.find(x => x.comboId === c.id);
+    if (l) l.cantidad++;
+    else S.ticket.push({ key: uid(), comboId: c.id, productoId: null, nombre: c.nombre, precio: num(c.precio), cantidad: 1 });
+    render();
+  }
+  // Al cobrar, la promo se reparte entre sus productos (en proporción a su precio suelto) para que el stock,
+  // los lotes y "lo más vendido" sigan funcionando por producto. Devuelve null si falta algún producto.
+  function itemsCombo(l) {
+    const c = S.combos.find(x => x.id === l.comboId);
+    if (!c) return null;
+    const ps = c.items.map(i => ({ p: S.productos.find(x => x.id === i.productoId), cant: i.cant * l.cantidad }));
+    if (ps.some(x => !x.p)) return null;
+    const total = r2(c.precio * l.cantidad), base = ps.reduce((a, x) => a + num(x.p.precio) * x.cant, 0);
+    let resto = total;
+    return ps.map((x, k) => {
+      const sub = k === ps.length - 1 ? r2(resto) : r2(base ? total * num(x.p.precio) * x.cant / base : total / ps.length);
+      resto = r2(resto - sub);
+      return { productoId: x.p.id, nombre: x.p.nombre, cantidad: x.cant, precio: num(x.p.precio), subtotal: sub, promo: c.nombre };
+    });
+  }
+  const totalTicket = () => r2(S.ticket.reduce((a, l) => a + calcLinea(l).total, 0));
+  const ahorroTicket = () => r2(S.ticket.reduce((a, l) => a + calcLinea(l).ahorro, 0));
   // Cuánto va en cada medio según lo elegido. En "mixto" la persona escribe una parte y la otra se completa.
   function pagosActuales() {
     const total = totalTicket();
@@ -865,7 +1003,17 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     const venta = {
       id: uid(), ts: now.getTime(), hora: pad(now.getHours()) + ':' + pad(now.getMinutes()),
       medio: medioVenta, pagos: { efectivo: pg.ef, transferencia: pg.tr }, total,
-      items: S.ticket.map(l => ({ productoId: l.productoId || null, nombre: l.nombre, cantidad: l.cantidad, precio: l.precio })),
+      items: S.ticket.flatMap(l => {
+        if (l.comboId) {
+          const ex = itemsCombo(l);
+          if (ex) return ex;
+          const c = S.combos.find(x => x.id === l.comboId);   // falta un producto: se cobra como venta libre
+          return [{ productoId: null, nombre: l.nombre, cantidad: l.cantidad, precio: c ? c.precio : l.precio }];
+        }
+        const c = calcLinea(l), it = { productoId: l.productoId || null, nombre: l.nombre, cantidad: l.cantidad, precio: l.precio };
+        if (c.ahorro > 0) { it.subtotal = c.total; it.promo = c.etq; }   // solo las líneas con promo; las demás siguen igual que antes
+        return [it];
+      }),
     };
     const items = [...ventasDe(fecha), venta];
     S.dias[fecha] = items;
@@ -924,7 +1072,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
 
   // ---------- Render ----------
   function render() {
-    renderHeader(); renderCatalog(); renderTicket(); renderVentasHoy(); renderProductos(); renderCaja(); pintarRestaurar(); renderNube();
+    renderHeader(); renderCatalog(); renderTicket(); renderVentasHoy(); renderProductos(); renderCombos(); renderCaja(); pintarRestaurar(); renderNube();
   }
 
   function renderHeader() {
@@ -957,7 +1105,8 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
       const sTxt = s.k === 'bad' ? 'Agotado' : num(p.stock) + ' u.';
       return '<button type="button" class="prod" data-add="' + esc(p.id) + '"' + (v.k === 'bad' ? ' title="' + esc(v.txt) + '"' : '') + '>' +
         '<span class="n">' + esc(p.nombre) + (v.k === 'bad' ? ic('warn') : '') + '</span>' +
-        '<span class="row"><span class="p">' + money(p.precio) + '</span><span class="s ' + (s.k === 'bad' ? 'bad' : s.k === 'warn' ? 'low' : '') + '">' + sTxt + '</span></span>' +
+        (promoActiva(p) ? '<span class="chip promo">' + ic('tag') + esc(etiquetaPromo(p)) + '</span>' : '') +
+        '<span class="row"><span class="p">' + (precioUnidadPromo(p) !== null && precioUnidadPromo(p) < num(p.precio) ? '<s>' + money(p.precio) + '</s> ' + money(precioUnidadPromo(p)) : money(p.precio)) + '</span><span class="s ' + (s.k === 'bad' ? 'bad' : s.k === 'warn' ? 'low' : '') + '">' + sTxt + '</span></span>' +
         '</button>';
     }).join('');
   }
@@ -967,14 +1116,17 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     if (!S.ticket.length) {
       el.innerHTML = '<div class="empty">' + ic('cart') + 'Tocá un producto</div>';
     } else {
-      el.innerHTML = S.ticket.map((l, i) =>
-        '<div class="line"><span class="n">' + esc(l.nombre) + '<small>' + money(l.precio) + '</small></span>' +
+      el.innerHTML = S.ticket.map((l, i) => { const c = calcLinea(l); return (
+        '<div class="line"><span class="n">' + esc(l.nombre) + '<small>' + (l.comboId ? esc(comboTxt(S.combos.find(x => x.id === l.comboId) || { items: [] })) || ic('tag') : money(l.precio)) + (c.etq ? ' <span class="chip promo">' + ic('tag') + esc(c.etq) + '</span>' : '') + '</small></span>' +
         '<span class="qty"><button type="button" data-menos="' + i + '" aria-label="Restar uno">−</button><span>' + l.cantidad + '</span><button type="button" data-mas="' + i + '" aria-label="Sumar uno">+</button></span>' +
-        '<span class="t">' + money(l.precio * l.cantidad) + '</span></div>'
-      ).join('');
+        '<span class="t">' + (c.ahorro ? '<s>' + money(c.base) + '</s>' : '') + money(c.total) + '</span></div>'
+      ); }).join('');
     }
     const total = totalTicket();
     $('#t-total').textContent = money(total);
+    const ah = ahorroTicket();
+    $('#t-ahorro').hidden = !ah;
+    $('#t-ahorro').innerHTML = ah ? ic('tag') + '−' + money(ah) : '';
     const pg = pagosActuales();
     const incompleto = S.medio === 'mixto' && total > 0 && !(pg.ef > 0 && pg.tr > 0);
     $('#cobrar').disabled = !S.ticket.length || incompleto;
@@ -1036,10 +1188,11 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     const counts = {
       vencer: S.productos.filter(p => ['bad', 'warn'].includes(estadoVenc(p).k)).length,
       stock: S.productos.filter(p => estadoStock(p).k !== 'ok').length,
+      promo: S.productos.filter(promoActiva).length,
     };
     document.querySelectorAll('[data-f]').forEach(b => {
       b.setAttribute('aria-pressed', String(b.dataset.f === S.filtro));
-      const base = { todos: 'Todos', vencer: ic('warn') + 'Vencen', stock: ic('down') + 'Poco stock' }[b.dataset.f];
+      const base = { todos: 'Todos', vencer: ic('warn') + 'Vencen', stock: ic('down') + 'Poco stock', promo: ic('tag') + 'Promos' }[b.dataset.f];
       b.innerHTML = base + ' <b>' + (b.dataset.f === 'todos' ? S.productos.length : counts[b.dataset.f]) + '</b>';
     });
     const ej = S.productos.filter(p => p.ejemplo).length;
@@ -1051,6 +1204,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
 
     let list = S.productos.filter(p => !q || (p.nombre + ' ' + (p.categoria || '')).toLowerCase().includes(q));
     if (S.filtro === 'vencer') list = list.filter(p => ['bad', 'warn'].includes(estadoVenc(p).k)).sort((a, b) => diasHasta(a.vencimiento) - diasHasta(b.vencimiento));
+    else if (S.filtro === 'promo') list = list.filter(promoActiva).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
     else if (S.filtro === 'stock') list = list.filter(p => estadoStock(p).k !== 'ok').sort((a, b) => num(a.stock) - num(b.stock));
     else list.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
 
@@ -1062,8 +1216,8 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     }
     el.innerHTML = list.map(p => {
       const s = estadoStock(p);
-      return '<div class="prow"><span class="nm">' + esc(p.nombre) + (p.ejemplo ? ' <span class="chip ej">ejemplo</span>' : '') + (p.categoria ? '<small>' + esc(p.categoria) + '</small>' : '') + '</span>' +
-        '<span class="num">' + money(p.precio) + '</span>' +
+      return '<div class="prow"><span class="nm">' + esc(p.nombre) + (p.ejemplo ? ' <span class="chip ej">ejemplo</span>' : '') + (promoActiva(p) ? ' <span class="chip promo">' + ic('tag') + esc(etiquetaPromo(p)) + '</span>' : '') + (p.categoria ? '<small>' + esc(p.categoria) + '</small>' : '') + '</span>' +
+        '<span class="num">' + (precioUnidadPromo(p) !== null && precioUnidadPromo(p) < num(p.precio) ? '<s>' + money(p.precio) + '</s> ' + money(precioUnidadPromo(p)) : money(p.precio)) + '</span>' +
         '<span class="st"><span class="num" style="text-align:left">' + num(p.stock) + ' u.</span>' + (s.k !== 'ok' ? '<span class="chip ' + s.k + '">' + s.corto + '</span>' : '') + '</span>' +
         '<span class="vc">' + venceHTML(p) + '</span>' +
         '<span class="ed"><button type="button" class="btn sm icon ghost" data-ingreso="' + esc(p.id) + '" aria-label="Agregar lote a ' + esc(p.nombre) + '" title="Ingreso">' + ic('plus') + '</button>' +
@@ -1088,7 +1242,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     $('#c-split .c').style.width = pEf + '%'; $('#c-split .t').style.width = pTr + '%';
 
     const agg = {};
-    v.forEach(x => x.items.forEach(i => { const k = i.productoId || 'libre:' + i.nombre; agg[k] = agg[k] || { nombre: i.nombre, u: 0, $: 0 }; agg[k].u += i.cantidad; agg[k].$ += i.cantidad * i.precio; }));
+    v.forEach(x => x.items.forEach(i => { const k = i.productoId || 'libre:' + i.nombre; agg[k] = agg[k] || { nombre: i.nombre, u: 0, $: 0 }; agg[k].u += i.cantidad; agg[k].$ += i.subtotal ?? i.cantidad * i.precio; }));
     const top = Object.values(agg).sort((a, b) => b.u - a.u || b.$ - a.$).slice(0, 5);
     const max = top.length ? top[0].u : 1;
     $('#c-top').innerHTML = top.length ? top.map(t => '<div class="it"><span style="min-width:0;overflow-wrap:anywhere">' + esc(t.nombre) + '</span><span class="num">' + t.u + ' u.</span><span class="bar"><i style="width:' + (t.u / max * 100) + '%"></i></span></div>').join('') :
@@ -1180,7 +1334,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     const nMix = v.filter(x => x.medio === 'mixto').length;
     const unid = x => x.items.reduce((b, i) => b + i.cantidad, 0);
     const agg = {};
-    v.forEach(x => x.items.forEach(i => { const k = i.productoId || 'libre:' + i.nombre; agg[k] = agg[k] || { nombre: i.nombre, u: 0, t: 0 }; agg[k].u += i.cantidad; agg[k].t += i.cantidad * i.precio; }));
+    v.forEach(x => x.items.forEach(i => { const k = i.productoId || 'libre:' + i.nombre; agg[k] = agg[k] || { nombre: i.nombre, u: 0, t: 0 }; agg[k].u += i.cantidad; agg[k].t += i.subtotal ?? i.cantidad * i.precio; }));
     const top = Object.values(agg).sort((a, b) => b.u - a.u || b.t - a.t).slice(0, 5);
     const notas = [...notasDe(f)].sort((a, b) => a.ts - b.ts);
     const L = ['*Caja del kiosco*', fechaLarga(f), ''];
@@ -1302,6 +1456,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
       errNube);
     nube.escuchas = [
       escucha('productos', s => { S.productos = s.docs.filter(d => d.data().nombre).map(d => ({ id: d.id, ...d.data() })); normProductos(); }),
+      escucha('combos', s => { S.combos = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => Array.isArray(c.items)); }),
       escucha('dias', s => { S.dias = {}; s.docs.forEach(d => { S.dias[d.id] = d.data().items || []; }); }),
       escucha('notas', s => { S.notas = {}; s.docs.forEach(d => { S.notas[d.id] = d.data().items || []; }); }),
     ];
@@ -1330,6 +1485,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
   async function subirTodo() {
     const F = nube.F, ops = [];
     S.productos.forEach(p => ops.push(b => b.set(ref('productos', p.id), sinId(p), { merge: true })));
+    S.combos.forEach(c => ops.push(b => b.set(ref('combos', c.id), sinId(c), { merge: true })));
     Object.entries(S.dias).forEach(([f, items]) => { if (items.length) ops.push(b => b.set(ref('dias', f), { fecha: f, items: F.arrayUnion(...items) }, { merge: true })); });
     Object.entries(S.notas).forEach(([f, items]) => { if (items.length) ops.push(b => b.set(ref('notas', f), { fecha: f, items: F.arrayUnion(...items) }, { merge: true })); });
     for (let i = 0; i < ops.length; i += 400) {
@@ -1360,6 +1516,8 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     F.setDoc(ref('dias', fecha), { fecha, items: F.arrayRemove(v) }, { merge: true }).catch(errNube);
     ps.forEach(nubeStock(F));
   });
+  const nubeCombo = c => enNube(F => { F.setDoc(ref('combos', c.id), sinId(c)).catch(errNube); });
+  const nubeBorrarCombo = id => enNube(F => { F.deleteDoc(ref('combos', id)).catch(errNube); });
   const nubeProducto = p => enNube(F => { F.setDoc(ref('productos', p.id), sinId(p)).catch(errNube); });
   const nubeBorrarProducto = id => enNube(F => { F.deleteDoc(ref('productos', id)).catch(errNube); });
   const nubeNota = (fecha, n) => enNube(F => {
@@ -1405,9 +1563,107 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     || (e && e.code === 'auth/google-nativo' ? 'No se pudo entrar con Google (' + e.message + ').' : 'No se pudo completar. Probá de nuevo.');
   function msgNube(t, err) { const m = $('#nube-msg'); m.textContent = t; m.className = 'sheet-msg' + (err ? ' err' : ''); }
 
+  // ---------- Promos con varios productos ----------
+  function renderCombos() {
+    const vig = S.combos.filter(comboVigente).sort(porNombre);
+    const bar = $('#combos-bar');
+    bar.hidden = !vig.length;
+    bar.innerHTML = vig.map(c => '<button type="button" class="combo" data-combo="' + esc(c.id) + '">' + ic('tag') +
+      '<span class="cn"><b>' + esc(c.nombre) + '</b><small>' + esc(comboTxt(c)) + '</small></span><span class="num">' + money(c.precio) + '</span></button>').join('');
+    $('#cb-list').innerHTML = [...S.combos].sort(porNombre).map(c => {
+      const faltan = !c.items.every(i => S.productos.some(p => p.id === i.productoId)), vencida = c.hasta && c.hasta < S.hoy, base = comboBase(c);
+      return '<div class="cb-item"><span class="nm"><b>' + esc(c.nombre) + '</b>' + (c.ejemplo ? ' <span class="chip ej">ejemplo</span>' : '') +
+        (faltan ? ' <span class="chip warn" title="Falta un producto">' + ic('warn') + '</span>' : vencida ? ' <span class="chip ok">Venció</span>' : '') +
+        '<small>' + esc(comboTxt(c)) + '</small></span><span class="num">' + (base > c.precio ? '<s>' + money(base) + '</s> ' : '') + money(c.precio) + '</span>' +
+        '<button type="button" class="btn sm icon ghost" data-cb-edit="' + esc(c.id) + '" aria-label="Editar ' + esc(c.nombre) + '">' + ic('edit') + '</button></div>';
+    }).join('');
+  }
+  function nombreNuevoCombo() {
+    let n = 1;
+    while (S.combos.some(c => c.nombre === 'Promo ' + n)) n++;
+    return 'Promo ' + n;
+  }
+  function abrirComboForm(c) {
+    S.cbEdit = c ? c.id : null;
+    S.cbItems = c ? c.items.map(i => ({ ...i })) : [{ productoId: '', cant: 1 }];
+    $('#cb-nombre').value = c ? c.nombre : nombreNuevoCombo();
+    $('#cb-precio').value = c ? c.precio : '';
+    $('#cb-hasta').value = c ? (c.hasta || '') : '';
+    $('#cb-borrar').hidden = !c;
+    S.armed = null; pintarBorrarCombo();
+    pintarCbItems();
+    $('#cb-form').hidden = false;
+    $('#cb-form').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    $('#cb-nombre').focus();
+  }
+  const cerrarComboForm = () => { $('#cb-form').hidden = true; S.cbEdit = null; };
+  function pintarBorrarCombo() {
+    const b = $('#cb-borrar'), armed = S.armed === 'borrar-combo';
+    b.className = 'btn sp ' + (armed ? 'armed' : 'danger');
+    b.innerHTML = armed ? '¿Eliminar?' : ic('trash') + 'Eliminar';
+  }
+  function pintarCbItems() {
+    const prods = [...S.productos].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    $('#cb-items').innerHTML = S.cbItems.map((it, i) =>
+      '<div class="cb-row"><select class="input" data-cp="' + i + '" aria-label="Producto"><option value="">Elegí un producto</option>' +
+      prods.map(p => '<option value="' + esc(p.id) + '"' + (p.id === it.productoId ? ' selected' : '') + '>' + esc(p.nombre) + '</option>').join('') + '</select>' +
+      '<input class="input num" type="number" inputmode="numeric" min="1" step="1" data-cc="' + i + '" value="' + (it.cant || '') + '" aria-label="Cantidad">' +
+      '<button type="button" class="btn sm icon ghost" data-cb-x="' + i + '" aria-label="Quitar">' + ic('x') + '</button></div>').join('');
+    hintCombo();
+  }
+  function hintCombo() {
+    const normal = S.cbItems.reduce((a, it) => { const p = S.productos.find(x => x.id === it.productoId); return a + (p ? num(p.precio) * Math.max(0, num(it.cant)) : 0); }, 0);
+    const precio = num($('#cb-precio').value);
+    $('#cb-normal').textContent = normal ? 'Sueltos ' + money(normal) + (precio > 0 ? (normal > precio ? ' · ahorro ' + money(normal - precio) : ' · no conviene') : '') : '';
+  }
+  const alCambiarItem = e => {
+    const t = e.target;
+    if (t.dataset.cp !== undefined) S.cbItems[+t.dataset.cp].productoId = t.value;
+    else if (t.dataset.cc !== undefined) S.cbItems[+t.dataset.cc].cant = num(t.value);
+    hintCombo();
+  };
+  $('#cb-items').addEventListener('input', alCambiarItem);
+  $('#cb-items').addEventListener('change', alCambiarItem);
+  $('#cb-precio').addEventListener('input', hintCombo);
+  $('#cb-add').addEventListener('click', () => { S.cbItems.push({ productoId: '', cant: 1 }); pintarCbItems(); });
+  $('#cb-nuevo').addEventListener('click', () => abrirComboForm(null));
+  $('#cb-cancelar').addEventListener('click', cerrarComboForm);
+  $('#cb-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const juntos = new Map();   // el mismo producto dos veces se suma
+    for (const it of S.cbItems) {
+      const cant = Math.max(0, Math.round(num(it.cant)));
+      if (!it.productoId || !cant || !S.productos.some(p => p.id === it.productoId)) continue;
+      juntos.set(it.productoId, (juntos.get(it.productoId) || 0) + cant);
+    }
+    const precio = num($('#cb-precio').value);
+    if (!juntos.size) { toast('Elegí un producto', true); return; }
+    if (precio <= 0) { toast('Poné el precio', true); $('#cb-precio').focus(); return; }
+    const nombre = $('#cb-nombre').value.trim() || nombreNuevoCombo();
+    const c = { id: S.cbEdit || uid(), nombre, items: [...juntos].map(([productoId, cant]) => ({ productoId, cant })), precio, actualizado: Date.now() };
+    if ($('#cb-hasta').value) c.hasta = $('#cb-hasta').value;
+    const k = S.combos.findIndex(x => x.id === c.id);
+    if (k >= 0) { if (S.combos[k].ejemplo) c.ejemplo = true; S.combos[k] = c; } else S.combos.push(c);
+    cerrarComboForm(); render();
+    toast('✓ ' + nombre);
+    guardar();
+    nubeCombo(c);
+  });
+  $('#cb-borrar').addEventListener('click', () => {
+    if (S.armed !== 'borrar-combo') { S.armed = 'borrar-combo'; pintarBorrarCombo(); return; }
+    const id = S.cbEdit;
+    S.combos = S.combos.filter(c => c.id !== id);
+    S.armed = null; cerrarComboForm(); render();
+    toast('Promo eliminada');
+    guardar();
+    nubeBorrarCombo(id);
+  });
+
   // ---------- Formulario de producto ----------
   function abrirForm(p, ingreso) {
     S.editId = p ? p.id : null;
+    S.formPromo = p && p.promo ? { tipo: p.promo.tipo, valor: p.promo.valor, n: p.promo.n || '', hasta: p.promo.hasta || '' } : { tipo: '', valor: '', n: '', hasta: '' };
+    pintarPromo();
     $('#pform-title').textContent = p ? 'Editar producto' : 'Nuevo producto';
     $('#f-nombre').value = p ? p.nombre : '';
     $('#f-cat').value = p ? (p.categoria || '') : '';
@@ -1422,6 +1678,17 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     $('#pform').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     if (ingreso) { const q = $('#f-lotes').querySelectorAll('[data-lc]'); q[q.length - 1].focus(); } else $('#f-nombre').focus();
   }
+  function pintarPromo() {
+    const f = S.formPromo, t = f.tipo;
+    document.querySelectorAll('[data-pt]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pt === t)));
+    $('#f-promo-campos').hidden = !t;
+    $('#f-promo-n').hidden = t !== 'combo';
+    $('#f-promo-valor').placeholder = { pct: '% de descuento', precio: '$ precio con promo', combo: '$ total del combo' }[t] || '';
+    $('#f-promo-valor').value = f.valor; $('#f-promo-n').value = f.n; $('#f-promo-hasta').value = f.hasta;
+  }
+  $('#f-promo-valor').addEventListener('input', e => { S.formPromo.valor = e.target.value; });
+  $('#f-promo-n').addEventListener('input', e => { S.formPromo.n = e.target.value; });
+  $('#f-promo-hasta').addEventListener('input', e => { S.formPromo.hasta = e.target.value; });
   function pintarLotes() {
     $('#f-lotes').innerHTML = S.formLotes.map((l, i) =>
       '<div class="lote-row"><input class="input num" type="number" inputmode="numeric" min="0" step="1" placeholder="Cant." aria-label="Cantidad del lote" data-lc="' + i + '" value="' + (l.cant || '') + '">' +
@@ -1454,7 +1721,14 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     const nombre = $('#f-nombre').value.trim();
     if (!nombre) return;
     const prev = S.productos.find(p => p.id === S.editId);
-    // lotes con la misma fecha se juntan en uno; los que quedan en cero se descartan
+    const pf = S.formPromo, pv = num(pf.valor), pn = Math.round(num(pf.n));
+    let promo = null;
+    if (pf.tipo === 'pct' && pv > 0 && pv < 100) promo = { tipo: 'pct', valor: pv };
+    else if (pf.tipo === 'precio' && pv > 0) promo = { tipo: 'precio', valor: pv };
+    else if (pf.tipo === 'combo' && pv > 0 && pn >= 2) promo = { tipo: 'combo', n: pn, valor: pv };
+    if (pf.tipo && !promo) { toast('Revisá la promo', true); return; }
+    if (promo && pf.hasta) promo.hasta = pf.hasta;
+    // lotes con la misma fecha se cuentan juntos; los que quedan en cero se descartan
     const porFecha = new Map();
     for (const l of S.formLotes) {
       const cant = Math.max(0, Math.round(num(l.cant)));
@@ -1471,7 +1745,8 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
       lotes: [...porFecha.values()],
       actualizado: Date.now(),
     });
-    if (prev) Object.assign(prev, p); else S.productos.push(p);
+    if (promo) p.promo = promo;
+    if (prev) { Object.assign(prev, p); if (!promo) delete prev.promo; } else S.productos.push(p);
     cerrarForm(); render();
     toast('✓ ' + nombre);
     guardar();
@@ -1510,6 +1785,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     ['Queso cremoso 200 g', 'Lácteos', 2900, 4, 3, 0], ['Dulce de leche 400 g', 'Lácteos', 3300, 8, 3, 180],
     ['Cigarrillos x20', 'Cigarrería', 3800, 40, 10, null], ['Encendedor', 'Cigarrería', 1000, 25, 6, null],
     ['Papel para armar', 'Cigarrería', 900, 20, 5, null],
+    ['Sándwich de miga', 'Comida', 2500, 12, 4, 2], ['Sándwich de milanesa', 'Comida', 4500, 6, 3, 1],
     ['Pilas AA x2', 'Varios', 2400, 11, 3, 700], ['Cargador USB', 'Varios', 6500, 3, 2, null],
     ['Auriculares', 'Varios', 7800, 0, 2, null], ['Lapicera', 'Varios', 600, 50, 10, null],
     ['Pañuelos descartables', 'Varios', 700, 17, 5, null], ['Protector solar', 'Varios', 7200, 6, 2, -20],
@@ -1520,6 +1796,18 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     'Yogur bebible': [[24, 12]], 'Leche entera 1 L': [[20, 14]], 'Pan lactal': [[12, 6]], 'Galletitas dulces': [[30, 90]],
     'Jugo en caja 200 ml': [[20, 60]], 'Mayonesa sachet': [[30, 150]], 'Queso cremoso 200 g': [[8, 20]], 'Gaseosa cola 500 ml': [[24, 200], [12, 20]],
   };
+  // Promos de algunos ejemplos: [tipo, valor, n, días que dura (null = sin fin)].
+  const PROMOS = {
+    'Alfajor triple': ['combo', 3900, 3, null], 'Gaseosa lima 500 ml': ['pct', 15, 0, null], 'Galletitas dulces': ['pct', 30, 0, 5],
+    'Yogur bebible': ['precio', 1000, 0, 1], 'Agua mineral 500 ml': ['combo', 1800, 2, null], 'Papas fritas 80 g': ['precio', 1500, 0, 7],
+    'Helado de palito': ['combo', 4500, 3, 10],
+  };
+  // Promos de ejemplo: [precio, [[producto, cantidad], ...]]. "Promo N" se numera sola.
+  const COMBOS_EJ = [
+    [6000, [['Cerveza lata 473 ml', 1], ['Sándwich de milanesa', 1]]],
+    [2800, [['Gaseosa cola 500 ml', 1], ['Alfajor triple', 1]]],
+    [5800, [['Sándwich de miga', 2], ['Gaseosa cola 500 ml', 1]]],
+  ];
   const enDias = n => { const d = new Date(); d.setDate(d.getDate() + n); return ymd(d); };
   // Borra los ejemplos que haya y carga una lista nueva. Los productos propios no se tocan.
   function regenerarEjemplos() {
@@ -1529,19 +1817,32 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
       const lotes = [];
       if (stock > 0) lotes.push({ id: uid(), cant: stock, venc: dias === null ? '' : enDias(dias) });
       (EXTRA[nombre] || []).forEach(([cant, d]) => lotes.push({ id: uid(), cant, venc: enDias(d) }));
-      return recalc({ id: uid(), nombre, categoria, precio, stockMin, lotes, ejemplo: true, actualizado: Date.now() });
+      const p = recalc({ id: uid(), nombre, categoria, precio, stockMin, lotes, ejemplo: true, actualizado: Date.now() });
+      const pr = PROMOS[nombre];
+      if (pr) { p.promo = { tipo: pr[0], valor: pr[1] }; if (pr[2]) p.promo.n = pr[2]; if (pr[3] !== null) p.promo.hasta = enDias(pr[3]); }
+      return p;
     });
     S.productos.push(...nuevos);
+    S.combos.filter(c => c.ejemplo).forEach(c => nubeBorrarCombo(c.id));
+    S.combos = S.combos.filter(c => !c.ejemplo);
+    const combos = COMBOS_EJ.map(([precio, its]) => ({
+      id: uid(), nombre: '', precio, ejemplo: true, actualizado: Date.now(),
+      items: its.map(([n, cant]) => ({ productoId: nuevos.find(p => p.nombre === n).id, cant })),
+    }));
+    combos.forEach(c => { c.nombre = nombreNuevoCombo(); S.combos.push(c); });
     S.armed = null; render();
     toast('✓ ' + nuevos.length + ' ejemplos');
     guardar();
     nuevos.forEach(nubeProducto);
+    combos.forEach(nubeCombo);
   }
   $('#p-ejemplos').addEventListener('click', regenerarEjemplos);
   $('#borrar-ej').addEventListener('click', () => {
     if (S.armed !== 'ejemplos') { S.armed = 'ejemplos'; renderProductos(); return; }
     const ids = S.productos.filter(p => p.ejemplo).map(p => p.id);
     S.productos = S.productos.filter(p => !p.ejemplo);
+    S.combos.filter(c => c.ejemplo).forEach(c => nubeBorrarCombo(c.id));
+    S.combos = S.combos.filter(c => !c.ejemplo);
     S.armed = null; render();
     toast('Ejemplos borrados');
     guardar();
@@ -1553,13 +1854,14 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     const t = e.target.closest('button');
     if (!t) return;
     // desarmar confirmaciones si se toca otra cosa
-    if (S.armed && !t.matches('[data-anular], #borrar-ej, #p-borrar, [data-borrar-nota], #bk-load')) { S.armed = null; render(); pintarBorrar(); }
+    if (S.armed && !t.matches('[data-anular], #borrar-ej, #p-borrar, [data-borrar-nota], #bk-load, #cb-borrar')) { S.armed = null; render(); pintarBorrar(); }
     if (t.dataset.add) { const p = S.productos.find(x => x.id === t.dataset.add); if (p) sumar(p); }
     else if (t.dataset.mas !== undefined) { S.ticket[+t.dataset.mas].cantidad++; render(); }
     else if (t.dataset.menos !== undefined) { const l = S.ticket[+t.dataset.menos]; if (--l.cantidad <= 0) S.ticket.splice(+t.dataset.menos, 1); render(); }
     else if (t.dataset.medio) { S.medio = t.dataset.medio; render(); }
     else if (t.dataset.bill) { $('#paga').value = t.dataset.bill; renderTicket(); }
     else if (t.dataset.edit) { abrirForm(S.productos.find(p => p.id === t.dataset.edit)); }
+    else if (t.dataset.pt !== undefined) { S.formPromo.tipo = t.dataset.pt; pintarPromo(); }
     else if (t.dataset.ingreso) { abrirForm(S.productos.find(p => p.id === t.dataset.ingreso), true); }
     else if (t.dataset.lx !== undefined) { S.formLotes.splice(+t.dataset.lx, 1); pintarLotes(); }
     else if (t.dataset.f) { S.filtro = t.dataset.f; renderProductos(); }
@@ -1581,6 +1883,9 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
       if (S.armed !== key) { S.armed = key; renderNotas(); return; }
       S.armed = null; borrarNota(fecha, id);
     }
+    else if (t.dataset.combo) { const c = S.combos.find(x => x.id === t.dataset.combo); if (c) sumarCombo(c); }
+    else if (t.dataset.cbEdit) { abrirComboForm(S.combos.find(x => x.id === t.dataset.cbEdit)); }
+    else if (t.dataset.cbX !== undefined) { S.cbItems.splice(+t.dataset.cbX, 1); pintarCbItems(); }
     else if (t.dataset.tab) { mostrar(t.dataset.tab); }
   });
   $('#cobrar').addEventListener('click', cobrar);
@@ -1737,7 +2042,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
         const b = await kv.get('fotos', id);
         if (b) fotos[id] = await aDataURL(b);
       }
-      const copia = { app: 'caja-kiosco', version: 1, creada: new Date().toISOString(), productos: S.productos, dias: S.dias, notas: S.notas, fotos };
+      const copia = { app: 'caja-kiosco', version: 1, creada: new Date().toISOString(), productos: S.productos, combos: S.combos, dias: S.dias, notas: S.notas, fotos };
       await S.downloads.save({ filename: 'kiosco-copia-' + S.hoy + '.json', data: JSON.stringify(copia) });
       toast('Copia lista');
     } catch (e) {
@@ -1758,7 +2063,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
       const d = JSON.parse(await f.text());
       if (!d || d.app !== 'caja-kiosco') throw new Error('formato');
       for (const [id, url] of Object.entries(d.fotos || {})) await kv.set('fotos', id, await (await fetch(url)).blob());
-      S.productos = d.productos || []; S.dias = d.dias || {}; S.notas = d.notas || {}; normProductos();
+      S.productos = d.productos || []; S.combos = d.combos || []; S.dias = d.dias || {}; S.notas = d.notas || {}; normProductos();
       guardar(); render();
       if (nube.uid) subirTodo();
       toast('✓ Copia restaurada');
