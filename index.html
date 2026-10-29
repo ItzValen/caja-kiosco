@@ -404,6 +404,18 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
   .today .hoy strong { font-size: 17px; }
 }
 @media (pointer: coarse) { .btn.icon { width: 46px; } .btn.sm.icon { width: 40px; } }
+/* Lotes */
+.lotes { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; }
+.lotes-head { display: flex; align-items: center; gap: 12px; }
+.lotes-head .num { margin-right: auto; font-weight: 600; }
+#f-lotes { display: flex; flex-direction: column; gap: 8px; }
+.lote-row { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.prow .vc .lote { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.prow .vc .lote.bad { color: var(--danger); }
+.prow .vc .lote.warn { color: var(--warn); }
+.prow .ed { display: flex; justify-content: flex-end; }
+.prow { grid-template-columns: minmax(0, 2.2fr) 110px 120px 150px 96px; }
+@media (max-width: 860px) { .prow { grid-template-columns: minmax(0, 1fr) auto; } }
 </style>
 
 </head>
@@ -434,6 +446,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
   <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5M7 9.5l5-5 5 5"/><path d="M5 20h14"/></symbol>
   <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4h5v16h-5"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol>
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9.5 3.5h5M10.5 3.5v6L5 19a1.5 1.5 0 0 0 1.3 2.2h11.4A1.5 1.5 0 0 0 19 19l-5.5-9.5v-6"/><path d="M7.5 15h9"/></symbol>
   <symbol id="i-note" viewBox="0 0 24 24"><path d="M5 4h14v11l-5 5H5z"/><path d="M14 20v-5h5"/></symbol>
 </svg>
 
@@ -526,6 +539,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
       <div class="toolbar">
         <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input class="input" id="pbusq" type="search" placeholder="Buscar" aria-label="Buscar por nombre o categoría" autocomplete="off"></div>
         <button class="btn icon" id="p-compartir" type="button" aria-label="Compartir lista"><svg class="ic" aria-hidden="true"><use href="#i-share"/></svg></button>
+        <button class="btn icon" id="p-ejemplos" type="button" aria-label="Regenerar productos de ejemplo" title="Regenerar ejemplos"><svg class="ic" aria-hidden="true"><use href="#i-flask"/></svg></button>
         <button class="btn primary" id="p-nuevo" type="button"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Nuevo</button>
       </div>
       <div class="filters" id="filters">
@@ -542,10 +556,12 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
         <h2 class="w3" id="pform-title" style="grid-column:1/-1">Nuevo producto</h2>
         <div class="field w3"><label for="f-nombre">Nombre</label><input class="input" id="f-nombre" required autocomplete="off"></div>
         <div class="field w3"><label for="f-cat">Categoría</label><input class="input" id="f-cat" list="cats" autocomplete="off"><datalist id="cats"></datalist></div>
-        <div class="field w2"><label for="f-precio">Precio</label><input class="input num" id="f-precio" type="number" inputmode="decimal" min="0" step="any" required></div>
-        <div class="field"><label for="f-stock">Stock</label><input class="input num" id="f-stock" type="number" inputmode="numeric" step="1" value="0"></div>
-        <div class="field"><label for="f-min">Avisar con</label><input class="input num" id="f-min" type="number" inputmode="numeric" min="0" step="1" value="3"></div>
-        <div class="field w2"><label for="f-venc">Vence</label><input class="input" id="f-venc" type="date"></div>
+        <div class="field w3"><label for="f-precio">Precio</label><input class="input num" id="f-precio" type="number" inputmode="decimal" min="0" step="any" required></div>
+        <div class="field w3"><label for="f-min">Avisar con</label><input class="input num" id="f-min" type="number" inputmode="numeric" min="0" step="1" value="3"></div>
+        <div class="lotes">
+          <div class="lotes-head"><span class="label">Lotes</span><span class="num" id="f-total">0 u.</span><button class="btn sm" type="button" id="f-lote-add"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Lote</button></div>
+          <div id="f-lotes"></div>
+        </div>
         <div class="acts">
           <button class="btn primary" type="submit">Guardar</button>
           <button class="btn" type="button" id="p-cancelar">Cancelar</button>
@@ -703,20 +719,37 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     const [hy, hm, hd] = S.hoy.split('-').map(Number);
     return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(hy, hm - 1, hd)) / 86400000);
   }
-  function estadoVenc(p) {
-    const d = diasHasta(p.vencimiento);
+  function estadoFecha(f) {
+    const d = diasHasta(f);
     if (d === null) return { k: 'none', txt: 'Sin fecha' };
     if (d < 0) return { k: 'bad', txt: d === -1 ? 'Venció ayer' : 'Vencido hace ' + -d + ' días', corto: 'Vencido' };
     if (d === 0) return { k: 'bad', txt: 'Vence hoy', corto: 'Hoy' };
     if (d <= 7) return { k: 'warn', txt: d === 1 ? 'Vence mañana' : 'Vence en ' + d + ' días', corto: d === 1 ? 'Mañana' : d + ' días' };
     return { k: 'ok', txt: '' };
   }
+  const estadoVenc = p => estadoFecha(p.vencimiento);
   function estadoStock(p) {
     const s = num(p.stock), min = num(p.stockMin ?? 3);
     if (s <= 0) return { k: 'bad', txt: 'Sin stock', corto: 'Agotado' };
     if (s <= min) return { k: 'warn', txt: 'Stock bajo', corto: 'Bajo' };
     return { k: 'ok', txt: '' };
   }
+  // Lotes: cada producto guarda varios {id, cant, venc}. `stock` y `vencimiento` (el del lote que vence antes) se calculan de ahí.
+  const ordenLotes = p => (p.lotes || []).filter(l => l.cant > 0).sort((a, b) => (a.venc ? 0 : 1) - (b.venc ? 0 : 1) || (a.venc < b.venc ? -1 : a.venc > b.venc ? 1 : 0));
+  function recalc(p) {
+    if (!Array.isArray(p.lotes)) {   // producto de antes de los lotes: su stock y fecha pasan a ser un solo lote
+      const c = Math.max(0, num(p.stock));
+      p.lotes = c > 0 ? [{ id: 'l-' + p.id, cant: c, venc: p.vencimiento || '' }] : [];
+    }
+    p.lotes.forEach(l => { if (!l.id) l.id = uid(); l.cant = num(l.cant); l.venc = l.venc || ''; });
+    p.lotes = p.lotes.filter(l => l.cant > 0);
+    p.stock = p.lotes.reduce((a, l) => a + l.cant, 0);
+    const primero = ordenLotes(p).find(l => l.venc);
+    p.vencimiento = primero ? primero.venc : '';
+    return p;
+  }
+  const normProductos = () => S.productos.forEach(recalc);
+  const fechaMini = f => { const [y, m, d] = f.split('-'); return d + '/' + m + (y !== S.hoy.slice(0, 4) ? '/' + y.slice(2) : ''); };
   const fechaCorta = f => { const [y, m, d] = f.split('-'); return d + '/' + m + '/' + y; };
   const ventasDe = f => S.dias[f] || [];
   const notasDe = f => S.notas[f] || [];
@@ -784,7 +817,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
   async function cargar() {
     try {
       const d = await kv.get('estado', 'datos');
-      if (d) { S.productos = d.productos || []; S.dias = d.dias || {}; S.notas = d.notas || {}; }
+      if (d) { S.productos = d.productos || []; S.dias = d.dias || {}; S.notas = d.notas || {}; normProductos(); }
       S.modo = 'listo';
     } catch (e) { S.modo = 'error'; }
     S.cargado = true;
@@ -836,26 +869,45 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     };
     const items = [...ventasDe(fecha), venta];
     S.dias[fecha] = items;
-    ajustarStock(venta.items, -1);
+    const tocados = ajustarStock(venta.items, -1);
     S.ticket = []; $('#paga').value = '';
     S.medio = 'efectivo';
     resetMix();
     render();
     toast('✓ ' + money(total));
     guardar();
-    nubeCobrar(fecha, venta);
+    nubeCobrar(fecha, venta, tocados);
   }
+  // Al vender se descuenta del lote que vence antes (los sin fecha, al final) y la venta anota de qué lotes salió,
+  // así al anular cada unidad vuelve a su lote. Devuelve los productos que cambiaron.
   function ajustarStock(items, signo) {
-    const cambios = [];
+    const tocados = new Set();
     for (const it of items) {
       if (!it.productoId) continue;
       const p = S.productos.find(x => x.id === it.productoId);
       if (!p) continue;
-      p.stock = num(p.stock) + signo * it.cantidad;
-      const prev = cambios.find(c => c.id === p.id);
-      if (prev) prev.stock = p.stock; else cambios.push({ id: p.id, stock: p.stock });
+      recalc(p);
+      if (signo < 0) {
+        let falta = it.cantidad;
+        it.lotes = [];
+        for (const l of ordenLotes(p)) {
+          if (falta <= 0) break;
+          const t = Math.min(l.cant, falta);
+          l.cant -= t; falta -= t;
+          it.lotes.push({ id: l.id, cant: t, venc: l.venc || '' });
+        }
+      } else {
+        const vuelve = it.lotes && it.lotes.length ? it.lotes : [{ id: 'sin-fecha', cant: it.cantidad, venc: '' }];
+        for (const d of vuelve) {
+          let l = p.lotes.find(x => x.id === d.id) || (d.id === 'sin-fecha' ? p.lotes.find(x => !x.venc) : null);
+          if (!l) { l = { id: d.id, cant: 0, venc: d.venc || '' }; p.lotes.push(l); }
+          l.cant += d.cant;
+        }
+      }
+      recalc(p);
+      tocados.add(p);
     }
-    return cambios;
+    return [...tocados];
   }
   function anular(fecha, id) {
     const lista = ventasDe(fecha);
@@ -863,11 +915,11 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     if (!v) return;
     const items = lista.filter(x => x.id !== id);
     S.dias[fecha] = items;
-    ajustarStock(v.items, +1);
+    const tocados = ajustarStock(v.items, +1);
     render();
     toast('Venta anulada');
     guardar();
-    nubeAnular(fecha, v);
+    nubeAnular(fecha, v, tocados);
   }
 
   // ---------- Render ----------
@@ -971,6 +1023,14 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
       '<div class="empty">Sin ventas</div>';
   }
 
+  const chipV = v => v.k === 'bad' || v.k === 'warn' ? '<span class="chip ' + v.k + '" title="' + esc(v.txt) + '">' + v.corto + '</span>' : '';
+  // Un solo lote: la fecha y su aviso. Varios: una línea por lote, "10× 05/11", cada una con su propio aviso.
+  function venceHTML(p) {
+    const ls = ordenLotes(p);
+    if (ls.length <= 1) return '<span>' + (p.vencimiento ? fechaMini(p.vencimiento) : '<span style="color:var(--muted)">—</span>') + '</span>' + chipV(estadoVenc(p));
+    return ls.map(l => '<span class="lote ' + estadoFecha(l.venc).k + '"><b class="num">' + l.cant + '×</b> ' + (l.venc ? fechaMini(l.venc) : '—') + chipV(estadoFecha(l.venc)) + '</span>').join('');
+  }
+
   function renderProductos() {
     const q = $('#pbusq').value.trim().toLowerCase();
     const counts = {
@@ -1001,12 +1061,13 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
       return;
     }
     el.innerHTML = list.map(p => {
-      const s = estadoStock(p), v = estadoVenc(p);
+      const s = estadoStock(p);
       return '<div class="prow"><span class="nm">' + esc(p.nombre) + (p.ejemplo ? ' <span class="chip ej">ejemplo</span>' : '') + (p.categoria ? '<small>' + esc(p.categoria) + '</small>' : '') + '</span>' +
         '<span class="num">' + money(p.precio) + '</span>' +
         '<span class="st"><span class="num" style="text-align:left">' + num(p.stock) + ' u.</span>' + (s.k !== 'ok' ? '<span class="chip ' + s.k + '">' + s.corto + '</span>' : '') + '</span>' +
-        '<span class="vc"><span>' + (p.vencimiento ? fechaCorta(p.vencimiento).slice(0, 5) : '<span style="color:var(--muted)">—</span>') + '</span>' + (v.k === 'bad' || v.k === 'warn' ? '<span class="chip ' + v.k + '" title="' + esc(v.txt) + '">' + v.corto + '</span>' : '') + '</span>' +
-        '<span class="ed"><button type="button" class="btn sm icon ghost" data-edit="' + esc(p.id) + '" aria-label="Editar ' + esc(p.nombre) + '">' + ic('edit') + '</button></span></div>';
+        '<span class="vc">' + venceHTML(p) + '</span>' +
+        '<span class="ed"><button type="button" class="btn sm icon ghost" data-ingreso="' + esc(p.id) + '" aria-label="Agregar lote a ' + esc(p.nombre) + '" title="Ingreso">' + ic('plus') + '</button>' +
+        '<button type="button" class="btn sm icon ghost" data-edit="' + esc(p.id) + '" aria-label="Editar ' + esc(p.nombre) + '">' + ic('edit') + '</button></span></div>';
     }).join('');
   }
 
@@ -1147,7 +1208,8 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
   function reporteProductos() {
     const lista = [...S.productos].sort((a, b) => (a.categoria || '￿').localeCompare(b.categoria || '￿', 'es') || a.nombre.localeCompare(b.nombre, 'es'));
     const L = ['*Lista de productos*', 'Al ' + fechaCorta(S.hoy) + ' · ' + plural(lista.length, 'producto', 'productos')];
-    const linea = p => '• ' + p.nombre + ' — ' + money(p.precio) + ' · stock ' + num(p.stock) + (p.vencimiento ? ' · vence ' + fechaCorta(p.vencimiento) : '');
+    const venceTxt = p => ordenLotes(p).length > 1 ? ' · lotes: ' + ordenLotes(p).map(l => l.cant + (l.venc ? ' vencen ' + fechaCorta(l.venc) : ' sin fecha')).join(', ') : (p.vencimiento ? ' · vence ' + fechaCorta(p.vencimiento) : '');
+    const linea = p => '• ' + p.nombre + ' — ' + money(p.precio) + ' · stock ' + num(p.stock) + venceTxt(p);
     if (!lista.length) L.push('', 'Todavía no hay productos cargados.');
     else {
       const venc = lista.filter(p => ['bad', 'warn'].includes(estadoVenc(p).k)).sort((a, b) => diasHasta(a.vencimiento) - diasHasta(b.vencimiento));
@@ -1163,8 +1225,8 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
         L.push(linea(p));
       });
     }
-    const rows = [['Producto', 'Categoría', 'Precio', 'Stock', 'Avisar con', 'Vencimiento', 'Estado vencimiento', 'Estado stock']];
-    lista.forEach(p => rows.push([p.nombre, p.categoria || '', csvNum(p.precio), num(p.stock), num(p.stockMin ?? 3), p.vencimiento ? fechaCorta(p.vencimiento) : '', estadoVenc(p).txt, estadoStock(p).txt || 'Normal']));
+    const rows = [['Producto', 'Categoría', 'Precio', 'Stock', 'Avisar con', 'Vencimiento', 'Estado vencimiento', 'Estado stock', 'Lotes']];
+    lista.forEach(p => rows.push([p.nombre, p.categoria || '', csvNum(p.precio), num(p.stock), num(p.stockMin ?? 3), p.vencimiento ? fechaCorta(p.vencimiento) : '', estadoVenc(p).txt, estadoStock(p).txt || 'Normal', ordenLotes(p).map(l => l.cant + '× ' + (l.venc ? fechaCorta(l.venc) : 'sin fecha')).join('; ')]));
     return { titulo: 'Lista de productos', texto: L.join('\n'), csv: toCsv(rows), archivo: 'productos-' + S.hoy + '.csv' };
   }
 
@@ -1239,7 +1301,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
       s => { nube.pend[nombre] = s.metadata.hasPendingWrites; aplicar(s); S.cargado = true; guardar(); render(); },
       errNube);
     nube.escuchas = [
-      escucha('productos', s => { S.productos = s.docs.filter(d => d.data().nombre).map(d => ({ id: d.id, ...d.data() })); }),
+      escucha('productos', s => { S.productos = s.docs.filter(d => d.data().nombre).map(d => ({ id: d.id, ...d.data() })); normProductos(); }),
       escucha('dias', s => { S.dias = {}; s.docs.forEach(d => { S.dias[d.id] = d.data().items || []; }); }),
       escucha('notas', s => { S.notas = {}; s.docs.forEach(d => { S.notas[d.id] = d.data().items || []; }); }),
     ];
@@ -1288,13 +1350,15 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     } catch (e) { errNube(e); }
   }
 
-  const nubeCobrar = (fecha, v) => enNube(F => {
+  // Con lotes el stock ya no se puede sumar o restar a ciegas: se manda el producto con sus lotes al día.
+  const nubeStock = F => p => F.setDoc(ref('productos', p.id), { stock: p.stock, lotes: p.lotes, vencimiento: p.vencimiento }, { merge: true }).catch(errNube);
+  const nubeCobrar = (fecha, v, ps) => enNube(F => {
     F.setDoc(ref('dias', fecha), { fecha, items: F.arrayUnion(v) }, { merge: true }).catch(errNube);
-    v.items.forEach(i => { if (i.productoId && S.productos.some(p => p.id === i.productoId)) F.setDoc(ref('productos', i.productoId), { stock: F.increment(-i.cantidad) }, { merge: true }).catch(errNube); });
+    ps.forEach(nubeStock(F));
   });
-  const nubeAnular = (fecha, v) => enNube(F => {
+  const nubeAnular = (fecha, v, ps) => enNube(F => {
     F.setDoc(ref('dias', fecha), { fecha, items: F.arrayRemove(v) }, { merge: true }).catch(errNube);
-    v.items.forEach(i => { if (i.productoId && S.productos.some(p => p.id === i.productoId)) F.setDoc(ref('productos', i.productoId), { stock: F.increment(i.cantidad) }, { merge: true }).catch(errNube); });
+    ps.forEach(nubeStock(F));
   });
   const nubeProducto = p => enNube(F => { F.setDoc(ref('productos', p.id), sinId(p)).catch(errNube); });
   const nubeBorrarProducto = id => enNube(F => { F.deleteDoc(ref('productos', id)).catch(errNube); });
@@ -1342,21 +1406,41 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
   function msgNube(t, err) { const m = $('#nube-msg'); m.textContent = t; m.className = 'sheet-msg' + (err ? ' err' : ''); }
 
   // ---------- Formulario de producto ----------
-  function abrirForm(p) {
+  function abrirForm(p, ingreso) {
     S.editId = p ? p.id : null;
     $('#pform-title').textContent = p ? 'Editar producto' : 'Nuevo producto';
     $('#f-nombre').value = p ? p.nombre : '';
     $('#f-cat').value = p ? (p.categoria || '') : '';
     $('#f-precio').value = p ? p.precio : '';
-    $('#f-stock').value = p ? num(p.stock) : 0;
     $('#f-min').value = p ? num(p.stockMin ?? 3) : 3;
-    $('#f-venc').value = p ? (p.vencimiento || '') : '';
+    S.formLotes = p ? ordenLotes(p).map(l => ({ id: l.id, cant: l.cant, venc: l.venc || '' })) : [];
+    if (!S.formLotes.length || ingreso) S.formLotes.push({ id: uid(), cant: 0, venc: '' });
+    pintarLotes();
     $('#p-borrar').hidden = !p;
     $('#pform').hidden = false;
     S.armed = null; pintarBorrar();
     $('#pform').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    $('#f-nombre').focus();
+    if (ingreso) { const q = $('#f-lotes').querySelectorAll('[data-lc]'); q[q.length - 1].focus(); } else $('#f-nombre').focus();
   }
+  function pintarLotes() {
+    $('#f-lotes').innerHTML = S.formLotes.map((l, i) =>
+      '<div class="lote-row"><input class="input num" type="number" inputmode="numeric" min="0" step="1" placeholder="Cant." aria-label="Cantidad del lote" data-lc="' + i + '" value="' + (l.cant || '') + '">' +
+      '<input class="input" type="date" aria-label="Vencimiento del lote (vacío = sin fecha)" data-lv="' + i + '" value="' + esc(l.venc) + '">' +
+      '<button type="button" class="btn sm icon ghost" data-lx="' + i + '" aria-label="Quitar lote">' + ic('x') + '</button></div>').join('');
+    totalLotes();
+  }
+  const totalLotes = () => { $('#f-total').textContent = S.formLotes.reduce((a, l) => a + Math.max(0, Math.round(num(l.cant))), 0) + ' u.'; };
+  $('#f-lotes').addEventListener('input', e => {
+    const t = e.target;
+    if (t.dataset.lc !== undefined) S.formLotes[+t.dataset.lc].cant = num(t.value);
+    else if (t.dataset.lv !== undefined) S.formLotes[+t.dataset.lv].venc = t.value;
+    totalLotes();
+  });
+  $('#f-lote-add').addEventListener('click', () => {
+    S.formLotes.push({ id: uid(), cant: 0, venc: '' });
+    pintarLotes();
+    const q = $('#f-lotes').querySelectorAll('[data-lc]'); q[q.length - 1].focus();
+  });
   function cerrarForm() { $('#pform').hidden = true; S.editId = null; }
   function pintarBorrar() {
     const b = $('#p-borrar');
@@ -1370,16 +1454,23 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     const nombre = $('#f-nombre').value.trim();
     if (!nombre) return;
     const prev = S.productos.find(p => p.id === S.editId);
-    const p = {
+    // lotes con la misma fecha se juntan en uno; los que quedan en cero se descartan
+    const porFecha = new Map();
+    for (const l of S.formLotes) {
+      const cant = Math.max(0, Math.round(num(l.cant)));
+      if (!cant) continue;
+      const e2 = porFecha.get(l.venc || '');
+      if (e2) e2.cant += cant; else porFecha.set(l.venc || '', { id: l.id, cant, venc: l.venc || '' });
+    }
+    const p = recalc({
       id: prev ? prev.id : uid(),
       nombre,
       categoria: $('#f-cat').value.trim(),
       precio: num($('#f-precio').value),
-      stock: Math.round(num($('#f-stock').value)),
       stockMin: Math.max(0, Math.round(num($('#f-min').value))),
-      vencimiento: $('#f-venc').value || '',
+      lotes: [...porFecha.values()],
       actualizado: Date.now(),
-    };
+    });
     if (prev) Object.assign(prev, p); else S.productos.push(p);
     cerrarForm(); render();
     toast('✓ ' + nombre);
@@ -1397,6 +1488,56 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     nubeBorrarProducto(id);
   });
   $('#p-nuevo').addEventListener('click', () => abrirForm(null));
+
+  // Productos de ejemplo para probar: [nombre, categoría, precio, stock, avisar con, vence en N días (null = sin fecha)].
+  // Hay de todo a propósito: vencidos, por vencer, poco stock y agotados, para ver los filtros y avisos.
+  const EJEMPLOS = [
+    ['Alfajor triple', 'Golosinas', 1500, 24, 6, 120], ['Alfajor de maicena', 'Golosinas', 900, 18, 5, 60],
+    ['Chocolate con leche 100 g', 'Golosinas', 2800, 12, 4, 200], ['Caramelos masticables', 'Golosinas', 300, 60, 15, 300],
+    ['Chicles menta', 'Golosinas', 500, 40, 10, 400], ['Gomitas de azúcar', 'Golosinas', 1200, 3, 5, 90],
+    ['Turrón', 'Golosinas', 600, 0, 5, 150], ['Paleta de caramelo', 'Golosinas', 250, 80, 20, null],
+    ['Papas fritas 80 g', 'Snacks', 1800, 20, 5, 45], ['Maní salado', 'Snacks', 1100, 15, 4, 70],
+    ['Palitos salados', 'Snacks', 1000, 2, 4, 30], ['Galletitas dulces', 'Snacks', 1300, 22, 6, 5],
+    ['Galletitas de agua', 'Snacks', 1400, 16, 5, 110], ['Barra de cereal', 'Snacks', 800, 30, 8, 180],
+    ['Gaseosa cola 500 ml', 'Bebidas', 1800, 30, 8, 160], ['Gaseosa lima 500 ml', 'Bebidas', 1800, 14, 8, 160],
+    ['Agua mineral 500 ml', 'Bebidas', 1000, 48, 12, 365], ['Agua saborizada 500 ml', 'Bebidas', 1300, 6, 8, 120],
+    ['Jugo en caja 200 ml', 'Bebidas', 900, 25, 6, 3], ['Energizante 250 ml', 'Bebidas', 2500, 10, 4, 240],
+    ['Isotónica 500 ml', 'Bebidas', 2000, 1, 4, 200], ['Cerveza lata 473 ml', 'Bebidas', 2200, 36, 12, 270],
+    ['Yerba 500 g', 'Almacén', 4200, 9, 3, 300], ['Café instantáneo', 'Almacén', 5200, 5, 3, 330],
+    ['Azúcar 1 kg', 'Almacén', 1700, 12, 4, 400], ['Mayonesa sachet', 'Almacén', 700, 20, 6, -4],
+    ['Pan lactal', 'Almacén', 2600, 7, 3, 2], ['Fideos 500 g', 'Almacén', 1600, 18, 5, 500],
+    ['Leche entera 1 L', 'Lácteos', 1500, 14, 6, 6], ['Yogur bebible', 'Lácteos', 1300, 10, 5, 1],
+    ['Queso cremoso 200 g', 'Lácteos', 2900, 4, 3, 0], ['Dulce de leche 400 g', 'Lácteos', 3300, 8, 3, 180],
+    ['Cigarrillos x20', 'Cigarrería', 3800, 40, 10, null], ['Encendedor', 'Cigarrería', 1000, 25, 6, null],
+    ['Papel para armar', 'Cigarrería', 900, 20, 5, null],
+    ['Pilas AA x2', 'Varios', 2400, 11, 3, 700], ['Cargador USB', 'Varios', 6500, 3, 2, null],
+    ['Auriculares', 'Varios', 7800, 0, 2, null], ['Lapicera', 'Varios', 600, 50, 10, null],
+    ['Pañuelos descartables', 'Varios', 700, 17, 5, null], ['Protector solar', 'Varios', 7200, 6, 2, -20],
+    ['Helado de palito', 'Helados', 1700, 20, 6, 80], ['Helado familiar 1 L', 'Helados', 6800, 2, 2, 25],
+  ];
+  // Segundos lotes de algunos ejemplos: mismo producto, otra fecha de vencimiento [cantidad, días].
+  const EXTRA = {
+    'Yogur bebible': [[24, 12]], 'Leche entera 1 L': [[20, 14]], 'Pan lactal': [[12, 6]], 'Galletitas dulces': [[30, 90]],
+    'Jugo en caja 200 ml': [[20, 60]], 'Mayonesa sachet': [[30, 150]], 'Queso cremoso 200 g': [[8, 20]], 'Gaseosa cola 500 ml': [[24, 200], [12, 20]],
+  };
+  const enDias = n => { const d = new Date(); d.setDate(d.getDate() + n); return ymd(d); };
+  // Borra los ejemplos que haya y carga una lista nueva. Los productos propios no se tocan.
+  function regenerarEjemplos() {
+    S.productos.filter(p => p.ejemplo).forEach(p => nubeBorrarProducto(p.id));
+    S.productos = S.productos.filter(p => !p.ejemplo);
+    const nuevos = EJEMPLOS.map(([nombre, categoria, precio, stock, stockMin, dias]) => {
+      const lotes = [];
+      if (stock > 0) lotes.push({ id: uid(), cant: stock, venc: dias === null ? '' : enDias(dias) });
+      (EXTRA[nombre] || []).forEach(([cant, d]) => lotes.push({ id: uid(), cant, venc: enDias(d) }));
+      return recalc({ id: uid(), nombre, categoria, precio, stockMin, lotes, ejemplo: true, actualizado: Date.now() });
+    });
+    S.productos.push(...nuevos);
+    S.armed = null; render();
+    toast('✓ ' + nuevos.length + ' ejemplos');
+    guardar();
+    nuevos.forEach(nubeProducto);
+  }
+  $('#p-ejemplos').addEventListener('click', regenerarEjemplos);
   $('#borrar-ej').addEventListener('click', () => {
     if (S.armed !== 'ejemplos') { S.armed = 'ejemplos'; renderProductos(); return; }
     const ids = S.productos.filter(p => p.ejemplo).map(p => p.id);
@@ -1419,6 +1560,8 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
     else if (t.dataset.medio) { S.medio = t.dataset.medio; render(); }
     else if (t.dataset.bill) { $('#paga').value = t.dataset.bill; renderTicket(); }
     else if (t.dataset.edit) { abrirForm(S.productos.find(p => p.id === t.dataset.edit)); }
+    else if (t.dataset.ingreso) { abrirForm(S.productos.find(p => p.id === t.dataset.ingreso), true); }
+    else if (t.dataset.lx !== undefined) { S.formLotes.splice(+t.dataset.lx, 1); pintarLotes(); }
     else if (t.dataset.f) { S.filtro = t.dataset.f; renderProductos(); }
     else if (t.dataset.anular) {
       const [fecha, id] = t.dataset.anular.split('|');
@@ -1615,7 +1758,7 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
       const d = JSON.parse(await f.text());
       if (!d || d.app !== 'caja-kiosco') throw new Error('formato');
       for (const [id, url] of Object.entries(d.fotos || {})) await kv.set('fotos', id, await (await fetch(url)).blob());
-      S.productos = d.productos || []; S.dias = d.dias || {}; S.notas = d.notas || {};
+      S.productos = d.productos || []; S.dias = d.dias || {}; S.notas = d.notas || {}; normProductos();
       guardar(); render();
       if (nube.uid) subirTodo();
       toast('✓ Copia restaurada');

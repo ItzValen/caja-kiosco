@@ -1,6 +1,6 @@
 // Guarda la app en el teléfono para que abra sin internet.
 // Subí VERSION cada vez que cambies algún archivo, así el teléfono baja la nueva.
-const VERSION = 'caja-kiosco-v5';
+const VERSION = 'caja-kiosco-v7';
 // Librería de Firebase (la nube). Va con número de versión fijo, así que se guarda una vez y listo.
 const SDK = 'caja-kiosco-firebase-10.12.2';
 const SDK_ARCHIVOS = ['app', 'auth', 'firestore'].map(m => `https://www.gstatic.com/firebasejs/10.12.2/firebase-${m}.js`);
