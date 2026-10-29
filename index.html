@@ -1242,7 +1242,7 @@ details.correo[open] summary { color: var(--ink); }
     $('#nube-aviso').hidden = dentro || nube.estado !== 'fuera';
     const btn = $('#cuenta-btn');
     btn.classList.toggle('on', dentro);
-    $('#cuenta-icono').hidden = dentro;
+    $('#cuenta-icono').toggleAttribute('hidden', dentro);   // es un SVG: no tiene la propiedad .hidden
     $('#cuenta-letra').hidden = !dentro;
     $('#cuenta-letra').textContent = dentro ? ((nube.nombre || nube.email || '?').trim()[0] || '?').toUpperCase() : '';
     btn.setAttribute('aria-label', dentro ? 'Cuenta: ' + (nube.email || '') + '. Abrir cuenta y copias' : 'Cuenta y copias de seguridad');
@@ -1263,7 +1263,8 @@ details.correo[open] summary { color: var(--ink); }
     'auth/account-exists-with-different-credential': 'Ese correo ya tiene una cuenta con otro método. Probá entrar con tu contraseña.',
     'auth/popup-blocked': 'El navegador bloqueó la ventana de Google. Permitila y probá de nuevo.',
   };
-  const textoErrorCuenta = e => ERRORES_CUENTA[e && e.code] || 'No se pudo completar. Probá de nuevo.';
+  const textoErrorCuenta = e => ERRORES_CUENTA[e && e.code]
+    || (e && e.code === 'auth/google-nativo' ? 'No se pudo entrar con Google (' + e.message + ').' : 'No se pudo completar. Probá de nuevo.');
   function msgNube(t, err) { const m = $('#nube-msg'); m.textContent = t; m.className = 'sheet-msg' + (err ? ' err' : ''); }
 
   // ---------- Formulario de producto ----------
@@ -1449,6 +1450,18 @@ details.correo[open] summary { color: var(--ink); }
     catch (e) { msgNube(textoErrorCuenta(e), true); }
   });
   $('#nube-salir').addEventListener('click', () => { if (nube.auth) nube.A.signOut(nube.auth); toast('Sesión cerrada. Los datos siguen en este teléfono.'); });
+  // En la app Android, Google no deja entrar desde una WebView: elige la cuenta Android y nos pasa el token.
+  async function entrarGoogleNativo() {
+    const token = await new Promise((ok, ko) => {
+      window.kioscoGoogle = (t, err) => {
+        window.kioscoGoogle = null;
+        if (t) ok(t);
+        else ko(Object.assign(new Error(err || 'No se pudo entrar con Google'), { code: err === 'cancelado' ? 'auth/popup-closed-by-user' : 'auth/google-nativo' }));
+      };
+      KioscoNative.googleSignIn();
+    });
+    await nube.A.signInWithCredential(nube.auth, nube.A.GoogleAuthProvider.credential(token));
+  }
   // Entrar con Google: una ventana, elegir la cuenta y listo. Si el navegador no deja abrirla, se hace en la misma pestaña.
   $('#nube-google').addEventListener('click', async () => {
     if (!nube.auth) { msgNube('La nube todavía no cargó. Revisá que haya internet.', true); iniciarNube(); return; }
@@ -1456,7 +1469,8 @@ details.correo[open] summary { color: var(--ink); }
     const proveedor = new nube.A.GoogleAuthProvider();
     proveedor.setCustomParameters({ prompt: 'select_account' });
     try {
-      await nube.A.signInWithPopup(nube.auth, proveedor);
+      if (window.KioscoNative && KioscoNative.googleSignIn) await entrarGoogleNativo();
+      else await nube.A.signInWithPopup(nube.auth, proveedor);
       msgNube('');
       toast('Listo, conectado a la nube');
     } catch (e) {

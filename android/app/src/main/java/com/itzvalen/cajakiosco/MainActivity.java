@@ -19,8 +19,22 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.credentials.Credential;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.CredentialManagerCallback;
+import androidx.credentials.CustomCredential;
+import androidx.credentials.GetCredentialRequest;
+import androidx.credentials.GetCredentialResponse;
+import androidx.credentials.exceptions.GetCredentialCancellationException;
+import androidx.credentials.exceptions.GetCredentialException;
 import androidx.webkit.WebViewAssetLoader;
+
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,6 +42,8 @@ import java.io.FileOutputStream;
 public class MainActivity extends Activity {
     private static final String HOST = "appassets.androidplatform.net";
     private static final int REQ_FILE = 1;
+    // Cliente web de Google del proyecto Firebase caja-del-kiosco: Firebase acepta tokens emitidos para este cliente.
+    private static final String GOOGLE_WEB_CLIENT_ID = "556791310485-84seftn6u3ng936b82fk2a53icu3q33f.apps.googleusercontent.com";
 
     private WebView web;
     private ValueCallback<Uri[]> pendingChooser;
@@ -121,6 +137,12 @@ public class MainActivity extends Activity {
         else super.onBackPressed();
     }
 
+    private void devolverGoogle(String token, String error) {
+        String js = "window.kioscoGoogle && kioscoGoogle(" + (token == null ? "null" : JSONObject.quote(token)) + ", "
+                + (error == null ? "null" : JSONObject.quote(error)) + ")";
+        web.evaluateJavascript(js, null);
+    }
+
     /** Lo que el navegador hace con navigator.share y las descargas, acá lo hace Android. */
     private class Bridge {
         /** Pinta la barra de estado y la de navegación del color del tema elegido en la app. */
@@ -144,6 +166,35 @@ public class MainActivity extends Activity {
                     if (!dark) flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
                 }
                 w.getDecorView().setSystemUiVisibility(flags);
+            });
+        }
+
+        /** Elige una cuenta de Google del teléfono y devuelve su token a la página (window.kioscoGoogle). */
+        @JavascriptInterface
+        public void googleSignIn() {
+            runOnUiThread(() -> {
+                GetCredentialRequest req = new GetCredentialRequest.Builder()
+                        .addCredentialOption(new GetSignInWithGoogleOption.Builder(GOOGLE_WEB_CLIENT_ID).build())
+                        .build();
+                CredentialManager.create(MainActivity.this).getCredentialAsync(MainActivity.this, req, null,
+                        ContextCompat.getMainExecutor(MainActivity.this),
+                        new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
+                            @Override
+                            public void onResult(GetCredentialResponse r) {
+                                Credential c = r.getCredential();
+                                if (c instanceof CustomCredential
+                                        && GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL.equals(c.getType())) {
+                                    devolverGoogle(GoogleIdTokenCredential.createFrom(c.getData()).getIdToken(), null);
+                                } else {
+                                    devolverGoogle(null, "respuesta inesperada");
+                                }
+                            }
+
+                            @Override
+                            public void onError(GetCredentialException e) {
+                                devolverGoogle(null, e instanceof GetCredentialCancellationException ? "cancelado" : String.valueOf(e.getMessage()));
+                            }
+                        });
             });
         }
 
