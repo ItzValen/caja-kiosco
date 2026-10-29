@@ -13,10 +13,13 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Kiosco">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="preload" href="fonts/figtree.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+/* Tipografías incluidas en la app (subconjunto latino de Google Fonts): abre al instante y sin internet. */
+@font-face { font-family: "Bricolage Grotesque"; font-weight: 600 800; font-display: swap; src: url(fonts/bricolage-grotesque.woff2) format("woff2"); }
+@font-face { font-family: "Figtree"; font-weight: 400 700; font-display: swap; src: url(fonts/figtree.woff2) format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 500; font-display: swap; src: url(fonts/ibm-plex-mono-500.woff2) format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 600; font-display: swap; src: url(fonts/ibm-plex-mono-600.woff2) format("woff2"); }
 /* Layout: mostrador de dos columnas (catálogo | ticket) que se apila en el teléfono; cartel amarillo de kiosco como acento */
 :root {
   --bg: #e6eaf0;
@@ -235,6 +238,32 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 .nube-form { display: flex; flex-direction: column; gap: 10px; }
 .nube-form .field { max-width: 420px; }
 
+/* Avisos con botón: el botón queda a la derecha del texto y no ocupa otra línea */
+.banner:has(> .btn.sm) { flex-wrap: nowrap; }
+.banner:has(> .btn.sm) > span { flex: 1 1 auto; min-width: 0; }
+.banner:has(> .btn.sm) > .btn { flex: none; }
+
+/* Botón de cuenta en la barra superior */
+.top .wrap > .today { order: 1; }
+.cuenta-btn { order: 2; position: relative; flex: none; width: 40px; height: 40px; padding: 0; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; font-family: var(--f-display); font-weight: 800; font-size: 17px; }
+.cuenta-btn svg { width: 22px; height: 22px; }
+.cuenta-btn i { position: absolute; right: -2px; bottom: -2px; width: 12px; height: 12px; border-radius: 50%; background: var(--warn); border: 2px solid var(--surface); }
+.cuenta-btn.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.cuenta-btn.on i { background: var(--cash); }
+nav.tabs { order: 3; }
+@media (max-width: 560px) { .cuenta-btn { order: 0; } }
+@media (pointer: coarse) { .cuenta-btn { width: 44px; height: 44px; } }
+
+/* Hoja de cuenta */
+.cuenta-bloque { display: flex; flex-direction: column; gap: 10px; }
+.cuenta-bloque + .cuenta-bloque { border-top: 1px solid var(--line); padding-top: 16px; }
+.cuenta-bloque h3 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 16px; }
+.sheet-acts .btn-google { flex-basis: 100%; gap: 10px; background: #fff; color: #1f1f1f; border-color: #747775; }
+.btn-google svg { width: 18px; height: 18px; flex: none; }
+details.correo summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 600; color: var(--muted); }
+details.correo[open] summary { color: var(--ink); }
+.nube-form .field { max-width: none; }
+
 /* Hoja de compartir */
 .sheet-bg { position: fixed; inset: 0; z-index: 25; background: rgba(8, 12, 20, .55); display: flex; align-items: flex-end; justify-content: center; }
 .sheet { width: 100%; max-width: 560px; max-height: 92%; overflow-y: auto; overscroll-behavior: contain; background: var(--surface); border: 1px solid var(--line); border-radius: 16px 16px 0 0; display: flex; flex-direction: column; gap: 12px; padding-top: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
@@ -248,7 +277,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 
 /* Barra inferior en el teléfono */
 .dock { display: none; }
-.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-weight: 600; transition: .2s; pointer-events: none; z-index: 20; max-width: calc(100% - 32px); }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-weight: 600; transition: .2s; pointer-events: none; z-index: 40; max-width: calc(100% - 32px); }
 .toast.on { opacity: 1; transform: translate(-50%, 0); }
 .toast.err { background: var(--danger); color: #fff; }
 
@@ -308,7 +337,11 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 <body>
 <header class="top">
   <div class="wrap">
-    <div class="brand"><img class="logo" src="logo.svg" alt="" width="34" height="34"><h1>Caja del Kiosco</h1><button class="btn sm primary" id="instalar" type="button" hidden>Instalar app</button></div>
+    <div class="brand"><img class="logo" src="logo.svg" alt="" width="34" height="34"><h1>Caja del Kiosco</h1></div>
+    <button class="cuenta-btn" id="cuenta-btn" type="button" aria-label="Cuenta y copias de seguridad" aria-haspopup="dialog">
+      <svg id="cuenta-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20c.6-3.7 3.5-5.8 7.5-5.8s6.9 2.1 7.5 5.8"/></svg>
+      <span id="cuenta-letra" hidden></span><i></i>
+    </button>
     <div class="today">
       <span id="fecha-larga"></span>
       <span>Hoy <strong class="num" id="hoy-total">$ 0</strong> · <span id="hoy-n">0 ventas</span></span>
@@ -328,8 +361,8 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
   </div>
 
   <div class="banner" id="nube-aviso" hidden>
-    <span>Tus datos están solo en este teléfono. Activá el guardado en la nube para no perderlos.</span>
-    <button class="btn sm primary" id="nube-ir" type="button">Activar</button>
+    <span>Tus datos están solo en este teléfono. Entrá con tu cuenta para guardarlos también en la nube.</span>
+    <button class="btn sm primary" id="nube-ir" type="button">Entrar</button>
   </div>
   <div class="banner" id="ios-tip" hidden>
     <span>Para instalarla en el iPhone: en Safari tocá <b>Compartir</b> y después <b>Agregar a inicio</b>.</span>
@@ -462,35 +495,6 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
         </form>
         <div id="notas-list"></div>
       </div>
-      <div class="panel" id="nube">
-        <div class="panel-head"><h2>Guardado en la nube</h2><span class="label" id="nube-estado"></span></div>
-        <div id="nube-fuera">
-          <form class="nube-form" id="nube-form">
-            <p class="sheet-note" style="margin:0">Entrá con tu correo y una contraseña para que todo se guarde también en la nube. Si cambiás de teléfono, entrás con la misma cuenta y aparece todo. Sin internet la app sigue funcionando y sube los cambios cuando vuelve la señal.</p>
-            <div class="field"><label for="nube-email">Correo</label><input class="input" id="nube-email" type="email" inputmode="email" autocomplete="email" required></div>
-            <div class="field"><label for="nube-pass">Contraseña</label><input class="input" id="nube-pass" type="password" autocomplete="current-password" minlength="6" required></div>
-            <div class="sheet-acts">
-              <button class="btn primary" type="submit">Entrar</button>
-              <button class="btn" type="button" id="nube-crear">Crear cuenta</button>
-              <button class="btn" type="button" id="nube-olvide">Olvidé la contraseña</button>
-            </div>
-            <div class="sheet-msg" id="nube-msg" role="status" aria-live="polite"></div>
-          </form>
-        </div>
-        <div id="nube-dentro" hidden>
-          <p style="margin:0">Conectado como <b id="nube-cuenta"></b>. Lo que cargues se guarda en este teléfono y en la nube.</p>
-          <div class="sheet-acts" style="margin-top:12px"><button class="btn" type="button" id="nube-salir">Cerrar sesión</button></div>
-        </div>
-      </div>
-      <div class="panel" id="backup">
-        <div class="panel-head"><h2>Copia de seguridad</h2></div>
-        <p class="sheet-note" style="margin:0">Además de la nube, podés guardar una copia en un archivo cuando quieras, por ejemplo en Drive o por WhatsApp.</p>
-        <div class="sheet-acts">
-          <button class="btn" id="bk-save" type="button">Guardar copia</button>
-          <button class="btn" id="bk-load" type="button">Restaurar una copia</button>
-          <input type="file" id="bk-file" accept=".json,application/json" hidden>
-        </div>
-      </div>
     </div>
   </section>
 </main>
@@ -498,6 +502,51 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 <div class="dock" id="dock" hidden>
   <div class="info"><span id="dock-n">0 ítems</span><span class="num" id="dock-total">$ 0</span></div>
   <button class="btn primary" id="dock-go" type="button">Ver ticket y cobrar</button>
+</div>
+<div class="sheet-bg" id="cuenta-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="cuenta-t">
+    <div class="panel-head"><h2 id="cuenta-t">Cuenta y copias</h2><button class="btn sm" id="cuenta-x" type="button">Cerrar</button></div>
+
+    <div class="cuenta-bloque">
+      <div class="panel-head"><h3>Guardado en la nube</h3><span class="label" id="nube-estado"></span></div>
+      <div id="nube-fuera" class="cuenta-bloque">
+        <p class="sheet-note" style="margin:0">Entrá con tu cuenta para guardar todo también en la nube. Si cambiás de teléfono, entrás igual y aparece todo. Sin internet la app sigue funcionando y sube los cambios cuando vuelve la señal.</p>
+        <div class="sheet-acts"><button class="btn btn-google" type="button" id="nube-google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Continuar con Google</button></div>
+        <details class="correo">
+          <summary>Entrar con correo y contraseña</summary>
+          <form class="nube-form" id="nube-form">
+            <div class="field"><label for="nube-email">Correo</label><input class="input" id="nube-email" type="email" inputmode="email" autocomplete="email" required></div>
+            <div class="field"><label for="nube-pass">Contraseña</label><input class="input" id="nube-pass" type="password" autocomplete="current-password" minlength="6" required></div>
+            <div class="sheet-acts">
+              <button class="btn primary" type="submit">Entrar</button>
+              <button class="btn" type="button" id="nube-crear">Crear cuenta</button>
+              <button class="btn" type="button" id="nube-olvide">Olvidé la contraseña</button>
+            </div>
+          </form>
+        </details>
+      </div>
+      <div id="nube-dentro" class="cuenta-bloque" hidden>
+        <p style="margin:0">Conectado como <b id="nube-cuenta"></b>. Lo que cargues se guarda en este teléfono y en la nube.</p>
+        <div class="sheet-acts"><button class="btn" type="button" id="nube-salir">Cerrar sesión</button></div>
+      </div>
+      <div class="sheet-msg" id="nube-msg" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="cuenta-bloque">
+      <h3>Copia de seguridad</h3>
+      <p class="sheet-note" style="margin:0">Además de la nube, podés guardar una copia en un archivo cuando quieras, por ejemplo en Drive o por WhatsApp.</p>
+      <div class="sheet-acts">
+        <button class="btn" id="bk-save" type="button">Guardar copia</button>
+        <button class="btn" id="bk-load" type="button">Restaurar una copia</button>
+        <input type="file" id="bk-file" accept=".json,application/json" hidden>
+      </div>
+    </div>
+
+    <div class="cuenta-bloque" id="instalar-bloque" hidden>
+      <h3>Instalar</h3>
+      <div class="sheet-acts"><button class="btn" id="instalar" type="button">Instalar app en este teléfono</button></div>
+    </div>
+  </div>
 </div>
 <div class="sheet-bg" id="sheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-t">
@@ -1079,11 +1128,12 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
       const [{ initializeApp }, A, F] = await Promise.all([import(FB + 'firebase-app.js'), import(FB + 'firebase-auth.js'), import(FB + 'firebase-firestore.js')]);
       const app = initializeApp(FIREBASE);
       nube.A = A; nube.F = F;
-      nube.auth = A.initializeAuth(app, { persistence: [A.indexedDBLocalPersistence, A.browserLocalPersistence] });
+      nube.auth = A.initializeAuth(app, { persistence: [A.indexedDBLocalPersistence, A.browserLocalPersistence], popupRedirectResolver: A.browserPopupRedirectResolver });
       // La base guarda una copia en el teléfono: funciona sin internet y sube los cambios al volver la señal.
       try { nube.db = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); }
       catch (e) { nube.db = F.getFirestore(app); }
       A.onAuthStateChanged(nube.auth, u => { if (u) entrarNube(u); else salirNube(); });
+      A.getRedirectResult(nube.auth).catch(e => { if (e && e.code !== 'auth/no-auth-event') msgNube(textoErrorCuenta(e), true); });
     } catch (e) {
       nube.estado = 'error';
       renderNube();
@@ -1092,7 +1142,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 
   async function entrarNube(u) {
     if (nube.uid === u.uid) return;
-    nube.uid = u.uid; nube.email = u.email; nube.estado = 'dentro';
+    nube.uid = u.uid; nube.email = u.email; nube.nombre = u.displayName || ''; nube.estado = 'dentro';
     for (const k in fotoURL) if (!fotoURL[k]) delete fotoURL[k];   // reintenta las fotos que faltaban
     // La primera vez que esta cuenta entra en este equipo, sube lo que ya estaba cargado sin pisar lo de la nube.
     let subido = false;
@@ -1113,7 +1163,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
   function salirNube() {
     nube.escuchas.forEach(fn => fn());
     nube.escuchas = []; nube.pend = {};
-    nube.uid = null; nube.email = null; nube.estado = 'fuera';
+    nube.uid = null; nube.email = null; nube.nombre = ''; nube.estado = 'fuera';
     render();
   }
 
@@ -1178,6 +1228,12 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     $('#nube-cuenta').textContent = nube.email || '';
     $('#nube-estado').textContent = dentro ? (nubePendiente() ? 'Subiendo…' : 'Activo') : nube.estado === 'error' ? 'Sin conexión' : '';
     $('#nube-aviso').hidden = dentro || nube.estado !== 'fuera';
+    const btn = $('#cuenta-btn');
+    btn.classList.toggle('on', dentro);
+    $('#cuenta-icono').hidden = dentro;
+    $('#cuenta-letra').hidden = !dentro;
+    $('#cuenta-letra').textContent = dentro ? ((nube.nombre || nube.email || '?').trim()[0] || '?').toUpperCase() : '';
+    btn.setAttribute('aria-label', dentro ? 'Cuenta: ' + (nube.email || '') + '. Abrir cuenta y copias' : 'Cuenta y copias de seguridad');
     renderHeader();
   }
 
@@ -1191,6 +1247,9 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     'auth/missing-email': 'Escribí tu correo.',
     'auth/network-request-failed': 'Sin internet. Para entrar hace falta conexión; después funciona sin señal.',
     'auth/too-many-requests': 'Demasiados intentos. Esperá unos minutos y probá de nuevo.',
+    'auth/unauthorized-domain': 'Esta dirección no está autorizada para entrar con Google.',
+    'auth/account-exists-with-different-credential': 'Ese correo ya tiene una cuenta con otro método. Probá entrar con tu contraseña.',
+    'auth/popup-blocked': 'El navegador bloqueó la ventana de Google. Permitila y probá de nuevo.',
   };
   const textoErrorCuenta = e => ERRORES_CUENTA[e && e.code] || 'No se pudo completar. Probá de nuevo.';
   function msgNube(t, err) { const m = $('#nube-msg'); m.textContent = t; m.className = 'sheet-msg' + (err ? ' err' : ''); }
@@ -1378,7 +1437,39 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
     catch (e) { msgNube(textoErrorCuenta(e), true); }
   });
   $('#nube-salir').addEventListener('click', () => { if (nube.auth) nube.A.signOut(nube.auth); toast('Sesión cerrada. Los datos siguen en este teléfono.'); });
-  $('#nube-ir').addEventListener('click', () => { mostrar('caja'); $('#nube').scrollIntoView({ block: 'start' }); $('#nube-email').focus(); });
+  // Entrar con Google: una ventana, elegir la cuenta y listo. Si el navegador no deja abrirla, se hace en la misma pestaña.
+  $('#nube-google').addEventListener('click', async () => {
+    if (!nube.auth) { msgNube('La nube todavía no cargó. Revisá que haya internet.', true); iniciarNube(); return; }
+    msgNube('Abriendo Google…');
+    const proveedor = new nube.A.GoogleAuthProvider();
+    proveedor.setCustomParameters({ prompt: 'select_account' });
+    try {
+      await nube.A.signInWithPopup(nube.auth, proveedor);
+      msgNube('');
+      toast('Listo, conectado a la nube');
+    } catch (e) {
+      const c = e && e.code;
+      if (c === 'auth/popup-closed-by-user' || c === 'auth/cancelled-popup-request') { msgNube(''); return; }
+      if (c === 'auth/popup-blocked' || c === 'auth/operation-not-supported-in-this-environment') {
+        try { await nube.A.signInWithRedirect(nube.auth, proveedor); return; } catch (e2) { msgNube(textoErrorCuenta(e2), true); return; }
+      }
+      msgNube(textoErrorCuenta(e), true);
+    }
+  });
+
+  // Hoja de cuenta (botón de la barra superior)
+  function abrirCuenta() {
+    msgNube('');
+    $('#cuenta-sheet').hidden = false;
+    document.body.style.overflow = 'hidden';
+    $('#cuenta-x').focus();
+  }
+  function cerrarCuenta() { $('#cuenta-sheet').hidden = true; document.body.style.overflow = ''; }
+  $('#cuenta-btn').addEventListener('click', abrirCuenta);
+  $('#nube-ir').addEventListener('click', abrirCuenta);
+  $('#cuenta-x').addEventListener('click', cerrarCuenta);
+  $('#cuenta-sheet').addEventListener('click', e => { if (e.target === e.currentTarget) cerrarCuenta(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#cuenta-sheet').hidden) cerrarCuenta(); });
 
   $('#sheet-native').addEventListener('click', async () => {
     if (window.KioscoNative) { KioscoNative.shareText($('#sheet-txt').value); return; }
@@ -1435,13 +1526,13 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
   // Instalar: Android avisa que se puede instalar; en iPhone se hace desde Compartir en Safari.
   let pedidoInstalar = null;
   const instalada = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  addEventListener('beforeinstallprompt', e => { e.preventDefault(); pedidoInstalar = e; $('#instalar').hidden = false; });
-  addEventListener('appinstalled', () => { $('#instalar').hidden = true; toast('App instalada'); });
+  addEventListener('beforeinstallprompt', e => { e.preventDefault(); pedidoInstalar = e; $('#instalar-bloque').hidden = false; });
+  addEventListener('appinstalled', () => { $('#instalar-bloque').hidden = true; toast('App instalada'); });
   $('#instalar').addEventListener('click', async () => {
     if (!pedidoInstalar) return;
     pedidoInstalar.prompt();
     await pedidoInstalar.userChoice;
-    pedidoInstalar = null; $('#instalar').hidden = true;
+    pedidoInstalar = null; $('#instalar-bloque').hidden = true;
   });
   const esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   let tipVisto = false;

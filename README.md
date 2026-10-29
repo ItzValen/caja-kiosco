@@ -8,15 +8,15 @@ App para anotar las ventas del kiosco (efectivo, transferencia o pago dividido),
 - **Productos:** precio, stock, aviso de stock bajo y fecha de vencimiento, con filtros para lo vencido o por vencer.
 - **Caja del día:** total, efectivo, transferencia, lo más vendido, todas las ventas, y anotaciones con fotos.
 - **Compartir:** el reporte de caja y la lista de productos, por WhatsApp, como texto o como planilla CSV.
-- **Copia de seguridad:** un archivo `.json` con todos los datos, fotos incluidas, para guardar o restaurar.
+- **Cuenta y copias:** el botón de persona de la barra superior abre el menú para entrar con Google (o con correo y contraseña) y para guardar o restaurar una copia de seguridad en un archivo `.json`, fotos incluidas.
 
 ## Dónde quedan los datos
 
 Todo se guarda en el equipo donde se usa, dentro del navegador (IndexedDB), así funciona sin internet.
 
-Si se entra con una cuenta (correo y contraseña) en **Caja del día → Guardado en la nube**, además se sincroniza con Firebase (proyecto `caja-del-kiosco`, Firestore en São Paulo). Sin señal, los cambios quedan en fila en el teléfono y se suben solos cuando vuelve internet. Con la misma cuenta se ven los mismos datos en varios teléfonos. Las reglas de [`firestore.rules`](firestore.rules) hacen que cada cuenta solo pueda leer y escribir sus propios datos.
+Si se entra con una cuenta (Google, o correo y contraseña) desde el botón de cuenta de la barra superior, además se sincroniza con Firebase (proyecto `caja-del-kiosco`, Firestore en São Paulo). Sin señal, los cambios quedan en fila en el teléfono y se suben solos cuando vuelve internet. Con la misma cuenta se ven los mismos datos en varios teléfonos. Las reglas de [`firestore.rules`](firestore.rules) hacen que cada cuenta solo pueda leer y escribir sus propios datos.
 
-La copia de seguridad en archivo `.json` sigue disponible como respaldo extra.
+La copia de seguridad en archivo `.json` (en el mismo menú) sigue disponible como respaldo extra.
 
 ## Instalar en el celular
 
@@ -34,6 +34,7 @@ Después de cambiar cualquier archivo, subí el número de `VERSION` en `sw.js` 
 - `index.html`: la app completa.
 - `sw.js`: guarda la app en el teléfono para que funcione sin internet.
 - `manifest.webmanifest`, `logo.svg`, `icon-*.png`, `apple-touch-icon.png`: nombre, logo e íconos para instalarla.
+- `fonts/`: las tipografías, incluidas en la app para que abra al instante y sin internet.
 - `version-claude/kiosco.html`: la versión que se usa dentro de Claude, con datos en la nube.
 
 ## Probar en la computadora
