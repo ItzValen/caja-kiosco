@@ -5,10 +5,12 @@ App para anotar las ventas del kiosco (efectivo, transferencia o pago dividido),
 ## Qué hace
 
 - **Vender:** se arma el ticket tocando productos o con una venta libre, se elige el medio de pago y se calcula el vuelto.
+- **Lista de precios:** la app trae cargada la lista de precios del Kiosco San Miguel (64 productos, desde `PRODUCTOS_BASE` en `index.html`). Se carga una sola vez por equipo: suma los que no estén y no toca los que ya existían con el mismo nombre. Nacen sin stock; se carga con el botón **+** de cada producto.
 - **Productos:** precio, aviso de stock bajo y lotes (cada lote con su cantidad y su fecha de vencimiento), con filtros para lo vencido o por vencer. Al vender se descuenta del lote que vence antes; el botón **+** de cada producto suma un lote nuevo.
 - **Promos:** cada producto puede tener una promo (descuento en %, precio rebajado, o combo tipo 3 por $3.900), con fecha de fin opcional. Se aplica sola en el ticket y queda registrada en la venta.
 - **Promos con varios productos:** en Productos > Promos se arman "Promo 1", "Promo 2"… (por ejemplo una cerveza + un sándwich por un precio). Aparecen arriba del catálogo al vender; tocarlas las suma al ticket y al cobrar el precio se reparte entre sus productos, así el stock y los lotes bajan por producto.
 - **Caja del día:** total, efectivo, transferencia, lo más vendido, todas las ventas, y anotaciones con fotos.
+- **Cerrar caja:** la caja abierta no cambia sola a la medianoche: las ventas y notas siguen yendo a ese día hasta tocar **Cerrar caja** (en Caja, con un segundo toque para confirmar). Recién ahí se abre la del día siguiente. El día abierto se guarda en el equipo (`turno` en IndexedDB).
 - **Compartir:** el reporte de caja y la lista de productos, por WhatsApp, como texto o como planilla CSV.
 - **Cuenta y copias:** el botón de persona de la barra superior abre el menú para entrar con Google (o con correo y contraseña) y para guardar o restaurar una copia de seguridad en un archivo `.json`, fotos incluidas.
 

@@ -167,7 +167,6 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 .chip.warn { background: var(--warn-soft); color: var(--warn); }
 .chip.bad { background: var(--danger-soft); color: var(--danger); }
 .chip.ok { background: var(--sunk); color: var(--muted); }
-.chip.ej { background: var(--sunk); color: var(--muted); font-weight: 600; border: 1px dashed var(--line); }
 
 .sales { display: flex; flex-direction: column; }
 .sale { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 4px 10px; padding: 10px 0; border-bottom: 1px solid var(--line); align-items: start; }
@@ -483,7 +482,6 @@ s { color: var(--muted); font-weight: 400; }
   .cb-item { grid-template-columns: minmax(0, 1fr) auto; }
   .cb-item .num { grid-column: 1; grid-row: 2; text-align: left; }
   .cb-item .btn { grid-column: 2; grid-row: 1 / span 2; }
-  .prow .nm .chip.ej { display: none; }
   .vuelto { font-size: 16px; }
   .panel { padding: 14px; }
   .combos-bar { grid-template-columns: minmax(0, 1fr); }
@@ -521,9 +519,9 @@ s { color: var(--muted); font-weight: 400; }
   <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5M7 9.5l5-5 5 5"/><path d="M5 20h14"/></symbol>
   <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4h5v16h-5"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol>
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
-  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9.5 3.5h5M10.5 3.5v6L5 19a1.5 1.5 0 0 0 1.3 2.2h11.4A1.5 1.5 0 0 0 19 19l-5.5-9.5v-6"/><path d="M7.5 15h9"/></symbol>
   <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3.5 12.5V4.5a1 1 0 0 1 1-1h8l8 8-9 9z"/><circle cx="8.3" cy="8.3" r="1.3"/></symbol>
   <symbol id="i-inf" viewBox="0 0 24 24"><path d="M7 8a4 4 0 1 0 0 8c4 0 6-8 10-8a4 4 0 1 1 0 8c-4 0-6-8-10-8z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></symbol>
   <symbol id="i-note" viewBox="0 0 24 24"><path d="M5 4h14v11l-5 5H5z"/><path d="M14 20v-5h5"/></symbol>
 </svg>
 
@@ -539,7 +537,7 @@ s { color: var(--muted); font-weight: 400; }
       <span id="cuenta-letra" hidden></span><i></i>
     </button>
     <div class="today">
-      <span class="hoy"><span class="label">Hoy</span> <strong class="num" id="hoy-total">$ 0</strong></span>
+      <span class="hoy"><span class="label" id="hoy-label">Hoy</span> <strong class="num" id="hoy-total">$ 0</strong></span>
       <span class="status" id="status" hidden><i></i><span></span></span>
     </div>
     <nav class="tabs" role="tablist">
@@ -605,7 +603,7 @@ s { color: var(--muted); font-weight: 400; }
         </div>
 
         <div class="panel" style="margin-top:16px">
-          <div class="panel-head"><h2>Hoy</h2><span class="label" id="ventas-hoy-n"></span></div>
+          <div class="panel-head"><h2 id="ventas-hoy-t">Hoy</h2><span class="label" id="ventas-hoy-n"></span></div>
           <div class="sales" id="ventas-hoy"></div>
         </div>
       </div>
@@ -639,7 +637,6 @@ s { color: var(--muted); font-weight: 400; }
       <div class="toolbar">
         <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input class="input" id="pbusq" type="search" placeholder="Buscar" aria-label="Buscar por nombre o categoría" autocomplete="off"></div>
         <button class="btn icon" id="p-compartir" type="button" aria-label="Compartir lista"><svg class="ic" aria-hidden="true"><use href="#i-share"/></svg></button>
-        <button class="btn icon" id="p-ejemplos" type="button" aria-label="Regenerar productos de ejemplo" title="Regenerar ejemplos"><svg class="ic" aria-hidden="true"><use href="#i-flask"/></svg></button>
         <button class="btn primary" id="p-nuevo" type="button" aria-label="Nuevo producto"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg><span class="lbl">Nuevo</span></button>
       </div>
       <div class="filters" id="filters">
@@ -647,10 +644,6 @@ s { color: var(--muted); font-weight: 400; }
         <button type="button" data-f="vencer" aria-pressed="false"></button>
         <button type="button" data-f="stock" aria-pressed="false"></button>
         <button type="button" data-f="promo" aria-pressed="false"></button>
-      </div>
-      <div class="banner" id="ejemplos" hidden>
-        <span><span class="chip ej">ejemplo</span></span>
-        <button class="btn sm danger" id="borrar-ej" type="button">Borrar</button>
       </div>
 
       <form class="pform panel" id="pform" hidden style="background:var(--sunk)">
@@ -707,6 +700,7 @@ s { color: var(--muted); font-weight: 400; }
         <div class="tile"><span class="label" style="color:var(--cash)"><svg class="ic" aria-hidden="true"><use href="#i-cash"/></svg>Efectivo</span><span class="num" id="c-ef">$ 0</span><span class="sub" id="c-ef-n"></span></div>
         <div class="tile"><span class="label" style="color:var(--transfer)"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Transf.</span><span class="num" id="c-tr">$ 0</span><span class="sub" id="c-tr-n"></span></div>
       </div>
+      <button class="btn" id="caja-cerrar" type="button" hidden></button>
       <div class="cols">
         <div class="panel"><h2>Más vendido</h2><div class="top5" id="c-top"></div></div>
         <div class="panel"><h2>Ventas</h2><div class="sales" id="c-ventas"></div></div>
@@ -816,6 +810,7 @@ s { color: var(--muted); font-weight: 400; }
     ticket: [],
     medio: 'efectivo',
     filtro: 'todos',
+    turno: ymd(new Date()), // día de la caja abierta: las ventas van ahí hasta tocar "Cerrar caja", aunque pase la medianoche
     diaCaja: ymd(new Date()),
     editId: null,
     armed: null,         // botón de confirmación activo
@@ -937,6 +932,9 @@ s { color: var(--muted); font-weight: 400; }
     try {
       const d = await kv.get('estado', 'datos');
       if (d) { S.productos = d.productos || []; S.combos = d.combos || []; S.dias = d.dias || {}; S.notas = d.notas || {}; normProductos(); }
+      // La caja abierta sigue siendo la misma aunque la app se cierre y pase la medianoche.
+      const t = await kv.get('estado', 'turno');
+      if (t) S.turno = S.diaCaja = t; else guardarTurno();
       S.modo = 'listo';
     } catch (e) { S.modo = 'error'; }
     S.cargado = true;
@@ -946,15 +944,28 @@ s { color: var(--muted); font-weight: 400; }
     iniciarNube();
   }
 
-  // Cambio de día con la página abierta
+  // Cambio de día con la página abierta: cambian las promos y los vencimientos, pero la caja sigue abierta.
   setInterval(() => {
     const h = ymd(new Date());
     if (h === S.hoy) return;
-    const eraHoy = S.diaCaja === S.hoy;
     S.hoy = h;
-    if (eraHoy) S.diaCaja = h;
     render();
   }, 60000);
+
+  // ---------- Caja abierta ----------
+  const guardarTurno = () => kv.set('estado', 'turno', S.turno).catch(() => toast('No se pudo guardar en este equipo', true));
+  const diaSiguiente = f => { const [y, m, d] = f.split('-').map(Number); return ymd(new Date(y, m - 1, d + 1)); };
+  // "Hoy" mientras la caja abierta es la de hoy; si no, su fecha (por ejemplo después de la medianoche).
+  const nombreTurno = () => S.turno === S.hoy ? 'Hoy' : 'Caja ' + fechaMini(S.turno);
+  // Cierra la caja abierta y abre la del día siguiente (o la de hoy, si ya pasaron varios días).
+  function cerrarCaja() {
+    const cerrada = S.turno;
+    S.turno = S.hoy > cerrada ? S.hoy : diaSiguiente(cerrada);
+    S.diaCaja = S.turno;
+    guardarTurno();
+    render();
+    toast('✓ Caja del ' + fechaMini(cerrada) + ' cerrada');
+  }
 
   // ---------- Ticket ----------
   // Promos: viven en el producto ({tipo:'pct'|'precio'|'combo', valor, n?, hasta?}) y se aplican al armar el ticket.
@@ -1040,7 +1051,7 @@ s { color: var(--muted); font-weight: 400; }
     if (!S.ticket.length) return;
     const total = totalTicket();
     const now = new Date();
-    const fecha = S.hoy;
+    const fecha = S.turno;
     const pg = pagosActuales();
     const medioVenta = pg.tr === 0 ? 'efectivo' : pg.ef === 0 ? 'transferencia' : 'mixto';
     const venta = {
@@ -1119,7 +1130,8 @@ s { color: var(--muted); font-weight: 400; }
   }
 
   function renderHeader() {
-    const v = ventasDe(S.hoy);
+    const v = ventasDe(S.turno);
+    $('#hoy-label').textContent = nombreTurno();
     $('#hoy-total').textContent = money(v.reduce((a, x) => a + num(x.total), 0));
     const st = $('#status');
     const enLaNube = nube.estado === 'dentro';
@@ -1212,9 +1224,10 @@ s { color: var(--muted); font-weight: 400; }
   }
 
   function renderVentasHoy() {
-    const v = [...ventasDe(S.hoy)].sort((a, b) => b.ts - a.ts);
+    const v = [...ventasDe(S.turno)].sort((a, b) => b.ts - a.ts);
+    $('#ventas-hoy-t').textContent = nombreTurno();
     $('#ventas-hoy-n').textContent = v.length ? String(v.length) : '';
-    $('#ventas-hoy').innerHTML = v.length ? v.map(x => ventaHTML(x, S.hoy)).join('') :
+    $('#ventas-hoy').innerHTML = v.length ? v.map(x => ventaHTML(x, S.turno)).join('') :
       '<div class="empty">Sin ventas</div>';
   }
 
@@ -1238,11 +1251,6 @@ s { color: var(--muted); font-weight: 400; }
       const base = { todos: 'Todos', vencer: ic('warn') + 'Vencen', stock: ic('down') + 'Poco stock', promo: ic('tag') + 'Promos' }[b.dataset.f];
       b.innerHTML = base + ' <b>' + (b.dataset.f === 'todos' ? S.productos.length : counts[b.dataset.f]) + '</b>';
     });
-    const ej = S.productos.filter(p => p.ejemplo).length;
-    $('#ejemplos').hidden = !ej;
-    const bej = $('#borrar-ej');
-    bej.className = 'btn sm ' + (S.armed === 'ejemplos' ? 'armed' : 'danger');
-    bej.textContent = S.armed === 'ejemplos' ? '¿Borrar ' + ej + '?' : 'Borrar';
     $('#cats').innerHTML = [...new Set(S.productos.map(p => p.categoria).filter(Boolean))].map(c => '<option value="' + esc(c) + '">').join('');
 
     let list = S.productos.filter(p => !q || (p.nombre + ' ' + (p.categoria || '')).toLowerCase().includes(q));
@@ -1259,7 +1267,7 @@ s { color: var(--muted); font-weight: 400; }
     }
     el.innerHTML = list.map(p => {
       const s = estadoStock(p);
-      return '<div class="prow"><span class="nm">' + esc(p.nombre) + (p.ejemplo ? ' <span class="chip ej">ejemplo</span>' : '') + (promoActiva(p) ? ' <span class="chip promo">' + ic('tag') + esc(etiquetaPromo(p)) + '</span>' : '') + (p.categoria ? '<small>' + esc(p.categoria) + '</small>' : '') + '</span>' +
+      return '<div class="prow"><span class="nm">' + esc(p.nombre) + (promoActiva(p) ? ' <span class="chip promo">' + ic('tag') + esc(etiquetaPromo(p)) + '</span>' : '') + (p.categoria ? '<small>' + esc(p.categoria) + '</small>' : '') + '</span>' +
         '<span class="num">' + (precioUnidadPromo(p) !== null && precioUnidadPromo(p) < num(p.precio) ? '<s>' + money(p.precio) + '</s> ' + money(precioUnidadPromo(p)) : money(p.precio)) + '</span>' +
         '<span class="st"><span class="num" style="text-align:left">' + num(p.stock) + ' u.</span>' + (s.k !== 'ok' ? '<span class="chip ' + s.k + '">' + s.corto + '</span>' : '') + '</span>' +
         '<span class="vc">' + venceHTML(p) + '</span>' +
@@ -1271,7 +1279,9 @@ s { color: var(--muted); font-weight: 400; }
   function renderCaja() {
     const f = S.diaCaja;
     $('#caja-fecha').value = f;
-    $('#caja-hoy').hidden = f === S.hoy;
+    $('#caja-hoy').hidden = f === S.turno;
+    $('#caja-hoy').textContent = S.turno === S.hoy ? 'Hoy' : 'Abierta';
+    pintarCerrarCaja();
     const v = ventasDe(f);
     const sum = arr => arr.reduce((a, x) => a + num(x.total), 0);
     const total = sum(v);
@@ -1319,7 +1329,7 @@ s { color: var(--muted); font-weight: 400; }
   function renderNotas() {
     const f = S.diaCaja;
     const lista = [...notasDe(f)].sort((a, b) => b.ts - a.ts);
-    $('#notas-dia').textContent = f === S.hoy ? '' : fechaCorta(f);
+    $('#notas-dia').textContent = f === S.turno && f === S.hoy ? '' : fechaCorta(f);
     $('#nota-prev').innerHTML = S.pend.map((p, i) => thumbHTML(p.url, '<button type="button" class="x" data-quitar-foto="' + i + '" aria-label="Quitar foto">×</button>')).join('');
     $('#nota-foto').disabled = !S.assets || S.pend.length >= MAX_FOTOS || S.guardandoNota;
     $('#nota-foto').innerHTML = ic('camera') + (S.pend.length ? S.pend.length : '');
@@ -1481,6 +1491,7 @@ s { color: var(--muted); font-weight: 400; }
       A.getRedirectResult(nube.auth).catch(e => { if (e && e.code !== 'auth/no-auth-event') msgNube(textoErrorCuenta(e), true); });
     } catch (e) {
       nube.estado = 'error';
+      sembrarBase(false);
       renderNube();
     }
   }
@@ -1498,8 +1509,8 @@ s { color: var(--muted); font-weight: 400; }
       s => { nube.pend[nombre] = s.metadata.hasPendingWrites; aplicar(s); S.cargado = true; guardar(); render(); },
       errNube);
     nube.escuchas = [
-      escucha('productos', s => { S.productos = s.docs.filter(d => d.data().nombre).map(d => ({ id: d.id, ...d.data() })); normProductos(); }),
-      escucha('combos', s => { S.combos = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => Array.isArray(c.items)); }),
+      escucha('productos', s => { S.productos = s.docs.filter(d => d.data().nombre).map(d => ({ id: d.id, ...d.data() })); normProductos(); limpiarEjemplos(); if (!s.metadata.fromCache) sembrarBase(); }),
+      escucha('combos', s => { S.combos = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => Array.isArray(c.items)); limpiarEjemplos(); }),
       escucha('dias', s => { S.dias = {}; s.docs.forEach(d => { S.dias[d.id] = d.data().items || []; }); }),
       escucha('notas', s => { S.notas = {}; s.docs.forEach(d => { S.notas[d.id] = d.data().items || []; }); }),
     ];
@@ -1510,6 +1521,7 @@ s { color: var(--muted); font-weight: 400; }
     nube.escuchas.forEach(fn => fn());
     nube.escuchas = []; nube.pend = {};
     nube.uid = null; nube.email = null; nube.nombre = ''; nube.estado = 'fuera';
+    sembrarBase();
     render();
   }
 
@@ -1615,7 +1627,7 @@ s { color: var(--muted); font-weight: 400; }
       '<span class="cn"><b>' + esc(c.nombre) + '</b><small>' + esc(comboTxt(c)) + '</small></span><span class="num">' + money(c.precio) + '</span></button>').join('');
     $('#cb-list').innerHTML = [...S.combos].sort(porNombre).map(c => {
       const faltan = !c.items.every(i => S.productos.some(p => p.id === i.productoId)), vencida = c.hasta && c.hasta < S.hoy, base = comboBase(c);
-      return '<div class="cb-item"><span class="nm"><b>' + esc(c.nombre) + '</b>' + (c.ejemplo ? ' <span class="chip ej">ejemplo</span>' : '') +
+      return '<div class="cb-item"><span class="nm"><b>' + esc(c.nombre) + '</b>' + 
         (faltan ? ' <span class="chip warn" title="Falta un producto">' + ic('warn') + '</span>' : vencida ? ' <span class="chip ok">Venció</span>' : c.hasta ? ' <span class="chip ok">Hasta ' + fechaMini(c.hasta) + '</span>' : '') +
         '<small>' + esc(comboTxt(c)) + '</small></span><span class="num">' + (base > c.precio ? '<s>' + money(base) + '</s> ' : '') + money(c.precio) + '</span>' +
         '<button type="button" class="btn sm icon ghost" data-cb-edit="' + esc(c.id) + '" aria-label="Editar ' + esc(c.nombre) + '">' + ic('edit') + '</button></div>';
@@ -1695,7 +1707,7 @@ s { color: var(--muted); font-weight: 400; }
       c.hasta = $('#cb-hasta').value;
     }
     const k = S.combos.findIndex(x => x.id === c.id);
-    if (k >= 0) { if (S.combos[k].ejemplo) c.ejemplo = true; S.combos[k] = c; } else S.combos.push(c);
+    if (k >= 0) S.combos[k] = c; else S.combos.push(c);
     cerrarComboForm(); render();
     toast('✓ ' + nombre);
     guardar();
@@ -1819,97 +1831,125 @@ s { color: var(--muted); font-weight: 400; }
   });
   $('#p-nuevo').addEventListener('click', () => abrirForm(null));
 
-  // Productos de ejemplo para probar: [nombre, categoría, precio, stock, avisar con, vence en N días (null = sin fecha)].
-  // Hay de todo a propósito: vencidos, por vencer, poco stock y agotados, para ver los filtros y avisos.
-  const EJEMPLOS = [
-    ['Alfajor triple', 'Golosinas', 1500, 24, 6, 120], ['Alfajor de maicena', 'Golosinas', 900, 18, 5, 60],
-    ['Chocolate con leche 100 g', 'Golosinas', 2800, 12, 4, 200], ['Caramelos masticables', 'Golosinas', 300, 60, 15, 300],
-    ['Chicles menta', 'Golosinas', 500, 40, 10, 400], ['Gomitas de azúcar', 'Golosinas', 1200, 3, 5, 90],
-    ['Turrón', 'Golosinas', 600, 0, 5, 150], ['Paleta de caramelo', 'Golosinas', 250, 80, 20, null],
-    ['Papas fritas 80 g', 'Snacks', 1800, 20, 5, 45], ['Maní salado', 'Snacks', 1100, 15, 4, 70],
-    ['Palitos salados', 'Snacks', 1000, 2, 4, 30], ['Galletitas dulces', 'Snacks', 1300, 22, 6, 5],
-    ['Galletitas de agua', 'Snacks', 1400, 16, 5, 110], ['Barra de cereal', 'Snacks', 800, 30, 8, 180],
-    ['Gaseosa cola 500 ml', 'Bebidas', 1800, 30, 8, 160], ['Gaseosa lima 500 ml', 'Bebidas', 1800, 14, 8, 160],
-    ['Agua mineral 500 ml', 'Bebidas', 1000, 48, 12, 365], ['Agua saborizada 500 ml', 'Bebidas', 1300, 6, 8, 120],
-    ['Jugo en caja 200 ml', 'Bebidas', 900, 25, 6, 3], ['Energizante 250 ml', 'Bebidas', 2500, 10, 4, 240],
-    ['Isotónica 500 ml', 'Bebidas', 2000, 1, 4, 200], ['Cerveza lata 473 ml', 'Bebidas', 2200, 36, 12, 270],
-    ['Yerba 500 g', 'Almacén', 4200, 9, 3, 300], ['Café instantáneo', 'Almacén', 5200, 5, 3, 330],
-    ['Azúcar 1 kg', 'Almacén', 1700, 12, 4, 400], ['Mayonesa sachet', 'Almacén', 700, 20, 6, -4],
-    ['Pan lactal', 'Almacén', 2600, 7, 3, 2], ['Fideos 500 g', 'Almacén', 1600, 18, 5, 500],
-    ['Leche entera 1 L', 'Lácteos', 1500, 14, 6, 6], ['Yogur bebible', 'Lácteos', 1300, 10, 5, 1],
-    ['Queso cremoso 200 g', 'Lácteos', 2900, 4, 3, 0], ['Dulce de leche 400 g', 'Lácteos', 3300, 8, 3, 180],
-    ['Cigarrillos x20', 'Cigarrería', 3800, 40, 10, null], ['Encendedor', 'Cigarrería', 1000, 25, 6, null],
-    ['Papel para armar', 'Cigarrería', 900, 20, 5, null],
-    ['Sándwich de miga', 'Comida', 2500, 12, 4, 2], ['Sándwich de milanesa', 'Comida', 4500, 6, 3, 1],
-    ['Pilas AA x2', 'Varios', 2400, 11, 3, 700], ['Cargador USB', 'Varios', 6500, 3, 2, null],
-    ['Auriculares', 'Varios', 7800, 0, 2, null], ['Lapicera', 'Varios', 600, 50, 10, null],
-    ['Pañuelos descartables', 'Varios', 700, 17, 5, null], ['Protector solar', 'Varios', 7200, 6, 2, -20],
-    ['Helado de palito', 'Helados', 1700, 20, 6, 80], ['Helado familiar 1 L', 'Helados', 6800, 2, 2, 25],
+  // ---------- Lista de precios del kiosco ----------
+  // Lista de precios real (Kiosco San Miguel). Se carga una sola vez por equipo: suma los productos que todavía no
+  // estén (se comparan por nombre, sin importar mayúsculas, tildes ni el orden de las palabras) y nunca toca uno que ya existía.
+  // Los productos nacen sin stock: se carga después con el botón + de cada producto.
+  const PRODUCTOS_BASE = [
+    ['Gaseosas y bebidas', [
+      ['Coca-Cola descartable 500 ml', 2300],
+      ['Coca-Cola descartable 1 L', 3500],
+      ['Coca-Cola Zero 1 L', 3600],
+      ['Coca-Cola descartable 1,5 L', 4500],
+      ['Coca-Cola descartable 2,25 L', 5800],
+      ['Coca-Cola descartable 2,5 L', 6200],
+      ['Coca-Cola retornable 2,5 L', 4000],
+      ['Coca-Cola lata', 2000],
+      ['Talca 3 L', 2800],
+      ['Fresh 1,5 L', 2500],
+      ['Fresh 3 L', 2800],
+      ['Villamanaos 2 L', 2300],
+      ['Agua 500 ml', 1200],
+      ['Agua gasificada', 1500],
+      ['Agua saborizada 500 ml', 1500],
+      ['Gatorade', 2500],
+      ['Suerox', 2600],
+      ['Jugo Baggio 1 L', 3000],
+      ['Baggio 200 ml', 1000]
+    ]],
+    ['Cervezas y vinos', [
+      ['Cerveza porrón 1 L', 4500],
+      ['Andes lata 710 ml', 3500],
+      ['Schneider lata 710 ml', 3500],
+      ['Quilmes lata 473 ml', 2500],
+      ['Vino Martín Fierro', 5000],
+      ['Vino Hormiga Negra', 4000],
+      ['Vino Fraternal en caja', 2500],
+      ['Fernet', 18000]
+    ]],
+    ['Almacén y panificados', [
+      ['Arroz Carogran', 900],
+      ['Polenta Agromar 1 kg', 1800],
+      ['Presto Pronta 450 g', 1500],
+      ['Sal fina en bolsa', 1600],
+      ['Sal gruesa en bolsa', 1300],
+      ['Aceite de oliva 250 cc', 9500],
+      ['Semita grande', 400],
+      ['Semita chica', 300],
+      ['Azúcar', 1100],
+      ['Arroz 500 g', 600]
+    ]],
+    ['Galletitas', [
+      ['Oreo', 2500],
+      ['Vocación', 1500]
+    ]],
+    ['Limpieza y otros', [
+      ['Repelente de mosquitos', 1600],
+      ['Raid 360 ml', 9000],
+      ['Harpic Power Plus 500 ml', 5365],
+      ['Plusbelle shampoo o acondicionador', 4495],
+      ['Aceite de girasol Marolio', 4350],
+      ['Leche en polvo La Lechera 800 g', 10000],
+      ['Lasagna Matarazzo', 2900]
+    ]],
+    ['Farmacia', [
+      ['Actron 400', 1000],
+      ['Actron 600', 1000],
+      ['Alikal', 1500],
+      ['Buscapina Duo', 1500],
+      ['Paracetamol 1 g', 1000],
+      ['Carbón activado', 1000],
+      ['Diclofenac 75', 1000],
+      ['Diclofenac piridinol', 2000],
+      ['Refrianex', 1500],
+      ['Diclofenac 100', 1200],
+      ['Ibuprofeno 600', 1500],
+      ['Loperamida', 500],
+      ['Ibuevanol', 1000],
+      ['Novalgina', 1000],
+      ['Next gripe', 1000],
+      ['Tafirol 500', 1000],
+      ['Té paracetamol Vent 3', 2000],
+      ['Uvasal', 1500]
+    ]],
   ];
-  // Segundos lotes de algunos ejemplos: mismo producto, otra fecha de vencimiento [cantidad, días].
-  const EXTRA = {
-    'Yogur bebible': [[24, 12]], 'Leche entera 1 L': [[20, 14]], 'Pan lactal': [[12, 6]], 'Galletitas dulces': [[30, 90]],
-    'Jugo en caja 200 ml': [[20, 60]], 'Mayonesa sachet': [[30, 150]], 'Queso cremoso 200 g': [[8, 20]], 'Gaseosa cola 500 ml': [[24, 200], [12, 20]],
-  };
-  // Promos de algunos ejemplos: [tipo, valor, n, días que dura (null = sin fin)].
-  const PROMOS = {
-    'Alfajor triple': ['combo', 3900, 3, null], 'Gaseosa lima 500 ml': ['pct', 15, 0, null], 'Galletitas dulces': ['pct', 30, 0, 5],
-    'Yogur bebible': ['precio', 1000, 0, 1], 'Agua mineral 500 ml': ['combo', 1800, 2, null], 'Papas fritas 80 g': ['precio', 1500, 0, 7],
-    'Helado de palito': ['combo', 4500, 3, 10],
-  };
-  // Promos de ejemplo: [precio, [[producto, cantidad], ...]]. "Promo N" se numera sola.
-  const COMBOS_EJ = [
-    [6000, [['Cerveza lata 473 ml', 1], ['Sándwich de milanesa', 1]]],
-    [2800, [['Gaseosa cola 500 ml', 1], ['Alfajor triple', 1]]],
-    [5800, [['Sándwich de miga', 2], ['Gaseosa cola 500 ml', 1]]],
-  ];
-  const enDias = n => { const d = new Date(); d.setDate(d.getDate() + n); return ymd(d); };
-  // Borra los ejemplos que haya y carga una lista nueva. Los productos propios no se tocan.
-  function regenerarEjemplos() {
+  const claveNombre = n => n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim().split(' ').sort().join(' ');
+  // Saca los productos y promos de ejemplo de versiones anteriores, también de la nube.
+  function limpiarEjemplos() {
     S.productos.filter(p => p.ejemplo).forEach(p => nubeBorrarProducto(p.id));
     S.productos = S.productos.filter(p => !p.ejemplo);
-    const nuevos = EJEMPLOS.map(([nombre, categoria, precio, stock, stockMin, dias]) => {
-      const lotes = [];
-      if (stock > 0) lotes.push({ id: uid(), cant: stock, venc: dias === null ? '' : enDias(dias) });
-      (EXTRA[nombre] || []).forEach(([cant, d]) => lotes.push({ id: uid(), cant, venc: enDias(d) }));
-      const p = recalc({ id: uid(), nombre, categoria, precio, stockMin, lotes, ejemplo: true, actualizado: Date.now() });
-      const pr = PROMOS[nombre];
-      if (pr) { p.promo = { tipo: pr[0], valor: pr[1] }; if (pr[2]) p.promo.n = pr[2]; if (pr[3] !== null) p.promo.hasta = enDias(pr[3]); }
-      return p;
-    });
-    S.productos.push(...nuevos);
     S.combos.filter(c => c.ejemplo).forEach(c => nubeBorrarCombo(c.id));
     S.combos = S.combos.filter(c => !c.ejemplo);
-    const combos = COMBOS_EJ.map(([precio, its]) => ({
-      id: uid(), nombre: '', precio, ejemplo: true, actualizado: Date.now(),
-      items: its.map(([n, cant]) => ({ productoId: nuevos.find(p => p.nombre === n).id, cant })),
-    }));
-    combos.forEach(c => { c.nombre = nombreNuevoCombo(); S.combos.push(c); });
-    S.armed = null; render();
-    toast('✓ ' + nuevos.length + ' ejemplos');
-    guardar();
-    nuevos.forEach(nubeProducto);
-    combos.forEach(nubeCombo);
   }
-  $('#p-ejemplos').addEventListener('click', regenerarEjemplos);
-  $('#borrar-ej').addEventListener('click', () => {
-    if (S.armed !== 'ejemplos') { S.armed = 'ejemplos'; renderProductos(); return; }
-    const ids = S.productos.filter(p => p.ejemplo).map(p => p.id);
-    S.productos = S.productos.filter(p => !p.ejemplo);
-    S.combos.filter(c => c.ejemplo).forEach(c => nubeBorrarCombo(c.id));
-    S.combos = S.combos.filter(c => !c.ejemplo);
-    S.armed = null; render();
-    toast('Ejemplos borrados');
-    guardar();
-    ids.forEach(nubeBorrarProducto);
-  });
+  let sembrado = false;
+  // persistir=false: sin conexión a la nube todavía; se hace igual, pero se vuelve a revisar cuando llegue la nube.
+  async function sembrarBase(persistir = true) {
+    if (sembrado) return;
+    sembrado = true;
+    try {
+      if (await kv.get('estado', 'lista-precios-1')) return;
+      limpiarEjemplos();
+      const hay = new Set(S.productos.map(p => claveNombre(p.nombre)));
+      const nuevos = [];
+      for (const [categoria, lista] of PRODUCTOS_BASE) for (const [nombre, precio] of lista) {
+        const k = claveNombre(nombre);
+        if (hay.has(k)) continue;
+        hay.add(k);
+        nuevos.push(recalc({ id: 'base-' + k.replace(/ /g, '-'), nombre, categoria, precio, stockMin: 3, lotes: [], actualizado: Date.now() }));
+      }
+      S.productos.push(...nuevos);
+      render(); guardar();
+      nuevos.forEach(nubeProducto);
+      if (persistir) await kv.set('estado', 'lista-precios-1', true); else sembrado = false;
+    } catch (e) { sembrado = false; }
+  }
 
   // ---------- Eventos ----------
   document.addEventListener('click', e => {
     const t = e.target.closest('button');
     if (!t) return;
     // desarmar confirmaciones si se toca otra cosa
-    if (S.armed && !t.matches('[data-anular], #borrar-ej, #p-borrar, [data-borrar-nota], #bk-load, #cb-borrar')) { S.armed = null; render(); pintarBorrar(); }
+    if (S.armed && !t.matches('[data-anular], #p-borrar, [data-borrar-nota], #bk-load, #cb-borrar, #caja-cerrar')) { S.armed = null; render(); pintarBorrar(); }
     if (t.dataset.add) { const p = S.productos.find(x => x.id === t.dataset.add); if (p) sumar(p); }
     else if (t.dataset.mas !== undefined) { S.ticket[+t.dataset.mas].cantidad++; render(); }
     else if (t.dataset.menos !== undefined) { const l = S.ticket[+t.dataset.menos]; if (--l.cantidad <= 0) S.ticket.splice(+t.dataset.menos, 1); render(); }
@@ -1969,7 +2009,18 @@ s { color: var(--muted); font-weight: 400; }
     render();
   });
   $('#caja-fecha').addEventListener('change', e => { if (!e.target.value) return; S.diaCaja = e.target.value; renderCaja(); });
-  $('#caja-hoy').addEventListener('click', () => { S.diaCaja = S.hoy; renderCaja(); });
+  $('#caja-hoy').addEventListener('click', () => { S.diaCaja = S.turno; renderCaja(); });
+  // El botón solo aparece mirando la caja abierta; pide confirmar con un segundo toque.
+  function pintarCerrarCaja() {
+    const b = $('#caja-cerrar'), armed = S.armed === 'cerrar-caja';
+    b.hidden = S.diaCaja !== S.turno;
+    b.className = 'btn' + (armed ? ' armed' : '');
+    b.innerHTML = armed ? '¿Cerrar la caja del ' + fechaMini(S.turno) + '?' : ic('lock') + 'Cerrar caja';
+  }
+  $('#caja-cerrar').addEventListener('click', () => {
+    if (S.armed !== 'cerrar-caja') { S.armed = 'cerrar-caja'; pintarCerrarCaja(); return; }
+    S.armed = null; cerrarCaja();
+  });
   $('#dock-go').addEventListener('click', () => {
     // el encabezado es fijo: se descuenta su alto para que el ticket no quede tapado
     const y = $('#ticket').getBoundingClientRect().top + window.scrollY - document.querySelector('.top').offsetHeight - 8;
@@ -2118,7 +2169,7 @@ s { color: var(--muted); font-weight: 400; }
       const d = JSON.parse(await f.text());
       if (!d || d.app !== 'caja-kiosco') throw new Error('formato');
       for (const [id, url] of Object.entries(d.fotos || {})) await kv.set('fotos', id, await (await fetch(url)).blob());
-      S.productos = d.productos || []; S.combos = d.combos || []; S.dias = d.dias || {}; S.notas = d.notas || {}; normProductos();
+      S.productos = d.productos || []; S.combos = d.combos || []; S.dias = d.dias || {}; S.notas = d.notas || {}; normProductos(); limpiarEjemplos();
       guardar(); render();
       if (nube.uid) subirTodo();
       toast('✓ Copia restaurada');
