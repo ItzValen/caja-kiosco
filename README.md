@@ -4,7 +4,9 @@ App para anotar las ventas del kiosco (efectivo, transferencia o pago dividido),
 
 ## Qué hace
 
-- **Vender:** se arma el ticket tocando productos o con una venta libre, se elige el medio de pago y se calcula el vuelto.
+- **Vender:** se arma el ticket tocando productos o con una venta libre, se elige el medio de pago y se calcula el vuelto. El catálogo está agrupado por categoría y cada una se despliega al tocarla (el equipo recuerda cuáles quedaron abiertas); arriba quedan siempre los más vendidos de los últimos 30 días. Al buscar se ve todo lo que coincide, y Enter suma el primero.
+- **Cambiar un precio al vender:** tocando el precio de una línea del ticket se escribe el nuevo. Si es un producto, pregunta si se actualiza en Productos o es solo para esta venta (en ese caso la línea queda marcada y no se le aplica la promo).
+- **Editar una venta:** el lápiz de cada venta abre la edición: cantidades, precios (con la misma pregunta), agregar productos y medio de pago. Al guardar, el stock se corrige solo y la venta queda marcada como "Editada".
 - **Lista de precios:** la app trae cargada la lista de precios del Kiosco San Miguel (64 productos, desde `PRODUCTOS_BASE` en `index.html`). Se carga una sola vez por equipo: suma los que no estén y no toca los que ya existían con el mismo nombre. Nacen sin stock; se carga con el botón **+** de cada producto.
 - **Productos:** precio, aviso de stock bajo y lotes (cada lote con su cantidad y su fecha de vencimiento), con filtros para lo vencido o por vencer. Al vender se descuenta del lote que vence antes; el botón **+** de cada producto suma un lote nuevo.
 - **Promos:** cada producto puede tener una promo (descuento en %, precio rebajado, o combo tipo 3 por $3.900), con fecha de fin opcional. Se aplica sola en el ticket y queda registrada en la venta.
