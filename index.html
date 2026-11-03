@@ -357,6 +357,8 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
 .search .input, .toolbar .search .input { width: 100%; }
 .search .ic { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
 .search .input { padding-left: 38px; }
+.catalog-toggle { width: 100%; justify-content: space-between; }
+.catalog-toggle[aria-expanded="true"] { border-color: var(--line); background: var(--sunk); }
 .libre { grid-template-columns: minmax(0, 1fr) 96px auto; align-items: center; }
 .seg { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .seg button { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 14px; }
@@ -591,7 +593,8 @@ s { color: var(--muted); font-weight: 400; }
   <section id="v-vender" data-view="vender">
     <div class="counter">
       <div class="panel">
-        <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input class="input" id="busq" type="search" placeholder="Buscar" aria-label="Buscar producto" autocomplete="off"></div>
+        <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input class="input" id="busq" type="search" placeholder="Buscar producto" aria-label="Buscar producto" autocomplete="off"></div>
+        <button class="btn catalog-toggle" id="catalog-toggle" type="button" aria-controls="combos-bar catalog" aria-expanded="false">Mostrar todos los productos</button>
         <div class="combos-bar" id="combos-bar" hidden></div>
         <div class="cats" id="catalog"></div>
         <form class="libre" id="libre">
@@ -914,6 +917,7 @@ s { color: var(--muted); font-weight: 400; }
     share: null,         // reporte armado en la hoja de compartir
     guardandoNota: false,
     catAbiertas: new Set(), // categorías del catálogo desplegadas (se recuerdan en este equipo)
+    catalogoExpandido: false,
     ve: null,            // venta que se está editando (copia)
     cuando: null,        // {fecha, hora} si el ticket es de una venta que se olvidaron de anotar
   };
@@ -1245,6 +1249,10 @@ s { color: var(--muted); font-weight: 400; }
   function renderCatalog() {
     const q = $('#busq').value.trim().toLowerCase();
     const el = $('#catalog');
+    const toggle = $('#catalog-toggle');
+    toggle.hidden = !S.cargado || !S.productos.length;
+    toggle.textContent = S.catalogoExpandido ? 'Ocultar catálogo' : q ? 'Ver catálogo completo' : 'Mostrar todos los productos';
+    toggle.setAttribute('aria-expanded', String(S.catalogoExpandido));
     if (!S.cargado) { el.innerHTML = '<div class="empty">…</div>'; return; }
     if (!S.productos.length) { el.innerHTML = '<div class="empty">' + ic('box') + 'Sin productos</div>'; return; }
     const card = p => '<button type="button" class="prod" data-add="' + esc(p.id) + '">' +
@@ -1259,6 +1267,7 @@ s { color: var(--muted); font-weight: 400; }
       el.innerHTML = list.length ? grilla(list) : '<div class="empty">' + ic('search') + 'Nada con “' + esc(q) + '”</div>';
       return;
     }
+    if (!S.catalogoExpandido) { el.innerHTML = ''; return; }
     const frec = masVendidos(8);
     const grupos = {};
     buscarProductos('').forEach(p => (grupos[p.categoria || SIN_CAT] = grupos[p.categoria || SIN_CAT] || []).push(p));
@@ -1727,7 +1736,7 @@ s { color: var(--muted); font-weight: 400; }
   function renderCombos() {
     const vig = S.combos.filter(comboVigente).sort(porNombre);
     const bar = $('#combos-bar');
-    bar.hidden = !vig.length;
+    bar.hidden = !vig.length || !S.catalogoExpandido || !!$('#busq').value.trim();
     bar.innerHTML = vig.map(c => '<button type="button" class="combo" data-combo="' + esc(c.id) + '">' + ic('tag') +
       '<span class="cn"><b>' + esc(c.nombre) + '</b><small>' + esc(comboTxt(c)) + '</small></span><span class="num">' + money(c.precio) + '</span></button>').join('');
     $('#cb-list').innerHTML = [...S.combos].sort(porNombre).map(c => {
@@ -2336,7 +2345,21 @@ s { color: var(--muted); font-weight: 400; }
   $('#mix-ef').addEventListener('input', onMix('ef'));
   $('#mix-tr').addEventListener('input', onMix('tr'));
   $('#paga').addEventListener('input', renderTicket);
-  $('#busq').addEventListener('input', renderCatalog);
+  $('#busq').addEventListener('input', () => { renderCatalog(); renderCombos(); });
+  $('#catalog-toggle').addEventListener('click', () => {
+    if (S.catalogoExpandido) {
+      S.catalogoExpandido = false;
+      $('#busq').value = '';
+    } else {
+      $('#busq').value = '';
+      const cats = new Set(S.productos.map(p => p.categoria || SIN_CAT));
+      S.catAbiertas = cats;
+      try { localStorage.setItem('kiosco-cats', JSON.stringify([...cats])); } catch (e) {}
+      S.catalogoExpandido = true;
+    }
+    renderCatalog();
+    renderCombos();
+  });
   // Enter en el buscador suma el primero que aparece y deja el buscador listo para el próximo.
   $('#busq').addEventListener('keydown', e => {
     if (e.key !== 'Enter') return;
