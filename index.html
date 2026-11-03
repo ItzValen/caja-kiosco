@@ -157,6 +157,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 .vuelto { display: flex; justify-content: space-between; font-weight: 600; }
 .vuelto.neg { color: var(--danger); }
 .cobrar { flex: 1; min-width: 0; font-size: 17px; padding: 14px; }
+.head-acts { display: flex; align-items: center; gap: 10px; }
 .cobrar-row { display: flex; gap: 8px; }
 .cobrar-row .icon { width: 52px; flex: none; }
 .cuando { display: flex; align-items: center; gap: 8px; background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 4px 4px 4px 10px; font-weight: 600; font-size: 14px; }
@@ -634,7 +635,7 @@ s { color: var(--muted); font-weight: 400; }
         </div>
 
         <div class="panel" style="margin-top:16px">
-          <div class="panel-head"><h2 id="ventas-hoy-t">Hoy</h2><span class="label" id="ventas-hoy-n"></span></div>
+          <div class="panel-head"><h2 id="ventas-hoy-t">Hoy</h2><span class="head-acts"><span class="label" id="ventas-hoy-n"></span><button class="btn sm icon" type="button" data-venta-nueva="turno" aria-label="Agregar una venta que no anoté"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button></span></div>
           <div class="sales" id="ventas-hoy"></div>
         </div>
       </div>
@@ -733,7 +734,7 @@ s { color: var(--muted); font-weight: 400; }
       <button class="btn" id="caja-cerrar" type="button" hidden></button>
       <div class="cols">
         <div class="panel"><h2>Más vendido</h2><div class="top5" id="c-top"></div></div>
-        <div class="panel"><h2>Ventas</h2><div class="sales" id="c-ventas"></div></div>
+        <div class="panel"><div class="panel-head"><h2>Ventas</h2><button class="btn sm icon" type="button" data-venta-nueva="caja" aria-label="Agregar una venta a este día"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button></div><div class="sales" id="c-ventas"></div></div>
       </div>
       <div class="panel" id="notas-panel">
         <div class="panel-head"><h2>Notas</h2><span class="label" id="notas-dia"></span></div>
@@ -1492,22 +1493,26 @@ s { color: var(--muted); font-weight: 400; }
     v.forEach(x => x.items.forEach(i => { const k = i.productoId ? i.productoId + '|' + (i.varianteId || '') : 'libre:' + i.nombre; agg[k] = agg[k] || { nombre: i.nombre, u: 0, t: 0 }; agg[k].u += i.cantidad; agg[k].t += i.subtotal ?? i.cantidad * i.precio; }));
     const top = Object.values(agg).sort((a, b) => b.u - a.u || b.t - a.t).slice(0, 5);
     const notas = [...notasDe(f)].sort((a, b) => a.ts - b.ts);
-    const L = ['*Caja del kiosco*', fechaLarga(f), ''];
+    // Texto para WhatsApp: *negrita*, emojis en vez de rótulos (💵 efectivo, 📱 transferencia) y secciones separadas.
+    const EF = '💵', TR = '📱', RAYA = '━━━━━━━━━━━━━━';
+    const medioEmoji = x => x.medio === 'efectivo' ? EF : x.medio === 'transferencia' ? TR : EF + TR;
+    const detalleMixto = x => x.medio === 'mixto' ? ['      ' + EF + ' ' + money(pagoEf(x)) + ' + ' + TR + ' ' + money(pagoTr(x))] : [];
+    const L = ['🏪 *CAJA DEL KIOSCO*', '📅 ' + fechaLarga(f), ''];
     if (!v.length) L.push('Sin ventas registradas este día.');
     else {
-      L.push('*Resumen*',
-        'Total vendido: ' + money(total) + ' (' + plural(v.length, 'venta', 'ventas') + ', ' + plural(v.reduce((a, x) => a + unid(x), 0), 'unidad', 'unidades') + ')',
-        'Efectivo: ' + money(tEf),
-        'Transferencia: ' + money(tTr));
-      if (nMix) L.push('Ventas divididas: ' + nMix);
-      L.push('Ticket promedio: ' + money(total / v.length), '', '*Lo más vendido*');
-      top.forEach(t => L.push('• ' + t.nombre + ': ' + t.u + ' u. · ' + money(t.t)));
-      L.push('', '*Ventas*');
-      v.forEach(x => L.push(x.hora + ' · ' + descVenta(x) + ' · ' + money(x.total) + ' · ' + medioTxt(x)));
+      const unidades = v.reduce((a, x) => a + unid(x), 0);
+      L.push(RAYA, '💰 *TOTAL  ' + money(total) + '*', '🧾 ' + plural(v.length, 'venta', 'ventas') + ' · ' + plural(unidades, 'unidad', 'unidades'), RAYA, '',
+        EF + '  ' + money(tEf), TR + '  ' + money(tTr));
+      if (nMix) L.push('_(' + plural(nMix, 'venta dividida', 'ventas divididas') + ')_');
+      L.push('📊 Promedio por venta: ' + money(total / v.length), '', '🏆 *Lo más vendido*');
+      const num5 = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'];
+      top.forEach((t, i) => L.push(num5[i] + ' ' + t.nombre + ' — ' + t.u + ' u. · ' + money(t.t)));
+      L.push('', '🧾 *Ventas*');
+      v.forEach(x => L.push('▫️ ' + x.hora + ' · ' + descVenta(x) + ' · *' + money(x.total) + '* ' + medioEmoji(x), ...detalleMixto(x)));
     }
     if (notas.length) {
-      L.push('', '*Anotaciones*');
-      notas.forEach(n => L.push(n.hora + (n.texto ? ' · ' + n.texto : '') + ((n.fotos || []).length ? ' [' + plural(n.fotos.length, 'foto', 'fotos') + ' en la app]' : '')));
+      L.push('', '📝 *Anotaciones*');
+      notas.forEach(n => L.push('▫️ ' + n.hora + (n.texto ? ' · ' + n.texto : '') + ((n.fotos || []).length ? ' 📷 ' + plural(n.fotos.length, 'foto', 'fotos') + ' en la app' : '')));
     }
     const rows = [['Fecha', 'Hora', 'Productos', 'Unidades', 'Total', 'Efectivo', 'Transferencia', 'Medio']];
     v.forEach(x => rows.push([fechaCorta(f), x.hora, descVenta(x), unid(x), csvNum(x.total), csvNum(pagoEf(x)), csvNum(pagoTr(x)), x.medio === 'mixto' ? 'Dividido' : x.medio === 'efectivo' ? 'Efectivo' : 'Transferencia']));
@@ -2008,6 +2013,18 @@ s { color: var(--muted); font-weight: 400; }
     $('#ve-ef').value = v.medio === 'mixto' ? String(pagoEf(v)) : ''; $('#ve-tr').value = '';
     $('#ve-fecha').max = ymd(new Date()) > S.turno ? ymd(new Date()) : S.turno;
     $('#ve-fecha').value = fecha; $('#ve-hora').value = v.hora;
+    mostrarVenta();
+  }
+  // Venta que no se anotó en su momento: arranca vacía, en el día que se está mirando y con la hora de ahora.
+  function abrirVentaNueva(fecha) {
+    S.ve = { nueva: true, fecha, id: uid(), items: [], medio: 'efectivo', mix: { last: 'ef', val: 0 }, precios: {} };
+    $('#venta-t').textContent = 'Agregar una venta';
+    $('#ve-ef').value = ''; $('#ve-tr').value = '';
+    $('#ve-fecha').max = ymd(new Date()) > S.turno ? ymd(new Date()) : S.turno;
+    $('#ve-fecha').value = fecha; $('#ve-hora').value = horaAhora();
+    mostrarVenta();
+  }
+  function mostrarVenta() {
     $('#ve-add').innerHTML = '<option value="">+ Agregar producto</option>' + opcionesVenta().map(o => '<option value="' + esc(o.val) + '">' + esc(o.nombre) + ' · ' + money(o.precio) + '</option>').join('');
     pintarVenta();
     $('#venta-sheet').hidden = false;
@@ -2033,7 +2050,7 @@ s { color: var(--muted); font-weight: 400; }
       (it.productoId && ve.precios[claveIt(it)] !== undefined ? ' <span class="chip ok">También en Productos</span>' : '') + '</small></span>' +
       '<span class="qty"><button type="button" data-ve-menos="' + i + '" aria-label="Restar uno">−</button><span>' + it.cantidad + '</span><button type="button" data-ve-mas="' + i + '" aria-label="Sumar uno">+</button></span>' +
       '<span class="t">' + money(subtotalIt(it)) + '</span></div>').join('') :
-      '<div class="empty">Sin productos. Para sacar todo, anulá la venta.</div>';
+      '<div class="empty">' + (ve.nueva ? 'Agregá los productos de la venta' : 'Sin productos. Para sacar todo, anulá la venta.') + '</div>';
     $('#ve-total').textContent = money(total);
     document.querySelectorAll('[data-vm]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.vm === ve.medio)));
     $('#ve-mix').hidden = ve.medio !== 'mixto';
@@ -2086,13 +2103,23 @@ s { color: var(--muted); font-weight: 400; }
   $('#venta-sheet').addEventListener('click', e => { if (e.target === e.currentTarget) cerrarVenta(); });
   $('#venta-form').addEventListener('submit', e => {
     e.preventDefault();
-    const ve = S.ve, lista = ventasDe(ve.fecha), vieja = lista.find(x => x.id === ve.id);
-    if (!vieja) { cerrarVenta(); toast('Esa venta ya no está', true); return; }
+    const ve = S.ve, lista = ventasDe(ve.fecha), vieja = ve.nueva ? null : lista.find(x => x.id === ve.id);
+    if (!ve.nueva && !vieja) { cerrarVenta(); toast('Esa venta ya no está', true); return; }
     if (!ve.items.length) return;
     const total = totalVe(), pg = pagosVe();
-    const fechaN = $('#ve-fecha').value || ve.fecha, horaN = $('#ve-hora').value || vieja.hora;
-    const cambioCuando = fechaN !== ve.fecha || horaN !== vieja.hora;
+    const fechaN = $('#ve-fecha').value || ve.fecha, horaN = $('#ve-hora').value || (vieja ? vieja.hora : horaAhora());
+    const cambioCuando = ve.nueva || fechaN !== ve.fecha || horaN !== vieja.hora;
     if (cambioCuando && esFutura(fechaN, horaN)) { toast('Esa hora todavía no pasó', true); return; }
+    if (ve.nueva) {
+      const venta = { id: ve.id, ts: tsDe(fechaN, horaN), hora: horaN, total, items: ve.items.map(it => ({ ...it })),
+        medio: pg.tr === 0 ? 'efectivo' : pg.ef === 0 ? 'transferencia' : 'mixto', pagos: { efectivo: pg.ef, transferencia: pg.tr } };
+      S.dias[fechaN] = [...ventasDe(fechaN), venta];
+      cerrarVenta(); render();
+      toast('✓ ' + money(total) + ' · de las ' + horaN + (fechaN !== S.turno ? ' del ' + fechaMini(fechaN) : ''));
+      guardar();
+      nubeCobrar(fechaN, venta);
+      return;
+    }
     const nueva = { ...vieja, items: ve.items.map(it => ({ ...it })), total,
       medio: pg.tr === 0 ? 'efectivo' : pg.ef === 0 ? 'transferencia' : 'mixto', pagos: { efectivo: pg.ef, transferencia: pg.tr }, editada: Date.now() };
     if (cambioCuando) { nueva.ts = tsDe(fechaN, horaN); nueva.hora = horaN; }
@@ -2257,6 +2284,7 @@ s { color: var(--muted); font-weight: 400; }
     }
     else if (t.dataset.cat !== undefined) { alternarCategoria(t.dataset.cat); }
     else if (t.dataset.precio !== undefined) { const l = S.ticket[+t.dataset.precio]; if (l) precioLinea(l); }
+    else if (t.dataset.ventaNueva) { abrirVentaNueva(t.dataset.ventaNueva === 'caja' ? S.diaCaja : S.turno); }
     else if (t.dataset.editarVenta) { const [fecha, id] = t.dataset.editarVenta.split('|'); abrirVenta(fecha, id); }
     else if (t.dataset.veMas !== undefined) { cantidadVe(+t.dataset.veMas, +1); }
     else if (t.dataset.veMenos !== undefined) { cantidadVe(+t.dataset.veMenos, -1); }
