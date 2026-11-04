@@ -1022,7 +1022,7 @@ s { color: var(--muted); font-weight: 400; }
       if (d) { S.productos = d.productos || []; S.combos = d.combos || []; S.dias = d.dias || {}; S.notas = d.notas || {}; }
       // La caja abierta sigue siendo la misma aunque la app se cierre y pase la medianoche.
       const t = await kv.get('estado', 'turno');
-      if (t) S.turno = S.diaCaja = t; else guardarTurno();
+      if (t === '2026-10-30') { S.turno = S.diaCaja = '2026-11-03'; guardarTurno(); } else if (t) S.turno = S.diaCaja = t; else guardarTurno();
       S.modo = 'listo';
     } catch (e) { S.modo = 'error'; }
     S.cargado = true;
