@@ -140,7 +140,7 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 .qty { display: flex; align-items: center; gap: 2px; }
 .qty button { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--line-strong); background: var(--sunk); font-weight: 700; line-height: 1; }
 .qty span { min-width: 26px; text-align: center; font-family: var(--f-num); }
-.line .t { font-family: var(--f-num); font-weight: 600; min-width: 76px; text-align: right; }
+.line .t { font-family: var(--f-num); font-weight: 600; min-width: 76px; text-align: right; } .ve-line .ve-nombre { padding:4px 6px; font-size:15px; font-weight:600; } .ve-line .ve-cambiar { margin-top:6px; padding:5px 7px; font-size:13px; }
 .total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 4px; }
 .total .num { font-size: 30px; font-weight: 600; letter-spacing: -.02em; }
 .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -399,10 +399,10 @@ nav.tabs button { display: inline-flex; align-items: center; gap: 8px; }
 }
 @media (max-width: 560px) {
   .brand h1 { display: none; }
-  .top .wrap > .today { order: 1; margin-right: auto; }
+  .top .wrap { display:grid; grid-template-columns:34px minmax(0,1fr) 44px 44px; gap:8px; align-items:center; } .top .wrap > .brand { grid-column:1; margin:0; } .top .wrap > .today { grid-column:2; order:0; min-width:0; margin:0; } .top .wrap > .tema-btn { grid-column:3; order:0; } .top .wrap > .cuenta-btn { grid-column:4; order:0; } .top .wrap > nav.tabs { grid-column:1 / -1; width:100%; }
   .brand { margin-right: 0; }
   .tema-btn, .cuenta-btn { order: 2; }
-  nav.tabs button { flex: 1 1 0; justify-content: center; padding-inline: 6px; }
+  nav.tabs { grid-column:1 / -1; width:100%; } nav.tabs button { flex: 1 1 0; justify-content: center; padding-inline: 6px; }
   .today .hoy strong { font-size: 17px; }
 }
 @media (pointer: coarse) { .btn.icon { width: 46px; } .btn.sm.icon { width: 40px; } }
@@ -1026,7 +1026,7 @@ s { color: var(--muted); font-weight: 400; }
       S.modo = 'listo';
     } catch (e) { S.modo = 'error'; }
     S.cargado = true;
-    // pide al navegador que no borre los datos para liberar espacio
+    migrarProductosLibresAyer(); // pide al navegador que no borre los datos para liberar espacio
     try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
     render();
     iniciarNube();
@@ -1620,9 +1620,9 @@ s { color: var(--muted); font-weight: 400; }
       s => { nube.pend[nombre] = s.metadata.hasPendingWrites; aplicar(s); S.cargado = true; guardar(); render(); },
       errNube);
     nube.escuchas = [
-      escucha('productos', s => { S.productos = s.docs.filter(d => d.data().nombre).map(d => ({ id: d.id, ...d.data() })); limpiarEjemplos(); if (!s.metadata.fromCache) sembrarBase(); }),
+      escucha('productos', s => { S.productos = s.docs.filter(d => d.data().nombre).map(d => ({ id: d.id, ...d.data() })); limpiarEjemplos(); if (!s.metadata.fromCache) sembrarBase(); migrarProductosLibresAyer(); }),
       escucha('combos', s => { S.combos = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => Array.isArray(c.items)); limpiarEjemplos(); }),
-      escucha('dias', s => { S.dias = {}; s.docs.forEach(d => { S.dias[d.id] = d.data().items || []; }); }),
+      escucha('dias', s => { S.dias = {}; s.docs.forEach(d => { S.dias[d.id] = d.data().items || []; }); migrarProductosLibresAyer(); }),
       escucha('notas', s => { S.notas = {}; s.docs.forEach(d => { S.notas[d.id] = d.data().items || []; }); }),
     ];
     render();
@@ -2051,12 +2051,12 @@ s { color: var(--muted); font-weight: 400; }
     return { ef, tr: r2(total - ef) };
   }
   function pintarVenta() {
-    const ve = S.ve, total = totalVe(), pg = pagosVe();
+    const ve = S.ve, total = totalVe(), pg = pagosVe(); const opcionesCambio = opcionesVenta().map(o => '<option value="' + esc(o.val) + '">' + esc(o.nombre) + ' · ' + money(o.precio) + '</option>').join('');
     $('#ve-items').innerHTML = ve.items.length ? ve.items.map((it, i) =>
-      '<div class="line"><span class="n">' + esc(it.nombre) + '<small>' +
+      '<div class="line ve-line"><span class="n"><input class="input ve-nombre" type="text" required value="' + esc(it.nombre) + '" aria-label="Nombre de esta línea de venta" data-ve-nombre="' + i + '"><small>' +
       '<button type="button" class="precio-btn" data-ve-precio="' + i + '" aria-label="Cambiar precio de ' + esc(it.nombre) + '">' + money(it.precio) + ic('edit') + '</button>' +
       (it.promo ? ' <span class="chip promo">' + ic('tag') + esc(it.promo) + '</span>' : '') +
-      (it.productoId && ve.precios[claveIt(it)] !== undefined ? ' <span class="chip ok">También en Productos</span>' : '') + '</small></span>' +
+      (it.productoId && ve.precios[claveIt(it)] !== undefined ? ' <span class="chip ok">También en Productos</span>' : '') + '</small><select class="input ve-cambiar" aria-label="Reemplazar producto de la venta" data-ve-cambiar="' + i + '"><option value="">Cambiar producto…</option>' + opcionesCambio + '</select></span>' +
       '<span class="qty"><button type="button" data-ve-menos="' + i + '" aria-label="Restar uno">−</button><span>' + it.cantidad + '</span><button type="button" data-ve-mas="' + i + '" aria-label="Sumar uno">+</button></span>' +
       '<span class="t">' + money(subtotalIt(it)) + '</span></div>').join('') :
       '<div class="empty">' + (ve.nueva ? 'Agregá los productos de la venta' : 'Sin productos. Para sacar todo, anulá la venta.') + '</div>';
@@ -2098,7 +2098,7 @@ s { color: var(--muted); font-weight: 400; }
   }
   $('#ve-ef').addEventListener('input', onMixVe('ef'));
   $('#ve-tr').addEventListener('input', onMixVe('tr'));
-  $('#ve-add').addEventListener('change', e => {
+  $('#ve-items').addEventListener('input',e=>{if(e.target.dataset.veNombre===undefined)return;const it=S.ve&&S.ve.items[+e.target.dataset.veNombre];if(it)it.nombre=e.target.value;});$('#ve-items').addEventListener('change',e=>{if(e.target.dataset.veCambiar===undefined)return;const i=+e.target.dataset.veCambiar,[pid,vid]=e.target.value.split('|'),x=pid&&itemDe(pid,vid);e.target.value='';if(!x||!S.ve||!S.ve.items[i])return;const anterior=S.ve.items[i];if(anterior.productoId)delete S.ve.precios[claveIt(anterior)];const nueva={productoId:x.p.id,nombre:x.nombre,cantidad:anterior.cantidad,precio:x.precio};if(x.v)nueva.varianteId=x.v.id;S.ve.items[i]=nueva;pintarVenta();});$('#ve-add').addEventListener('change', e => {
     const [pid, vid] = e.target.value.split('|'), x = pid && itemDe(pid, vid);
     e.target.value = '';
     if (!x) return;
@@ -2225,7 +2225,7 @@ s { color: var(--muted); font-weight: 400; }
       ['Uvasal', 1500]
     ]],
   ];
-  const claveNombre = n => n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim().split(' ').sort().join(' ');
+  function migrarProductosLibresAyer(){const fecha='2026-11-03',libres={};ventasDe(fecha).forEach(v=>(v.items||[]).forEach(it=>{const nombre=String(it.nombre||'').trim(),precio=r2(num(it.precio));if(!it.productoId&&nombre&&precio>0){const k=claveNombre(nombre),previo=libres[k];if(!previo||num(v.ts)>=previo.ts)libres[k]={nombre,precio,ts:num(v.ts)};}}));const existentes=new Set(S.productos.flatMap(p=>[p.nombre,...variantesDe(p).map(v=>nombreDe(p,v))]).map(claveNombre));const nuevos=Object.entries(libres).filter(([k])=>!existentes.has(k)).map(([k,x])=>{let h=2166136261;for(const c of k+'|'+x.precio)h=Math.imul(h^c.charCodeAt(0),16777619);return{id:'libre-'+(h>>>0).toString(36),nombre:x.nombre,categoria:'',precio:x.precio,actualizado:Date.now()};});if(!nuevos.length)return 0;S.productos.push(...nuevos);nuevos.forEach(nubeProducto);guardar();return nuevos.length;}const claveNombre = n => n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim().split(' ').sort().join(' ');
   // Saca los productos y promos de ejemplo de versiones anteriores, también de la nube.
   function limpiarEjemplos() {
     S.productos.filter(p => p.ejemplo).forEach(p => nubeBorrarProducto(p.id));
@@ -2375,7 +2375,7 @@ s { color: var(--muted); font-weight: 400; }
     const nombre = $('#vl-desc').value.trim() || 'Venta libre';
     const precio = num($('#vl-precio').value);
     if (precio <= 0) { $('#vl-precio').focus(); toast('Poné un precio mayor a cero', true); return; }
-    S.ticket.push({ key: uid(), productoId: null, nombre, precio, cantidad: 1 });
+    let producto=S.productos.find(p=>claveNombre(p.nombre)===claveNombre(nombre));if(window.confirm('¿Querés guardar «'+nombre+'» como producto con precio '+money(precio)+'?')){if(!producto){producto={id:uid(),nombre,categoria:'',precio:r2(precio),actualizado:Date.now()};S.productos.push(producto);nubeProducto(producto);guardar();toast('Producto guardado');}else toast('Ya existe ese producto; se usó el que está en Productos');}const linea={key:uid(),productoId:producto?producto.id:null,nombre,precio:r2(precio),cantidad:1};if(producto&&r2(precio)!==precioDe(producto))linea.manual=true;S.ticket.push(linea);
     $('#vl-desc').value = ''; $('#vl-precio').value = '';
     render();
   });
