@@ -899,8 +899,9 @@ s { color: var(--muted); font-weight: 400; }
   const ic = n => '<svg class="ic" aria-hidden="true"><use href="#i-' + n + '"/></svg>';
   const MEDIO_IC = { efectivo: 'cash', transferencia: 'phone', mixto: 'split' };
 
+  const diaInicial = ymd(new Date());
   const S = {
-    hoy: ymd(new Date()),
+    hoy: diaInicial,
     productos: [],       // {id, nombre, categoria, precio, variantes?: [{id, nombre, precio}], promo?}
     combos: [],          // promos con varios productos: {id, nombre, items:[{productoId, varianteId?, cant}], precio, hasta?}
     cbEdit: null, cbItems: [], cbSinFin: true,
@@ -908,8 +909,8 @@ s { color: var(--muted); font-weight: 400; }
     ticket: [],
     medio: 'efectivo',
     filtro: 'todos',
-    turno: ymd(new Date()), // día de la caja abierta: las ventas van ahí hasta tocar "Cerrar caja", aunque pase la medianoche
-    diaCaja: ymd(new Date()),
+    turno: diaInicial,
+    diaCaja: diaInicial,
     editId: null,
     formVars: [],        // variantes que se están editando en el formulario de producto
     armed: null,         // botón de confirmación activo
@@ -1027,9 +1028,11 @@ s { color: var(--muted); font-weight: 400; }
     try {
       const d = await kv.get('estado', 'datos');
       if (d) { S.productos = d.productos || []; S.combos = d.combos || []; S.dias = d.dias || {}; S.notas = d.notas || {}; }
-      // La caja abierta sigue siendo la misma aunque la app se cierre y pase la medianoche.
-      const t = await kv.get('estado', 'turno');
-      if (t === '2026-10-30') { S.turno = S.diaCaja = '2026-11-03'; guardarTurno(); } else if (t) S.turno = S.diaCaja = t; else guardarTurno();
+      const turnoGuardado = await kv.get('estado', 'turno');
+      const ahora = new Date();
+      S.hoy = ymd(ahora);
+      S.turno = S.diaCaja = fechaTurno(ahora, S.hoy, turnoGuardado);
+      if (turnoGuardado !== S.turno) await guardarTurno();
       S.modo = 'listo';
     } catch (e) { S.modo = 'error'; }
     S.cargado = true;
@@ -1039,16 +1042,33 @@ s { color: var(--muted); font-weight: 400; }
     iniciarNube();
   }
 
-  // Cambio de día con la página abierta: cambian las promos que tienen fecha de fin, pero la caja sigue abierta.
-  setInterval(() => {
-    const h = ymd(new Date());
-    if (h === S.hoy) return;
-    S.hoy = h;
-    render();
-  }, 60000);
-
   // ---------- Caja abierta ----------
   const guardarTurno = () => kv.set('estado', 'turno', S.turno).catch(() => toast('No se pudo guardar en este equipo', true));
+
+  function fechaTurno(ahora, hoy, abierto) {
+    if (ahora.getHours() < 3 && abierto === diaAnterior(hoy)) return abierto;
+    return hoy;
+  }
+
+  function actualizarFechaCaja(ahora = new Date()) {
+    if (!S.cargado) return;
+    const hoy = ymd(ahora);
+    // Un cierre manual puede adelantar la caja durante la sesión.
+    if (hoy === S.hoy && S.turno >= hoy) return;
+    const turno = fechaTurno(ahora, hoy, S.turno);
+    if (turno === S.turno && hoy === S.hoy) return;
+    if (S.diaCaja === S.turno) S.diaCaja = turno;
+    S.hoy = hoy;
+    if (turno !== S.turno) {
+      S.turno = turno;
+      guardarTurno();
+    }
+    render();
+  }
+  setInterval(actualizarFechaCaja, 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) actualizarFechaCaja(); });
+  window.addEventListener('pageshow', () => actualizarFechaCaja());
+
   const diaSiguiente = f => { const [y, m, d] = f.split('-').map(Number); return ymd(new Date(y, m - 1, d + 1)); };
   const diaAnterior = f => { const [y, m, d] = f.split('-').map(Number); return ymd(new Date(y, m - 1, d - 1)); };
   const tsDe = (f, h) => { const [y, m, d] = f.split('-').map(Number), [hh, mm] = h.split(':').map(Number); return new Date(y, m - 1, d, hh, mm).getTime(); };
@@ -1169,8 +1189,9 @@ s { color: var(--muted); font-weight: 400; }
   function cerrarVariante() { $('#var-sheet').hidden = true; document.body.style.overflow = ''; }
   function cobrar() {
     if (!S.ticket.length) return;
-    const total = totalTicket();
     const now = new Date();
+    actualizarFechaCaja(now);
+    const total = totalTicket();
     const cu = S.cuando;
     const ts = cu ? (cu.ts ?? tsDe(cu.fecha, cu.hora)) : now.getTime();
     if (ts > now.getTime() + 60000) { toast('Esa hora todavía no pasó', true); return; }
@@ -1224,7 +1245,7 @@ s { color: var(--muted); font-weight: 400; }
 
   function renderHeader() {
     const v = ventasDe(S.turno);
-    $('#hoy-label').textContent = nombreTurno();
+    $('#hoy-label').textContent = S.turno === S.hoy ? 'Hoy · ' + fechaMini(S.hoy) : nombreTurno();
     $('#hoy-total').textContent = money(v.reduce((a, x) => a + num(x.total), 0));
     const st = $('#status');
     const enLaNube = nube.estado === 'dentro';
@@ -2304,7 +2325,10 @@ s { color: var(--muted); font-weight: 400; }
     }
     else if (t.dataset.cat !== undefined) { alternarCategoria(t.dataset.cat); }
     else if (t.dataset.precio !== undefined) { const l = S.ticket[+t.dataset.precio]; if (l) precioLinea(l); }
-    else if (t.dataset.ventaNueva) { abrirVentaNueva(t.dataset.ventaNueva === 'caja' ? S.diaCaja : S.turno); }
+    else if (t.dataset.ventaNueva) {
+      actualizarFechaCaja();
+      abrirVentaNueva(t.dataset.ventaNueva === 'caja' ? S.diaCaja : S.turno);
+    }
     else if (t.dataset.editarVenta) { const [fecha, id] = t.dataset.editarVenta.split('|'); abrirVenta(fecha, id); }
     else if (t.dataset.veMas !== undefined) { cantidadVe(+t.dataset.veMas, +1); }
     else if (t.dataset.veMenos !== undefined) { cantidadVe(+t.dataset.veMenos, -1); }
@@ -2322,6 +2346,7 @@ s { color: var(--muted); font-weight: 400; }
   // "de las 15:30" si es de la caja abierta; "de las 15:30 del 29/10" si es de otro día.
   const cuandoTxt = c => 'de las ' + c.hora + (c.fecha !== S.turno ? ' del ' + fechaMini(c.fecha) : '');
   function abrirCuando() {
+    actualizarFechaCaja();
     const tope = ymd(new Date()) > S.turno ? ymd(new Date()) : S.turno;   // no se puede elegir un día que todavía no llegó
     $('#cu-fecha').max = tope;
     $('#cu-fecha').value = S.cuando ? S.cuando.fecha : S.turno;
@@ -2638,6 +2663,7 @@ s { color: var(--muted); font-weight: 400; }
   $('#nota-form').addEventListener('submit', async e => {
     e.preventDefault();
     if (S.guardandoNota) return;
+    actualizarFechaCaja();
     const texto = $('#nota-texto').value.trim();
     if (!texto && !S.pend.length) { toast('Escribí algo o agregá una foto', true); $('#nota-texto').focus(); return; }
     const fecha = S.diaCaja, ids = [];

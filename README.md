@@ -13,7 +13,8 @@ App para anotar las ventas del kiosco (efectivo, transferencia o pago dividido),
 - **Promos:** cada producto puede tener una promo (descuento en %, precio rebajado, o combo tipo 3 por $3.900), con fecha de fin opcional. Se aplica sola en el ticket y queda registrada en la venta. En un producto con variantes solo puede ser un descuento en %.
 - **Promos con varios productos:** en Productos > Promos se arman "Promo 1", "Promo 2"… (por ejemplo una cerveza + un sándwich por un precio; cada ítem puede ser una variante puntual). Aparecen arriba del catálogo al vender; tocarlas las suma al ticket y al cobrar el precio se reparte entre sus productos, así "lo más vendido" cuenta cada uno.
 - **Caja del día:** total, efectivo, transferencia, lo más vendido, todas las ventas, y anotaciones con fotos. Se cambia de día con las flechas o eligiendo la fecha.
-- **Cerrar caja:** la caja abierta no cambia sola a la medianoche: las ventas y notas siguen yendo a ese día hasta tocar **Cerrar caja** (en Caja, con un segundo toque para confirmar). Recién ahí se abre la del día siguiente. El día abierto se guarda en el equipo (`turno` en IndexedDB).
+- **Cambio de día:** al abrir la app se muestra la caja de hoy. Si quedó abierta la caja de ayer, se conserva hasta las 03:00 según la hora del dispositivo. A partir de esa hora, la app pasa automáticamente a la caja de hoy.
+- **Cerrar caja:** en la pestaña Caja se puede cerrar la caja abierta con un segundo toque para confirmar.
 - **Compartir:** el reporte de caja y la lista de precios (con las variantes), por WhatsApp, como texto o como planilla CSV.
 - **Cuenta y copias:** el botón de persona de la barra superior abre el menú para entrar con Google (o con correo y contraseña) y para guardar o restaurar una copia de seguridad en un archivo `.json`, fotos incluidas.
 
