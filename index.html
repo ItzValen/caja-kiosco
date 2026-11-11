@@ -1060,6 +1060,7 @@ s { color: var(--muted); font-weight: 400; }
     if (S.diaCaja === S.turno) S.diaCaja = turno;
     S.hoy = hoy;
     if (turno !== S.turno) {
+      if (S.armed === 'cerrar-caja') S.armed = null;
       S.turno = turno;
       guardarTurno();
     }
@@ -2435,6 +2436,7 @@ s { color: var(--muted); font-weight: 400; }
     b.innerHTML = armed ? '¿Cerrar la caja del ' + fechaMini(S.turno) + '?' : ic('lock') + 'Cerrar caja';
   }
   $('#caja-cerrar').addEventListener('click', () => {
+    actualizarFechaCaja();
     if (S.armed !== 'cerrar-caja') { S.armed = 'cerrar-caja'; pintarCerrarCaja(); return; }
     S.armed = null; cerrarCaja();
   });
