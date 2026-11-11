@@ -286,7 +286,10 @@ details.correo[open] summary { color: var(--ink); }
 @media (min-width: 600px) { .sheet-bg { align-items: center; } .sheet { border-radius: 16px; } }
 
 /* Barra inferior en el teléfono */
-.dock { display: none; }
+.dock:not([hidden]) { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; align-items: center; gap: 12px; background: var(--surface); border-top: 1px solid var(--line); padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.dock[hidden] { display: none; }
+.dock .info { margin-right: auto; font-size: 14px; }
+.dock .info .num { font-size: 18px; font-weight: 600; display: block; }
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-weight: 600; transition: .2s; pointer-events: none; z-index: 40; max-width: calc(100% - 32px); }
 .toast.on { opacity: 1; transform: translate(-50%, 0); }
 .toast.err { background: var(--danger); color: #fff; }
@@ -633,7 +636,7 @@ s { color: var(--muted); font-weight: 400; }
           </div>
           <div class="cobrar-row">
             <button class="btn icon" id="cuando-btn" type="button" aria-label="Poner otra fecha u hora: venta que me olvidé de anotar"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg></button>
-            <button class="btn primary cobrar" id="cobrar" type="button" disabled>Cobrar</button>
+            <button class="btn primary cobrar" id="cobrar" type="button" disabled hidden>Cobrar</button>
           </div>
         </div>
 
@@ -759,7 +762,7 @@ s { color: var(--muted); font-weight: 400; }
 
 <div class="dock" id="dock" hidden>
   <div class="info"><span id="dock-n">0</span><span class="num" id="dock-total">$ 0</span></div>
-  <button class="btn primary" id="dock-go" type="button">Cobrar<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+  <button class="btn primary" id="dock-go" type="button" disabled>Ver ticket y cobrar<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
 </div>
 <div class="sheet-bg" id="cuenta-sheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="cuenta-t">
@@ -921,6 +924,7 @@ s { color: var(--muted); font-weight: 400; }
     ve: null,            // venta que se está editando (copia)
     cuando: null,        // {fecha, hora} si el ticket es de una venta que se olvidaron de anotar
   };
+  let cobroPreparado = false;
   try { S.catAbiertas = new Set(JSON.parse(localStorage.getItem('kiosco-cats') || '[]')); } catch (e) {}
   const MAX_FOTOS = 6;
 
@@ -1312,6 +1316,8 @@ s { color: var(--muted); font-weight: 400; }
     const incompleto = S.medio === 'mixto' && total > 0 && !(pg.ef > 0 && pg.tr > 0);
     $('#cobrar').disabled = !S.ticket.length || incompleto;
     $('#cobrar').textContent = S.ticket.length ? 'Cobrar ' + money(total) : 'Cobrar';
+    $('#dock-go').disabled = !S.ticket.length || incompleto;
+    $('#dock-go').innerHTML = (cobroPreparado ? 'Cobrar ' + money(total) : 'Ver ticket y cobrar') + (cobroPreparado ? '' : '<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg>');
     $('#vaciar').hidden = !S.ticket.length;
     document.querySelectorAll('[data-medio]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.medio === S.medio)));
     $('#cash-box').hidden = S.medio !== 'efectivo';
@@ -2395,7 +2401,10 @@ s { color: var(--muted); font-weight: 400; }
     S.armed = null; cerrarCaja();
   });
   $('#dock-go').addEventListener('click', () => {
-    // el encabezado es fijo: se descuenta su alto para que el ticket no quede tapado
+    if (cobroPreparado) { cobroPreparado = false; cobrar(); renderTicket(); return; }
+    cobroPreparado = true;
+    renderTicket();
+    // El primer toque lleva al ticket para revisarlo. El segundo registra el cobro.
     const y = $('#ticket').getBoundingClientRect().top + window.scrollY - document.querySelector('.top').offsetHeight - 8;
     window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
   });
