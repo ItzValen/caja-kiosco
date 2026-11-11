@@ -158,8 +158,8 @@ h2 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0
 .vuelto.neg { color: var(--danger); }
 .cobrar { flex: 1; min-width: 0; font-size: 17px; padding: 14px; }
 .head-acts { display: flex; align-items: center; gap: 10px; }
-.cobrar-row { display: flex; gap: 8px; }
-.cobrar-row .icon { width: 52px; flex: none; }
+.hora-venta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) 44px; gap: 6px; }
+.hora-venta .btn { min-height: 44px; padding: 8px 4px; font-size: 13px; }
 .cuando { display: flex; align-items: center; gap: 8px; background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 4px 4px 4px 10px; font-weight: 600; font-size: 14px; }
 .cuando span { flex: 1; min-width: 0; }
 .cuando .btn { color: inherit; }
@@ -614,7 +614,7 @@ s { color: var(--muted); font-weight: 400; }
           <div class="total"><span class="label">Total</span><span class="num" id="t-total">$ 0</span></div>
           <div class="ahorro" id="t-ahorro" hidden></div>
           <div class="cuando" id="t-cuando" hidden>
-            <svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span id="t-cuando-txt"></span>
+            <svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span id="t-cuando-txt" role="status"></span>
             <button class="btn sm icon ghost" id="cuando-x" type="button" aria-label="Volver a la hora de ahora"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
           </div>
           <div class="seg" role="group" aria-label="Medio de pago">
@@ -634,10 +634,13 @@ s { color: var(--muted); font-weight: 400; }
             </div>
             <div class="mix-hint" id="mix-hint"></div>
           </div>
-          <div class="cobrar-row">
-            <button class="btn icon" id="cuando-btn" type="button" aria-label="Poner otra fecha u hora: venta que me olvidé de anotar"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg></button>
-            <button class="btn primary cobrar" id="cobrar" type="button" disabled hidden>Cobrar</button>
+          <div class="hora-venta" role="group" aria-label="Hora de la venta">
+            <button class="btn" type="button" data-hace-minutos="5">Hace 5 min</button>
+            <button class="btn" type="button" data-hace-minutos="10">Hace 10 min</button>
+            <button class="btn" type="button" data-hace-minutos="15">Hace 15 min</button>
+            <button class="btn icon" id="cuando-btn" type="button" aria-label="Elegir fecha y hora de la venta"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg></button>
           </div>
+          <button class="btn primary cobrar" id="cobrar" type="button" disabled hidden>Cobrar</button>
         </div>
 
         <div class="panel" style="margin-top:16px">
@@ -1049,7 +1052,7 @@ s { color: var(--muted); font-weight: 400; }
   const diaSiguiente = f => { const [y, m, d] = f.split('-').map(Number); return ymd(new Date(y, m - 1, d + 1)); };
   const diaAnterior = f => { const [y, m, d] = f.split('-').map(Number); return ymd(new Date(y, m - 1, d - 1)); };
   const tsDe = (f, h) => { const [y, m, d] = f.split('-').map(Number), [hh, mm] = h.split(':').map(Number); return new Date(y, m - 1, d, hh, mm).getTime(); };
-  const horaAhora = () => { const n = new Date(); return pad(n.getHours()) + ':' + pad(n.getMinutes()); };
+  const horaLocal = (n = new Date()) => pad(n.getHours()) + ':' + pad(n.getMinutes());
   // Una venta no puede ser de más adelante que ahora (con un minuto de margen).
   const esFutura = (f, h) => tsDe(f, h) > Date.now() + 60000;
   // "Hoy" mientras la caja abierta es la de hoy; si no, su fecha (por ejemplo después de la medianoche).
@@ -1169,12 +1172,14 @@ s { color: var(--muted); font-weight: 400; }
     const total = totalTicket();
     const now = new Date();
     const cu = S.cuando;
-    if (cu && esFutura(cu.fecha, cu.hora)) { toast('Esa hora todavía no pasó', true); return; }
-    const fecha = cu ? cu.fecha : S.turno;
+    const ts = cu ? (cu.ts ?? tsDe(cu.fecha, cu.hora)) : now.getTime();
+    if (ts > now.getTime() + 60000) { toast('Esa hora todavía no pasó', true); return; }
+    // Los accesos rápidos mantienen la caja abierta; el selector manual permite cambiarla.
+    const fecha = cu && cu.ts === undefined ? cu.fecha : S.turno;
     const pg = pagosActuales();
     const medioVenta = pg.tr === 0 ? 'efectivo' : pg.ef === 0 ? 'transferencia' : 'mixto';
     const venta = {
-      id: uid(), ts: cu ? tsDe(cu.fecha, cu.hora) : now.getTime(), hora: cu ? cu.hora : horaAhora(),
+      id: uid(), ts, hora: cu ? cu.hora : horaLocal(now),
       medio: medioVenta, pagos: { efectivo: pg.ef, transferencia: pg.tr }, total,
       items: S.ticket.flatMap(l => {
         if (l.comboId) {
@@ -2036,7 +2041,7 @@ s { color: var(--muted); font-weight: 400; }
     $('#venta-t').textContent = 'Agregar una venta';
     $('#ve-ef').value = ''; $('#ve-tr').value = '';
     $('#ve-fecha').max = ymd(new Date()) > S.turno ? ymd(new Date()) : S.turno;
-    $('#ve-fecha').value = fecha; $('#ve-hora').value = horaAhora();
+    $('#ve-fecha').value = fecha; $('#ve-hora').value = horaLocal();
     mostrarVenta();
   }
   function mostrarVenta() {
@@ -2122,7 +2127,7 @@ s { color: var(--muted); font-weight: 400; }
     if (!ve.nueva && !vieja) { cerrarVenta(); toast('Esa venta ya no está', true); return; }
     if (!ve.items.length) return;
     const total = totalVe(), pg = pagosVe();
-    const fechaN = $('#ve-fecha').value || ve.fecha, horaN = $('#ve-hora').value || (vieja ? vieja.hora : horaAhora());
+    const fechaN = $('#ve-fecha').value || ve.fecha, horaN = $('#ve-hora').value || (vieja ? vieja.hora : horaLocal());
     const cambioCuando = ve.nueva || fechaN !== ve.fecha || horaN !== vieja.hora;
     if (cambioCuando && esFutura(fechaN, horaN)) { toast('Esa hora todavía no pasó', true); return; }
     if (ve.nueva) {
@@ -2320,12 +2325,20 @@ s { color: var(--muted); font-weight: 400; }
     const tope = ymd(new Date()) > S.turno ? ymd(new Date()) : S.turno;   // no se puede elegir un día que todavía no llegó
     $('#cu-fecha').max = tope;
     $('#cu-fecha').value = S.cuando ? S.cuando.fecha : S.turno;
-    $('#cu-hora').value = S.cuando ? S.cuando.hora : horaAhora();
+    $('#cu-hora').value = S.cuando ? S.cuando.hora : horaLocal();
     $('#cuando-sheet').hidden = false;
     document.body.style.overflow = 'hidden';
     $('#cu-hora').focus();
   }
   function cerrarCuando() { $('#cuando-sheet').hidden = true; document.body.style.overflow = ''; }
+  document.querySelectorAll('[data-hace-minutos]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ts = Date.now() - Number(btn.dataset.haceMinutos) * 60000;
+      const instante = new Date(ts);
+      S.cuando = { fecha: ymd(instante), hora: horaLocal(instante), ts };
+      renderTicket();
+    });
+  });
   $('#cuando-btn').addEventListener('click', abrirCuando);
   $('#cuando-cerrar').addEventListener('click', cerrarCuando);
   $('#cuando-sheet').addEventListener('click', e => { if (e.target === e.currentTarget) cerrarCuando(); });
