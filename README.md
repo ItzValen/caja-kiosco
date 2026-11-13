@@ -14,7 +14,10 @@ App para anotar las ventas del kiosco (efectivo, transferencia o pago dividido),
 - **Promos con varios productos:** en Productos > Promos se arman "Promo 1", "Promo 2"… (por ejemplo una cerveza + un sándwich por un precio; cada ítem puede ser una variante puntual). Aparecen arriba del catálogo al vender; tocarlas las suma al ticket y al cobrar el precio se reparte entre sus productos, así "lo más vendido" cuenta cada uno.
 - **Caja del día:** total, efectivo, transferencia, lo más vendido, todas las ventas, y anotaciones con fotos y edición de texto. Se cambia de día con las flechas o eligiendo la fecha.
 - **Cambio de día:** al abrir la app se muestra la caja de hoy. Si quedó abierta la caja de ayer, se conserva hasta las 03:00 según la hora del dispositivo. A partir de esa hora, la app pasa automáticamente a la caja de hoy.
-- **Compartir:** el reporte de caja (con 💵 efectivo y 📱 transferencia, lo más vendido y cada venta en su línea) y la lista de precios (con las variantes), por WhatsApp, como texto o como planilla CSV.
+- **Cerrar caja:** en la pestaña Caja se puede cerrar la caja abierta con un segundo toque para confirmar.
+- **Historial:** consultá las ventas de los últimos 7 o 30 días, del mes, de todo el historial o de un rango de fechas.
+- **Pago a quien atiende:** el 10 % del total vendido se muestra en Vender, Caja e Historial, y se incluye en los informes de ventas.
+- **Compartir:** desde Caja e Historial podés compartir el informe por WhatsApp o como planilla CSV. Desde Productos también podés compartir la lista de precios con sus variantes.
 - **Cuenta y copias:** el botón de persona de la barra superior abre el menú para entrar con Google (o con correo y contraseña) y para guardar o restaurar una copia de seguridad en un archivo `.json`, fotos incluidas.
 
 ## Dónde quedan los datos

@@ -753,7 +753,7 @@ s { color: var(--muted); font-weight: 400; }
         <div class="tile"><span class="label" style="color:var(--cash)"><svg class="ic" aria-hidden="true"><use href="#i-cash"/></svg>Efectivo</span><span class="num" id="c-ef">$ 0</span><span class="sub" id="c-ef-n"></span></div>
         <div class="tile"><span class="label" style="color:var(--transfer)"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Transf.</span><span class="num" id="c-tr">$ 0</span><span class="sub" id="c-tr-n"></span></div>
       </div>
-
+      <button class="btn" id="caja-cerrar" type="button" hidden></button>
       <div class="cols">
         <div class="panel"><h2>Más vendido</h2><div class="top5" id="c-top"></div></div>
         <div class="panel"><div class="panel-head"><h2>Ventas</h2><button class="btn sm icon" type="button" data-venta-nueva="caja" aria-label="Agregar una venta a este día"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button></div><div class="sales" id="c-ventas"></div></div>
@@ -1128,6 +1128,7 @@ s { color: var(--muted); font-weight: 400; }
     if (S.diaCaja === S.turno) S.diaCaja = turno;
     S.hoy = hoy;
     if (turno !== S.turno) {
+      if (S.armed === 'cerrar-caja') S.armed = null;
       S.turno = turno;
       guardarTurno();
     }
@@ -1145,6 +1146,16 @@ s { color: var(--muted); font-weight: 400; }
   const esFutura = (f, h) => tsDe(f, h) > Date.now() + 60000;
   // "Hoy" mientras la caja abierta es la de hoy; si no, su fecha (por ejemplo después de la medianoche).
   const nombreTurno = () => S.turno === S.hoy ? 'Hoy' : 'Caja ' + fechaMini(S.turno);
+  // Cierra la caja abierta y abre la del día siguiente (o la de hoy, si ya pasaron varios días).
+  function cerrarCaja() {
+    const cerrada = S.turno;
+    S.turno = S.hoy > cerrada ? S.hoy : diaSiguiente(cerrada);
+    S.diaCaja = S.turno;
+    guardarTurno();
+    render();
+    toast('✓ Caja del ' + fechaMini(cerrada) + ' cerrada');
+  }
+
   // ---------- Ticket ----------
   // Promos: viven en el producto ({tipo:'pct'|'precio'|'combo', valor, n?, hasta?}) y se aplican al armar el ticket.
   const promoActiva = p => !!(p && p.promo && (!p.promo.hasta || p.promo.hasta >= S.hoy));
@@ -1490,6 +1501,7 @@ s { color: var(--muted); font-weight: 400; }
     $('#caja-sig').disabled = f >= tope;
     $('#caja-hoy').hidden = f === S.turno;
     $('#caja-hoy').textContent = S.turno === S.hoy ? 'Hoy' : 'Abierta';
+    pintarCerrarCaja();
     const v = ventasDe(f);
     const total = totalVentas(v);
     const tEf = r2(v.reduce((a, x) => a + pagoEf(x), 0)), tTr = r2(v.reduce((a, x) => a + pagoTr(x), 0));
@@ -2564,7 +2576,7 @@ s { color: var(--muted); font-weight: 400; }
     const t = e.target.closest('button');
     if (!t) return;
     // desarmar confirmaciones si se toca otra cosa
-    if (S.armed && !t.matches('[data-anular], #p-borrar, [data-borrar-nota], #bk-load, #cb-borrar')) { S.armed = null; render(); pintarBorrar(); }
+    if (S.armed && !t.matches('[data-anular], #p-borrar, [data-borrar-nota], #bk-load, #cb-borrar, #caja-cerrar')) { S.armed = null; render(); pintarBorrar(); }
     if (t.hasAttribute('data-nuevo-busqueda')) agregarProductoRapido($('#busq').value.trim());
     else if (t.dataset.add) { const p = S.productos.find(x => x.id === t.dataset.add); if (p) sumar(p); }
     else if (t.dataset.addvar) { const [pid, vid] = t.dataset.addvar.split('|'), x = itemDe(pid, vid); cerrarVariante(); if (x) sumar(x.p, x.v); }
@@ -2697,6 +2709,18 @@ s { color: var(--muted); font-weight: 400; }
   $('#caja-hoy').addEventListener('click', () => { S.diaCaja = S.turno; renderCaja(); });
   $('#caja-ant').addEventListener('click', () => { S.diaCaja = diaAnterior(S.diaCaja); renderCaja(); });
   $('#caja-sig').addEventListener('click', () => { S.diaCaja = diaSiguiente(S.diaCaja); renderCaja(); });
+  // El botón solo aparece mirando la caja abierta; pide confirmar con un segundo toque.
+  function pintarCerrarCaja() {
+    const b = $('#caja-cerrar'), armed = S.armed === 'cerrar-caja';
+    b.hidden = S.diaCaja !== S.turno;
+    b.className = 'btn' + (armed ? ' armed' : '');
+    b.innerHTML = armed ? '¿Cerrar la caja del ' + fechaMini(S.turno) + '?' : ic('lock') + 'Cerrar caja';
+  }
+  $('#caja-cerrar').addEventListener('click', () => {
+    actualizarFechaCaja();
+    if (S.armed !== 'cerrar-caja') { S.armed = 'cerrar-caja'; pintarCerrarCaja(); return; }
+    S.armed = null; cerrarCaja();
+  });
   $('#dock-go').addEventListener('click', () => {
     if (cobroPreparado) { cobroPreparado = false; cobrar(); renderTicket(); return; }
     cobroPreparado = true;
